@@ -776,9 +776,23 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   $('lo-close').onclick = closeLoadout;
   $('lo-info-btn').onclick = () => { loInfo = !loInfo; loPick = null; renderLoadout(); };
   $('btn-shop-back').onclick = closeShop;
-  $('btn-topup').onclick = () => {
+  // Admin: nhập mật khẩu để mở nút nạp miễn phí
+  const ADMIN_PASS = 'CongNghiAdmin';
+  const btnTop = $('btn-topup');
+  btnTop.disabled = true;
+  const adminBox = document.createElement('div');
+  adminBox.style.cssText = 'position:fixed;right:6px;bottom:6px;z-index:50;display:flex;gap:4px;opacity:.6';
+  adminBox.innerHTML = '<input id="admin-pass" type="password" placeholder="admin" style="width:80px;font-size:11px;padding:2px 4px"><button id="admin-ok" style="font-size:11px;padding:2px 6px">OK</button>';
+  document.body.appendChild(adminBox);
+  $('admin-ok').onclick = () => {
+    if ($('admin-pass').value === ADMIN_PASS) {
+      btnTop.disabled = false; btnTop.textContent = 'Nạp 1000 xu (admin, miễn phí)';
+      adminBox.remove();
+    } else { $('admin-pass').value = ''; $('admin-pass').placeholder = 'sai'; }
+  };
+  btnTop.onclick = () => {
     wallet.coins += 1000; saveWallet(); renderShop();
-    $('shop-msg').className = 'msg ok'; $('shop-msg').textContent = 'Đã cộng 1000 xu (demo).';
+    $('shop-msg').className = 'msg ok'; $('shop-msg').textContent = 'Đã cộng 1000 xu (admin).';
   };
 
   // ---------- Dựng cảnh 3D ----------
