@@ -302,13 +302,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const tierOf = (p) => Math.min(TIER_MAX, 1 + Math.floor(p / TIER_STEP));
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
-  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
+  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
   const NL_BY_STAR = {   // NL của mech theo số sao: Lancer +2/sao, Paragon +4/sao, Rampart và M.D theo bảng riêng
     kind1: () => 16,
     mech2: () => 32,
     mech3: () => 24,
     mech4: () => 16,
     mech5: () => 16,
+    mech6: () => 32,
   };
   const MAX_UPGRADE = 5, UPGRADE_BASE = 200, UPGRADE_STEP = 100;  // nâng cấp tối đa 5 cấp, cấp đầu 200 xu, mỗi cấp sau đắt hơn 100 xu
   const JET_CHARGES = 2, JET_CHARGE_SEC = 2, JET_UP_V = 20.5, JET_GRAV = 14;  // 2 lần nhảy phản lực (mỗi lần cao khoảng 15 m), hồi sau 2 giây
@@ -339,6 +340,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       name: 'M.D · Hồi máu', price: 800, color: '#3c4550', rarity: 'uncommon', hp: 16100, hpMax: 101400, nl: 16, radius: 1.0, speed: 6, mech: true, aura: true, dome: true, hover: true, growth: 1.132,
       skill: { name: 'Vùng hồi 8 s', type: 'aura', duration: 8, radius: 5, heal: 1879, cooldown: 12 },
     },
+    mech6: {
+      name: 'Puma · Khiên zích zắc', price: 1200, color: '#c77d2e', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 32, radius: 0.9, speed: 7, mech: true,
+      skill: { name: 'Khiên zích zắc 6 s', type: 'wall', dist: 3.5, width: 6, duration: 6, cooldown: 10 },
+    },
     mech5: {
       name: 'Slingshot · Lướt tới', price: 1000, color: '#4a7fb5', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 16, radius: 0.68, speed: 8, mech: true, wheels: true, scale: 0.7,
       skill: { name: 'Lướt 25 m · Húc', type: 'dash', dist: 25, speed: 10, time: 0, cooldown: 6, ram: { min: 26098, max: 29361, mult: 1.5 } },
@@ -351,10 +356,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const IGNITE_T = 3.5, BURN_T = 5, FIRE_GAP = 1.5, BURN_MULT = 1.4;
   const WEAPONS = {
     gun1: { name: 'Autocannon', nl: 2, price: 0, color: '#ff7b3d', desc: '1 nòng xoay · 1 đạn mỗi phát · giữ nút bắn liên thanh · đạn bay nhanh gấp 3.5 lần · 80 viên · hồi đạn 6 s', dmg: 284, cd: 0.0667, barrels: 1, spread: 0, mag: 80, reload: 6, rocket: false, speedMul: 3.5 },
-    gun2: { name: 'RPG', nl: 2, price: 1200, color: '#c2185b', desc: 'Bắn tên lửa · 7 viên mỗi băng · hồi đạn 7 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 7, reload: 7, rocket: true },
+    gun2: { name: 'RPG 4 NL', nl: 4, price: 1200, color: '#c2185b', desc: 'Bắn tên lửa · 7 viên mỗi băng · hồi đạn 7 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 7, reload: 7, rocket: true },
     gun3: { name: 'Thermal Lance', nl: 2, price: 1500, color: '#ff5a1f', desc: 'Bắn nguồn năng lượng mặt trời · 483 ST mỗi giây · cần 100 NL để bắn, tốn 8 NL mỗi giây · hết NL: khóa 6–7 s · không bắn thì hồi 5–6 NL mỗi giây · gây lửa (sau 3.5 s bắn trúng): đối thủ cháy nhận thêm 1.4× ST, lửa tồn tại 5 s sau khi ngừng bắn', dmg: 97, cd: 0.2, barrels: 1, spread: 0, mag: Infinity, reload: 0, fire: true, beam: true, energy: { start: 100, max: 100, drain: 8, regenMin: 5, regenMax: 6, lockMin: 6, lockMax: 7 } },
-    gun5: { name: 'Ember Gun', nl: 2, price: 1600, color: '#6d4c41', desc: 'Đạn vô hình · tầm bắn 30 m · mỗi phát bắn 5 viên, mỗi viên 9787–16312 ST · 6 phát · hồi đạn 5 s', dmg: 13049, cd: 0.8, barrels: 1, spread: 0.08, pellets: 5, dmgMin: 9787, dmgMax: 16312, mag: 6, reload: 5, range: 30, invisible: true },
-    gun4: { name: 'Pulse Cannon', nl: 2, price: 2000, color: '#00b8d4', desc: 'Pháo plasma · 5658 ST mỗi viên · 25 viên · hồi đạn 4 s', dmg: 5658, cd: 0.6, barrels: 1, spread: 0, mag: 25, reload: 4 },
+    gun5: { name: 'Shotgun 4 NL', nl: 4, price: 1600, color: '#6d4c41', desc: 'Đạn vô hình · tầm bắn 30 m · mỗi phát bắn 5 viên, mỗi viên 9787–16312 ST · 6 phát · hồi đạn 5 s', dmg: 13049, cd: 0.8, barrels: 1, spread: 0.08, pellets: 5, dmgMin: 9787, dmgMax: 16312, mag: 6, reload: 5, range: 30, invisible: true },
+    gun4: { name: 'Plasma cannon 4 NL', nl: 4, price: 2000, color: '#00b8d4', desc: 'Pháo plasma · 5658 ST mỗi viên · 25 viên · hồi đạn 4 s', dmg: 5658, cd: 0.6, barrels: 1, spread: 0, mag: 25, reload: 4 },
+    gun6: { name: 'Shotgun 8 NL', nl: 8, price: 1600, color: '#6d4c41', desc: 'Đạn vô hình · tầm bắn 30 m · mỗi phát bắn 5 viên, mỗi viên 9787–16312 ST · 6 phát · hồi đạn 5 s', dmg: 13049, cd: 0.8, barrels: 1, spread: 0.08, pellets: 5, dmgMin: 9787, dmgMax: 16312, mag: 6, reload: 5, range: 30, invisible: true },
+    gun7: { name: 'Plasma cannon 6 NL', nl: 6, price: 2000, color: '#00b8d4', desc: 'Pháo plasma · 5658 ST mỗi viên · 25 viên · hồi đạn 4 s', dmg: 5658, cd: 0.6, barrels: 1, spread: 0, mag: 25, reload: 4 },
+    gun8: { name: 'RPG 6 NL', nl: 6, price: 1200, color: '#c2185b', desc: 'Bắn tên lửa · 7 viên mỗi băng · hồi đạn 7 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 7, reload: 7, rocket: true },
+    gun9: { name: 'Autocannon 4 NL', nl: 4, price: 400, color: '#ff7b3d', desc: '1 nòng xoay · 1 đạn mỗi phát · giữ nút bắn liên thanh · đạn bay nhanh gấp 3.5 lần · 80 viên · hồi đạn 6 s', dmg: 327, cd: 0.0667, barrels: 1, spread: 0, mag: 80, reload: 6, rocket: false, speedMul: 3.5 },
+    gun10: { name: 'Thermal Lance 4 NL', nl: 4, price: 1500, color: '#ff5a1f', desc: 'Bắn nguồn năng lượng mặt trời · 560 ST mỗi giây · cần 100 NL để bắn, tốn 8 NL mỗi giây · hết NL: khóa 6–7 s · không bắn thì hồi 5–6 NL mỗi giây · gây lửa (sau 3.5 s bắn trúng): đối thủ cháy nhận thêm 1.4× ST, lửa tồn tại 5 s sau khi ngừng bắn', dmg: 112, cd: 0.2, barrels: 1, spread: 0, mag: Infinity, reload: 0, fire: true, beam: true, energy: { start: 100, max: 100, drain: 8, regenMin: 5, regenMax: 6, lockMin: 6, lockMax: 7 } },
+    gun11: { name: 'Thermal Lance 6 NL', nl: 6, price: 1500, color: '#ff5a1f', desc: 'Bắn nguồn năng lượng mặt trời · 630 ST mỗi giây · cần 100 NL để bắn, tốn 8 NL mỗi giây · hết NL: khóa 6–7 s · không bắn thì hồi 5–6 NL mỗi giây · gây lửa (sau 3.5 s bắn trúng): đối thủ cháy nhận thêm 1.4× ST, lửa tồn tại 5 s sau khi ngừng bắn', dmg: 126, cd: 0.2, barrels: 1, spread: 0, mag: Infinity, reload: 0, fire: true, beam: true, energy: { start: 100, max: 100, drain: 8, regenMin: 5, regenMax: 6, lockMin: 6, lockMax: 7 } },
   };
   // Nâng cấp súng: mỗi cấp nhân sát thương ×1.2; đủ 5 cấp được 1 sao, mỗi sao nhân sát thương ×1.3. Tối đa 7 sao.
   const MAX_STAR = 7;
@@ -380,6 +391,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech3: { name: 'Juggernaut · Giáp bọc thân (khiên 6 s)', price: MECHS.mech3.price, type: 'mech', color: MECHS.mech3.color, tier: 2 },
     mech4: { name: 'M.D · Hồi máu (vùng hồi 5 m)', price: MECHS.mech4.price, type: 'mech', color: MECHS.mech4.color, tier: 3 },
     mech5: { name: 'Slingshot · Lướt tới 25 m', price: MECHS.mech5.price, type: 'mech', color: MECHS.mech5.color, tier: 4 },
+    mech6: { name: 'Puma · Khiên zích zắc', price: MECHS.mech6.price, type: 'mech', color: MECHS.mech6.color, tier: 5 },
   };
 
   // ---------- Lưu trữ (bọc try/catch) ----------
@@ -1234,7 +1246,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       u.cd = W.cd;
       return true;
     }
-    if (W.pellets) {   // Ember Gun: 1 phát = nhiều viên, mỗi viên ST ngẫu nhiên
+    if (W.pellets) {   // Shotgun: 1 phát = nhiều viên, mỗi viên ST ngẫu nhiên
       if (u.ammo[key] <= 0) return false;
       const f = u.dmg[key] / W.dmg;
       for (let i = 0; i < W.pellets; i++) fire(u, aim + (Math.random() - 0.5) * W.spread, (W.dmgMin + Math.random() * (W.dmgMax - W.dmgMin)) * f, W.cd, W.rocket, W.fire, W.speedMul, W.range, W.invisible);
@@ -1254,10 +1266,26 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
   }
   // Kỹ năng của người chơi: khiên (Rampart), tăng tốc (Paragon), tốc biến (Lancer)
+  // Puma: dựng khiên zích zắc ngẫu nhiên ngay trước mặt, chặn đạn và đường đi trong vài giây
+  function spawnWall(u, s) {
+    const fx = Math.cos(u.aim), fy = Math.sin(u.aim), px = -fy, py = fx;
+    const cx = u.x + fx * s.dist, cy = u.y + fy * s.dist;
+    const N = 7, boxes = [];
+    for (let i = 0; i < N; i++) {
+      const along = -s.width / 2 + (i * s.width) / (N - 1);
+      const zig = (i % 2 ? 1 : -1) * (0.5 + Math.random() * 1.2);
+      const x = cx + px * along + fx * zig, y = cy + py * along + fy * zig;
+      if (x < 1 || y < 1 || x > FIELD_W - 1 || y > FIELD_H - 1) continue;
+      const o = { x: x - 0.45, y: y - 0.45, w: 0.9, h: 0.9, top: 3.0, wall: true };
+      OBST.push(o); boxes.push(o);
+    }
+    game.walls.push({ boxes, until: game.t + s.duration });
+  }
   function useSkill(u) {
     const s = u.kind.skill;
     if (!s || u.down > 0 || u.skillCd > 0 || u.dash) return;
     if (s.type === 'shield') { u.frontLeft = s.duration; u.skillCd = s.cooldown; return; }
+    if (s.type === 'wall') { spawnWall(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'boost') { u.boostLeft = s.duration; u.skillCd = s.cooldown; return; }
     if (s.type === 'aura') { u.auraLeft = s.duration; u.skillCd = s.cooldown; return; }
     u.dash = { ax: Math.cos(u.aim), ay: Math.sin(u.aim), left: s.dist };   // bắt đầu lướt, di chuyển dần theo tốc độ; hồi chiêu tính sau khi lướt xong
@@ -1504,6 +1532,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       for (let k = 0; k < n; k++) if (!stepBullet(b, dt / n)) return false;
       return true;
     });
+    game.walls = game.walls.filter((w) => {
+      if (game.t < w.until) return true;
+      for (const o of w.boxes) { const k = OBST.indexOf(o); if (k >= 0) OBST.splice(k, 1); }
+      return false;
+    });
     game.beams = game.beams.filter((b) => (b.life -= dt) > 0);
     game.particles = game.particles.filter((p) => {
       p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.9; p.vy *= 0.9; p.life -= dt; return p.life > 0;
@@ -1625,6 +1658,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       m.position.set(b.x, 1.5, b.y);
       dyn.add(m);
     }
+    for (const w of game.walls) for (const o of w.boxes) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(o.w, 3.0, o.h), mat('#c77d2e'));
+      m.position.set(o.x + o.w / 2, 1.5, o.y + o.h / 2);
+      dyn.add(m);
+    }
     for (const b of game.beams) {
       const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(b.x1, 1.5, b.y1), new THREE.Vector3(b.x2, 1.5, b.y2)]);
       dyn.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: TEAM_COLOR[b.team] })));
@@ -1639,7 +1677,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function updateCamera(u) {
     const fx = Math.cos(u.aim), fz = Math.sin(u.aim);
     const cp = Math.cos(u.pitch), sp = Math.sin(u.pitch);
-    const lift = (u.alt || 0) * 0.35, back = 6.2, height = 4.4 + lift;   // góc nhìn gần hơn
+    const lift = (u.alt || 0) * 0.35, back = 5.0, height = 3.7 + lift;   // góc nhìn gần hơn
     camera.position.set(u.x - fx * back, height, u.y - fz * back);
     camera.lookAt(u.x + fx * cp * 12, 1.0 + lift + sp * 10, u.y + fz * cp * 12);
   }
@@ -1786,7 +1824,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const pool = BOT_NAMES.slice().sort(() => Math.random() - 0.5); let bi = 0;
     for (const u of units) u.name = u.isP ? playerName : pool[bi++];
     game = {
-      t: 0, over: false, units, player: units[0], bullets: [], beams: [], particles: [],
+      t: 0, over: false, units, player: units[0], bullets: [], beams: [], walls: [], particles: [],
       points: MAP.points.map((p) => ({ x: p.x, y: p.y, owner: null, capTeam: null, prog: 0 })),
       score: { A: 0, B: 0 }, timeLeft: MATCH_LEN,
     };
