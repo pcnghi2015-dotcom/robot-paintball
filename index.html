@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Robot Súng Sơn</title>
+<title>Rogue Unit</title>
 <style>
   :root {
     --bg: #eef3ea; --panel: #ffffff; --ink: #1d2a22; --muted: #5d6f63;
@@ -132,7 +132,7 @@
 
 <div class="wrap">
   <div class="topbar">
-    <h1>🤖 Robot Súng Sơn</h1>
+    <h1>🤖 Rogue Unit</h1>
     <div class="coins" aria-live="polite">💰 <span id="coins">0</span> xu</div>
   </div>
 
@@ -287,51 +287,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAnIp_0M1gMOEWykHRneqTnuInbfiXp-qc",
-    authDomain: "robot-paintball.firebaseapp.com",
-    projectId: "robot-paintball",
-    storageBucket: "robot-paintball.firebasestorage.app",
-    messagingSenderId: "836442476268",
-    appId: "1:836442476268:web:b4ef494086a4c6b4909fc9",
-    measurementId: "G-16V336WZSR"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const fbAuth = firebase.auth(), fbDb = firebase.firestore();
-  const WALLET_KEY = 'robot-paintball-wallet';
-  // Lưu xu/trang bị lên cloud theo tài khoản Google (game gọi hàm này mỗi khi lưu)
-  window.cloudSave = (data) => {
-    const u = fbAuth.currentUser; if (!u) return;
-    fbDb.collection('users').doc(u.uid).set(JSON.parse(JSON.stringify(data))).catch((e) => console.warn('Lưu cloud lỗi', e));
-  };
-  const loginBox = () => document.getElementById('login');
-  const loginMsg = (t) => { document.getElementById('login-msg').textContent = t; };
-  document.getElementById('google-login').onclick = async () => {
-    try { await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-    catch (e) { loginMsg('Đăng nhập lỗi: ' + e.message); }
-  };
-  fbAuth.onAuthStateChanged(async (user) => {
-    if (!user) { loginBox().hidden = false; document.getElementById('google-login').hidden = false; return; }
-    if (sessionStorage.getItem('synced-uid') === user.uid) { loginBox().hidden = true; return; }
-    document.getElementById('google-login').hidden = true;
-    loginBox().hidden = false;
-    loginMsg('Đang tải dữ liệu tài khoản...');
-    try {
-      const snap = await fbDb.collection('users').doc(user.uid).get();
-      if (snap.exists) {
-        localStorage.setItem(WALLET_KEY, JSON.stringify(snap.data()));   // dùng dữ liệu đã lưu trên cloud
-      } else {
-        const local = localStorage.getItem(WALLET_KEY);                  // người mới: đưa tiến độ đang có trên máy lên cloud
-        if (local) await fbDb.collection('users').doc(user.uid).set(JSON.parse(local));
-      }
-      sessionStorage.setItem('synced-uid', user.uid);
-      location.reload();
-    } catch (e) {
-      loginMsg('Không tải được dữ liệu: ' + e.message);
-    }
-  });
-</script>
 <script type="module">
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
@@ -1961,7 +1916,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
   // ---------- Hướng dẫn cho người mới (chỉ hiện khi chưa có ví đã lưu) ----------
   const TUT = [
-    { t: 'Chào mừng đến Robot Súng Sơn', b: 'Chế độ chiếm cứ điểm 5 chọi 5. Chiếm điểm để tạo điểm, đạt 100 điểm hoặc tiêu diệt hết mech đối thủ để thắng.' },
+    { t: 'Chào mừng đến Rogue Unit', b: 'Chế độ chiếm cứ điểm 5 chọi 5. Chiếm điểm để tạo điểm, đạt 100 điểm hoặc tiêu diệt hết mech đối thủ để thắng.' },
     { t: 'Di chuyển và ngắm', b: 'W, S, A, D để đi. Di chuột để xoay góc nhìn, kéo lên hoặc xuống để ngước hoặc cúi. Trên điện thoại: kéo nửa trái để đi, kéo nửa phải để xoay.' },
     { t: 'Bắn và kỹ năng', b: 'Chuột trái để bắn. Space để dùng kỹ năng của mech. Lancer tốc biến 20 m, Paragon tăng tốc, Rampart có khiên bao quanh 6 giây.' },
     { t: 'Chiếm điểm', b: 'Đứng trong vòng điểm để chiếm, mất 7 giây (đông người thì nhanh hơn). Mỗi điểm bạn giữ tạo 1 điểm mỗi 4 giây cho đội.' },
@@ -1995,5 +1950,50 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     <p id="login-msg" style="color:#ffb4b4;min-height:20px"></p>
   </div>
 </div>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAnIp_0M1gMOEWykHRneqTnuInbfiXp-qc",
+    authDomain: "robot-paintball.firebaseapp.com",
+    projectId: "robot-paintball",
+    storageBucket: "robot-paintball.firebasestorage.app",
+    messagingSenderId: "836442476268",
+    appId: "1:836442476268:web:b4ef494086a4c6b4909fc9",
+    measurementId: "G-16V336WZSR"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fbAuth = firebase.auth(), fbDb = firebase.firestore();
+  const WALLET_KEY = 'robot-paintball-wallet';
+  // Lưu xu/trang bị lên cloud theo tài khoản Google (game gọi hàm này mỗi khi lưu)
+  window.cloudSave = (data) => {
+    const u = fbAuth.currentUser; if (!u) return;
+    fbDb.collection('users').doc(u.uid).set(JSON.parse(JSON.stringify(data))).catch((e) => console.warn('Lưu cloud lỗi', e));
+  };
+  const loginBox = () => document.getElementById('login');
+  const loginMsg = (t) => { document.getElementById('login-msg').textContent = t; };
+  document.getElementById('google-login').onclick = async () => {
+    try { await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    catch (e) { loginMsg('Đăng nhập lỗi: ' + e.message); }
+  };
+  fbAuth.onAuthStateChanged(async (user) => {
+    if (!user) { loginBox().hidden = false; document.getElementById('google-login').hidden = false; return; }
+    if (sessionStorage.getItem('synced-uid') === user.uid) { loginBox().hidden = true; return; }
+    document.getElementById('google-login').hidden = true;
+    loginBox().hidden = false;
+    loginMsg('Đang tải dữ liệu tài khoản...');
+    try {
+      const snap = await fbDb.collection('users').doc(user.uid).get();
+      if (snap.exists) {
+        localStorage.setItem(WALLET_KEY, JSON.stringify(snap.data()));   // dùng dữ liệu đã lưu trên cloud
+      } else {
+        const local = localStorage.getItem(WALLET_KEY);                  // người mới: đưa tiến độ đang có trên máy lên cloud
+        if (local) await fbDb.collection('users').doc(user.uid).set(JSON.parse(local));
+      }
+      sessionStorage.setItem('synced-uid', user.uid);
+      location.reload();
+    } catch (e) {
+      loginMsg('Không tải được dữ liệu: ' + e.message);
+    }
+  });
+</script>
 </body>
 </html>
