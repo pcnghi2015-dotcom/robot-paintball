@@ -487,11 +487,62 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const r = m.rarity || 'common';
     return `<span class="rarity r-${r}">${r === 'uncommon' ? 'uncommon' : 'common'}</span>`;
   }
+  function isAdminNow() { return !!(window.adminApi && window.adminApi.isAdmin()); }
+  function isOwnerNow() { return !!(window.adminApi && window.adminApi.isOwner()); }
+  // Bảng quản lý (chỉ chủ tài khoản thấy): admin (Kick, Cấm) và danh sách đang bị cấm (Mở khóa)
+  function ownerPanel() {
+    const wrap = document.createElement('div'); wrap.className = 'shop-sub'; wrap.style.marginTop = '12px';
+    const mk = (r, label, fn) => {
+      const b = document.createElement('button'); b.textContent = label;
+      b.onclick = async () => { try { await fn(r); renderShop(); } catch (e) { alert('Lỗi: ' + e.message); } };
+      return b;
+    };
+    const who = (r) => `${r.name || '(không tên)'} · ${r.email || r.id}`;
+    const adminList = document.createElement('div'), banList = document.createElement('div');
+    adminList.textContent = 'Đang tải...'; banList.textContent = 'Đang tải...';
+    const h1 = document.createElement('b'); h1.textContent = 'Danh sách admin';
+    const h2 = document.createElement('b'); h2.textContent = 'Đang bị cấm nhập mật khẩu'; h2.style.display = 'block'; h2.style.marginTop = '10px';
+    wrap.append(h1, adminList, h2, banList);
+    window.adminApi.listAdmins().then((rows) => {
+      adminList.innerHTML = '';
+      if (!rows.length) adminList.textContent = 'Chưa có admin nào.';
+      for (const r of rows) {
+        const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap';
+        const t = document.createElement('span'); t.style.flex = '1'; t.textContent = who(r);
+        row.append(t,
+          mk(r, 'Kick admin', (x) => (confirm(`Bỏ quyền admin của ${who(x)}?`) ? window.adminApi.kick(x.id) : null)),
+          mk(r, 'Cấm', (x) => window.adminApi.ban(x.id, x.email, x.name)));
+        adminList.appendChild(row);
+      }
+    }).catch((e) => { adminList.textContent = 'Không tải được: ' + e.message; });
+    window.adminApi.listBans().then((rows) => {
+      banList.innerHTML = '';
+      if (!rows.length) banList.textContent = 'Không có ai bị cấm.';
+      for (const r of rows) {
+        const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;align-items:center;margin:4px 0';
+        const t = document.createElement('span'); t.style.flex = '1'; t.textContent = who(r);
+        row.append(t, mk(r, 'Mở khóa', (x) => window.adminApi.unban(x.id)));
+        banList.appendChild(row);
+      }
+    }).catch((e) => { banList.textContent = 'Không tải được: ' + e.message; });
+    return wrap;
+  }
   function renderShop() {
     const box = $('shop'); box.innerHTML = '';
     const th = document.createElement('div'); th.className = 'shop-sub';
     th.textContent = wallet.tier >= TIER_MAX ? `Bậc ${TIER_MAX}/${TIER_MAX} · cao nhất` : `Bậc ${wallet.tier}/${TIER_MAX} · điểm bậc ${wallet.tierPts}/${wallet.tier * TIER_STEP} để lên bậc ${wallet.tier + 1}`;
     box.appendChild(th);
+    if (isAdminNow()) {
+      const tools = document.createElement('div'); tools.className = 'shop-sub';
+      const lab = document.createElement('b'); lab.textContent = 'Admin: ';
+      const b1 = document.createElement('button'); b1.textContent = 'Mua hết mech';
+      b1.onclick = () => { for (const id of Object.keys(SHOP)) if (!wallet.owned.includes(id)) wallet.owned.push(id); saveWallet(); renderShop(); };
+      const b2 = document.createElement('button'); b2.textContent = 'Nâng full sao';
+      b2.onclick = () => { for (const id of Object.keys(MECHS)) wallet.upgrades[id] = maxTotal(id); saveWallet(); renderShop(); };
+      tools.append(lab, b1, ' ', b2);
+      box.appendChild(tools);
+    }
+    if (isOwnerNow()) box.appendChild(ownerPanel());
     for (const [id, it] of Object.entries(SHOP)) {
       if (wallet.owned.includes(id)) continue;
       const m = MECHS[id];
@@ -786,20 +837,22 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   $('lo-close').onclick = closeLoadout;
   $('lo-info-btn').onclick = () => { loInfo = !loInfo; loPick = null; renderLoadout(); };
   $('btn-shop-back').onclick = closeShop;
-  // Admin: nhập mật khẩu để mở nút nạp miễn phí
-  const ADMIN_PASS = 'CongNghiAdmin';
+  // Admin: nhập mật khẩu để trở thành admin vĩnh viễn (lưu trên tài khoản Google đã đăng nhập)
   const btnTop = $('btn-topup');
-  btnTop.disabled = true;
-  const adminBox = document.createElement('div');
-  adminBox.style.cssText = 'position:fixed;right:6px;bottom:6px;z-index:50;display:flex;gap:4px;opacity:.6';
-  adminBox.innerHTML = '<input id="admin-pass" type="password" placeholder="admin" style="width:80px;font-size:11px;padding:2px 4px"><button id="admin-ok" style="font-size:11px;padding:2px 6px">OK</button>';
-  document.body.appendChild(adminBox);
-  $('admin-ok').onclick = () => {
-    if ($('admin-pass').value === ADMIN_PASS) {
-      btnTop.disabled = false; btnTop.textContent = 'Nạp 1000 xu (admin, miễn phí)';
-      adminBox.remove();
-    } else { $('admin-pass').value = ''; $('admin-pass').placeholder = 'sai'; }
-  };
+  if (isAdminNow()) {
+    btnTop.disabled = false; btnTop.textContent = 'Nạp 1000 xu (admin, miễn phí)';
+  } else if (!window.adminApi.isBanned()) {
+    const adminBox = document.createElement('div');
+    adminBox.style.cssText = 'position:fixed;right:6px;bottom:6px;z-index:50;display:flex;gap:4px;align-items:center;opacity:.7';
+    adminBox.innerHTML = '<input id="admin-pass" type="password" placeholder="admin" style="width:90px;font-size:11px;padding:2px 4px"><button id="admin-ok" style="font-size:11px;padding:2px 6px">OK</button><span id="admin-msg" style="font-size:11px;color:#fff"></span>';
+    document.body.appendChild(adminBox);
+    $('admin-ok').onclick = async () => {
+      if (!window.adminApi.isSignedIn()) { $('admin-msg').textContent = 'Đăng nhập trước'; return; }
+      try { await window.adminApi.grant($('admin-pass').value); location.reload(); }
+      catch (e) { $('admin-pass').value = ''; $('admin-msg').textContent = 'Sai mật khẩu'; }
+    };
+    btnTop.disabled = true;
+  }
   btnTop.onclick = () => {
     wallet.coins += 1000; saveWallet(); renderShop();
     $('shop-msg').className = 'msg ok'; $('shop-msg').textContent = 'Đã cộng 1000 xu (admin).';
@@ -1898,7 +1951,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const next = ($('pname').value || '').trim().slice(0, 16) || 'Người chơi';
     const revert = () => { $('pname').value = playerName; };
     if (next === playerName) return;
-    const cost = wallet.nameChanged ? NAME_CHANGE_COST : 0;
+    const cost = wallet.nameChanged && !isAdminNow() ? NAME_CHANGE_COST : 0;
     if (wallet.coins < cost) { revert(); msg.textContent = `Không đủ ${NAME_CHANGE_COST} xu để đổi tên (hiện có ${wallet.coins} xu).`; return; }
     if (cost && !confirm(`Đổi tên sẽ trừ ${cost} xu. Tiếp tục?`)) { revert(); return; }
     wallet.coins -= cost; wallet.nameChanged = true; wallet.name = next; playerName = next; saveWallet();
@@ -2054,13 +2107,64 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   };
   const loginBox = () => document.getElementById('login');
   const loginMsg = (t) => { document.getElementById('login-msg').textContent = t; };
+  // ---- Admin ----
+  const OWNERS = ['pcnghi2015@gmail.com', 'ssv2400231@student.sedbergh.edu.vn'];
+  const sha256hex = async (t) => {
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+    return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, '0')).join('');
+  };
+  const isOwnerUser = (u) => !!u && !!u.email && u.emailVerified === true && OWNERS.includes(u.email.toLowerCase());
+  // Cờ admin lưu trong phiên trình duyệt; quyền thật nằm trong Firestore (rules chặn người thường tự cấp)
+  async function refreshAdminFlags(user) {
+    const prevAdmin = sessionStorage.getItem('is-admin') === '1';
+    const prevBanned = sessionStorage.getItem('is-banned') === '1';
+    if (!user) { sessionStorage.setItem('is-admin', '0'); sessionStorage.setItem('is-owner', '0'); sessionStorage.setItem('is-banned', '0'); return false; }
+    const owner = isOwnerUser(user);
+    let admin = false, banned = false;
+    try { admin = (await fbDb.collection('admins').doc(user.uid).get()).exists; } catch (_) {}
+    try { banned = (await fbDb.collection('bans').doc(user.uid).get()).exists; } catch (_) {}
+    const isAdm = admin || owner;
+    sessionStorage.setItem('is-admin', isAdm ? '1' : '0');
+    sessionStorage.setItem('is-owner', owner ? '1' : '0');
+    sessionStorage.setItem('is-banned', banned ? '1' : '0');
+    return isAdm !== prevAdmin || banned !== prevBanned;
+  }
+  window.adminApi = {
+    isSignedIn: () => !!fbAuth.currentUser,
+    isAdmin: () => sessionStorage.getItem('is-admin') === '1',
+    isOwner: () => sessionStorage.getItem('is-owner') === '1',
+    isBanned: () => sessionStorage.getItem('is-banned') === '1',
+    async ban(uid, email, name) { await fbDb.collection('bans').doc(uid).set({ email: email || '', name: name || '', at: Date.now() }); },
+    async unban(uid) { await fbDb.collection('bans').doc(uid).delete(); },
+    async listBans() { const snap = await fbDb.collection('bans').get(); return snap.docs.map((d) => ({ id: d.id, ...d.data() })); },
+    async grant(pass) {
+      const u = fbAuth.currentUser; if (!u) throw new Error('chưa đăng nhập');
+      const passHash = await sha256hex(pass);
+      await fbDb.collection('admins').doc(u.uid).set({ email: u.email || '', name: u.displayName || '', passHash, at: Date.now() });
+      sessionStorage.setItem('is-admin', '1');
+      return true;
+    },
+    async listAdmins() {
+      const snap = await fbDb.collection('admins').get();
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    },
+    async kick(uid) { await fbDb.collection('admins').doc(uid).delete(); },
+  };
+  window.cloudSave = (data) => {
+    const u = fbAuth.currentUser; if (!u) return;
+    fbDb.collection('users').doc(u.uid).set(JSON.parse(JSON.stringify(data))).catch((e) => console.warn('Lưu cloud lỗi', e));
+  };
   document.getElementById('google-login').onclick = async () => {
     try { await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
     catch (e) { loginMsg('Đăng nhập lỗi: ' + e.message); }
   };
   fbAuth.onAuthStateChanged(async (user) => {
-    if (!user) { loginBox().hidden = false; document.getElementById('google-login').hidden = false; return; }
-    if (sessionStorage.getItem('synced-uid') === user.uid) { loginBox().hidden = true; return; }
+    if (!user) { loginBox().hidden = false; document.getElementById('google-login').hidden = false; await refreshAdminFlags(null); return; }
+    if (sessionStorage.getItem('synced-uid') === user.uid) {
+      loginBox().hidden = true;
+      if (await refreshAdminFlags(user)) location.reload();
+      return;
+    }
     document.getElementById('google-login').hidden = true;
     loginBox().hidden = false;
     loginMsg('Đang tải dữ liệu tài khoản...');
@@ -2073,6 +2177,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         if (local) await fbDb.collection('users').doc(user.uid).set(JSON.parse(local));
       }
       sessionStorage.setItem('synced-uid', user.uid);
+      await refreshAdminFlags(user);
       location.reload();
     } catch (e) {
       loginMsg('Không tải được dữ liệu: ' + e.message);
