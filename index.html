@@ -677,7 +677,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const wh = document.createElement('div'); wh.className = 'shop-sub';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     box.appendChild(wh);
-    for (const [id, w] of Object.entries(WEAPONS)) {
+    // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon' };
+    const gunGroup = (id, w) => (w.energy ? 0 : GUN_RARITY[id] === 'uncommon' ? 1 : 2);
+    const gunList = Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl);
+    for (const [id, w] of gunList) {
       const row = document.createElement('div'); row.className = 'shop-row';
       const owned = wallet.weapons.owned.includes(id);
       const u = wUp(id);
