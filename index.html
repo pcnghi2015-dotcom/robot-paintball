@@ -487,6 +487,47 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const r = m.rarity || 'common';
     return `<span class="rarity r-${r}">${r === 'uncommon' ? 'uncommon' : 'common'}</span>`;
   }
+  let adminMenuOpen = false, adminView = 'main';
+  // Menu admin: Danh sách người chơi / Danh sách người dùng admin / Vật phẩm
+  function adminMenu() {
+    const wrap = document.createElement('div'); wrap.className = 'shop-sub';
+    wrap.style.cssText = 'border:1px solid #d5dfd2;border-radius:10px;padding:10px;margin-bottom:10px';
+    const btn = (label, fn) => { const b = document.createElement('button'); b.textContent = label; b.style.margin = '3px'; b.onclick = fn; return b; };
+    const go = (v) => () => { adminView = v; renderShop(); };
+    const act = (fn) => () => { fn(); saveWallet(); renderShop(); };
+    const bar = document.createElement('div');
+    // Hai danh sách chỉ hiện với chủ tài khoản (pcnghi2015 / ssv2400231); admin thường chỉ thấy Vật phẩm
+    if (!isOwnerNow() && (adminView === 'players' || adminView === 'admins')) adminView = 'items';
+    if (isOwnerNow()) bar.append(btn('Danh sách người chơi', go('players')), btn('Danh sách người dùng admin', go('admins')));
+    bar.append(btn('Vật phẩm', go('items')), btn('Đóng', () => { adminMenuOpen = false; renderShop(); }));
+    wrap.appendChild(bar);
+    const body = document.createElement('div'); body.style.marginTop = '8px';
+    if (adminView === 'items') {
+      body.append(
+        btn('Mua hết mech', act(() => { for (const id of Object.keys(MECHS)) if (!wallet.owned.includes(id)) wallet.owned.push(id); })),
+        btn('Mua hết gun', act(() => { for (const id of Object.keys(WEAPONS)) if (!wallet.weapons.owned.includes(id)) wallet.weapons.owned.push(id); })),
+        btn('Nâng full sao', act(() => { for (const id of Object.keys(MECHS)) wallet.upgrades[id] = maxTotal(id); })));
+    } else if (adminView === 'players') {
+      const list = document.createElement('div'); list.textContent = 'Đang tải...'; body.appendChild(list);
+      window.adminApi.listPlayers().then((rows) => {
+        list.innerHTML = '';
+        if (!rows.length) list.textContent = 'Chưa có người chơi.';
+        for (const r of rows) {
+          const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;align-items:center;margin:4px 0';
+          const t = document.createElement('span'); t.style.flex = '1';
+          t.textContent = `${r.name || '(không tên)'} · ${r.coins ?? 0} xu · ${String(r.id).slice(0, 8)}`;
+          row.appendChild(t);
+          if (isOwnerNow()) row.appendChild(btn('Cấm', async () => { try { await window.adminApi.ban(r.id, '', r.name); renderShop(); } catch (e) { alert('Lỗi: ' + e.message); } }));
+          list.appendChild(row);
+        }
+      }).catch((e) => { list.textContent = 'Không tải được: ' + e.message; });
+    } else if (adminView === 'admins') {
+      if (isOwnerNow()) body.appendChild(ownerPanel());
+      else body.textContent = 'Chỉ chủ tài khoản xem được danh sách admin.';
+    }
+    wrap.appendChild(body);
+    return wrap;
+  }
   function isAdminNow() { return !!(window.adminApi && window.adminApi.isAdmin()); }
   function isOwnerNow() { return !!(window.adminApi && window.adminApi.isOwner()); }
   // Bảng quản lý (chỉ chủ tài khoản thấy): admin (Kick, Cấm) và danh sách đang bị cấm (Mở khóa)
@@ -533,16 +574,12 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     th.textContent = wallet.tier >= TIER_MAX ? `Bậc ${TIER_MAX}/${TIER_MAX} · cao nhất` : `Bậc ${wallet.tier}/${TIER_MAX} · điểm bậc ${wallet.tierPts}/${wallet.tier * TIER_STEP} để lên bậc ${wallet.tier + 1}`;
     box.appendChild(th);
     if (isAdminNow()) {
-      const tools = document.createElement('div'); tools.className = 'shop-sub';
-      const lab = document.createElement('b'); lab.textContent = 'Admin: ';
-      const b1 = document.createElement('button'); b1.textContent = 'Mua hết mech';
-      b1.onclick = () => { for (const id of Object.keys(SHOP)) if (!wallet.owned.includes(id)) wallet.owned.push(id); saveWallet(); renderShop(); };
-      const b2 = document.createElement('button'); b2.textContent = 'Nâng full sao';
-      b2.onclick = () => { for (const id of Object.keys(MECHS)) wallet.upgrades[id] = maxTotal(id); saveWallet(); renderShop(); };
-      tools.append(lab, b1, ' ', b2);
-      box.appendChild(tools);
+      const tog = document.createElement('button'); tog.textContent = '⚙ Admin';
+      tog.style.cssText = 'font-size:12px;padding:4px 10px;margin:6px 0';
+      tog.onclick = () => { adminMenuOpen = !adminMenuOpen; adminView = 'main'; renderShop(); };
+      box.appendChild(tog);
+      if (adminMenuOpen) box.appendChild(adminMenu());
     }
-    if (isOwnerNow()) box.appendChild(ownerPanel());
     for (const [id, it] of Object.entries(SHOP)) {
       if (wallet.owned.includes(id)) continue;
       const m = MECHS[id];
@@ -2136,6 +2173,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     isBanned: () => sessionStorage.getItem('is-banned') === '1',
     async ban(uid, email, name) { await fbDb.collection('bans').doc(uid).set({ email: email || '', name: name || '', at: Date.now() }); },
     async unban(uid) { await fbDb.collection('bans').doc(uid).delete(); },
+    async listPlayers() {
+      if (sessionStorage.getItem('is-owner') !== '1') throw new Error('Chỉ chủ tài khoản được xem danh sách người chơi');
+      const snap = await fbDb.collection('users').get(); return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    },
     async listBans() { const snap = await fbDb.collection('bans').get(); return snap.docs.map((d) => ({ id: d.id, ...d.data() })); },
     async grant(pass) {
       const u = fbAuth.currentUser; if (!u) throw new Error('chưa đăng nhập');
