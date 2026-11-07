@@ -246,6 +246,7 @@
     <div class="stage" id="stage">
       <canvas id="cv" width="800" height="500"></canvas>
       <canvas id="ov" width="800" height="500"></canvas>
+      <div class="crosshair"><i></i></div>
       <div class="hud"><span class="pill" id="hud-me">Bạn 0</span><span class="pill" id="hud-time">60</span><span class="pill" id="hud-bot">Máy 0</span><span class="pill" id="hud-ammo"></span></div>
       <button id="btn-leave-hud" class="hud-quit">Thoát</button>
       <button id="btn-jet" class="hud-jet" hidden>Nhảy phản lực</button>
@@ -367,7 +368,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const tierOf = (p) => Math.min(TIER_MAX, 1 + Math.floor(p / TIER_STEP));
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
-  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
+  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
   const NL_BY_STAR = {   // NL của mech theo số sao: Lancer +2/sao, Paragon +4/sao, Rampart và M.D theo bảng riêng
     kind1: () => 16,
     mech2: () => 32,
@@ -377,6 +378,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech6: () => 32,
     mech7: () => 24,
     ares: () => 24,
+    shadow: () => 24,
   };
   const MAX_UPGRADE = 5, UPGRADE_BASE = 200, UPGRADE_STEP = 100;  // nâng cấp tối đa 5 cấp, cấp đầu 200 xu, mỗi cấp sau đắt hơn 100 xu
   const JET_CHARGES = 2, JET_CHARGE_SEC = 2, JET_UP_V = 20.5, JET_GRAV = 14;  // 2 lần nhảy phản lực (mỗi lần cao khoảng 15 m), hồi sau 2 giây
@@ -422,6 +424,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     ares: {
       name: 'Ares · Khiên đỡ đòn', price: 1000, color: '#8a9a5b', rarity: 'uncommon', hp: 18000, hpMax: 115000, nl: 24, radius: 1.0, speed: 5, mech: true,
       skill: { name: 'Khiên đỡ đòn 8 s', type: 'pshield', duration: 8, hp: 30000, cooldown: 12 },
+    },
+    shadow: {
+      name: 'Shadow · Tàng hình', price: 1200, color: '#2a2f3a', rarity: 'uncommon', hp: 13000, hpMax: 82000, nl: 24, radius: 0.9, speed: 8, mech: true,
+      skill: { name: 'Tàng hình 6 s', type: 'cloak', duration: 6, cooldown: 14 },
     },
   };
   // Súng: trang bị tối đa MAX_WEAPONS khẩu cho cả biệt đội
@@ -475,6 +481,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech6: { name: 'Puma · Khiên zích zắc', price: MECHS.mech6.price, type: 'mech', color: MECHS.mech6.color, tier: 2 },
     mech7: { name: 'Guardian · System Crash', price: MECHS.mech7.price, type: 'mech', color: MECHS.mech7.color, tier: 2 },
     ares: { name: 'Ares · Khiên đỡ đòn', price: MECHS.ares.price, type: 'mech', color: MECHS.ares.color, tier: 2 },
+    shadow: { name: 'Shadow · Tàng hình', price: MECHS.shadow.price, type: 'mech', color: MECHS.shadow.color, tier: 2 },
   };
 
   // ---------- Lưu trữ (bọc try/catch) ----------
@@ -1439,7 +1446,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     for (const k of loadout) if (WEAPONS[widOf[k]].energy) energy[k] = WEAPONS[widOf[k]].energy.max;
     const u = {
       team, kind, kindId, isP: !!isPlayer, sp, x: sp.x, y: sp.y, aim: team === 'A' ? 0 : Math.PI, pitch: 0,
-      alt: 0, vz: 0, jetFuel: JET_CHARGES, dashLeft: 0, skillCd: 0, boostLeft: 0, frontLeft: 0, auraLeft: 0, aresLeft: 0, aresHP: 0,
+      alt: 0, vz: 0, jetFuel: JET_CHARGES, dashLeft: 0, skillCd: 0, boostLeft: 0, frontLeft: 0, auraLeft: 0, aresLeft: 0, aresHP: 0, cloakLeft: 0,
       hp: hpMax, maxHp: hpMax, down: 0, guard: GUARD_TIME, cd: 0,
       loadout, widOf, hands, cdH: { R: 0, L: 0 }, wIdx: 0, ammo, dmg, reloadT: {}, energy, lockT: {}, gunOn: {}, firing: {}, reloadReq: {}, fireFirst: 0, fireLast: -99, burnUntil: 0, burning: false,
       ai: { think: 0, goal: null, target: null, offX: 0, offY: 0 },
@@ -1474,8 +1481,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     for (const o of OBST) if (x + r > o.x && x - r < o.x + o.w && y + r > o.y && y - r < o.y + o.h) t = Math.max(t, o.top);
     return t;
   }
-  function blockedBullet(x, y) {
-    return OBST.some((o) => o.top >= 1.5 && x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h);
+  // Vật cản chỉ chặn đạn ở độ cao thấp hơn đỉnh của nó (đạn bắn lên trời sẽ bay qua)
+  function blockedBullet(x, y, z) {
+    const hz = z === undefined ? 1.5 : z;
+    return OBST.some((o) => o.top > hz && x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h);
   }
   function moveUnit(u, dx, dy, dt) {
     if (dx && dy) { dx *= Math.SQRT1_2; dy *= Math.SQRT1_2; }
@@ -1501,8 +1510,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
   // ---------- Bắn ----------
   function fire(u, aim, dmg, cd, rocket, burn, spdMul, range, invisible, tracer) {
-    const c = Math.cos(aim), s = Math.sin(aim);
-    game.bullets.push({ x: u.x + c * 1.3, y: u.y + s * 1.3, vx: c * BULLET_SPEED * (spdMul || 1), vy: s * BULLET_SPEED * (spdMul || 1), life: range ? range / (BULLET_SPEED * (spdMul || 1)) : BULLET_LIFE, team: u.team, dmg, rocket, burn: !!burn, invisible: !!invisible, tracer: !!tracer, shooter: u });
+    // Đạn bay theo đúng hướng ngắm 3D: góc ngẩng/cúi (pitch) quyết định đạn bay lên trời hay xuống đất
+    const P = u.pitch || 0, sp = BULLET_SPEED * (spdMul || 1), cp = Math.cos(P);
+    const c = Math.cos(aim) * cp, s = Math.sin(aim) * cp;
+    game.bullets.push({ x: u.x + c * 1.3, y: u.y + s * 1.3, z: 1.5 + (u.alt || 0), vx: c * sp, vy: s * sp, vz: Math.sin(P) * sp, life: range ? range / sp : BULLET_LIFE, team: u.team, dmg, rocket, burn: !!burn, invisible: !!invisible, tracer: !!tracer, shooter: u });
     u.cd = cd;
   }
   // Thermal Lance: tia chùm trúng ngay mục tiêu đầu tiên theo đường ngắm (không phải đạn)
@@ -1523,17 +1534,26 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     else splat(e.x, e.y, '#9fd4ff');
   }
   function beamShot(u, aim, dmg, burn, range) {
-    const c = Math.cos(aim), s = Math.sin(aim), R = range || 60;
+    // Tia theo đúng hướng ngắm 3D (pitch): nhìn lên thì tia bay lên trời, nhìn xuống thì dừng ở mặt đất
+    const P = u.pitch || 0, cp = Math.cos(P), sp = Math.sin(P);
+    const ca = Math.cos(aim), sa = Math.sin(aim), R = range || 60;
+    const z0 = 1.5 + (u.alt || 0);
     let hit = null, bestT = R;
+    if (sp < -1e-3) bestT = Math.min(bestT, z0 / -sp);
     for (const e of game.units) {
-      if (e.team === u.team || e.down > 0 || (e.alt || 0) > 1.5) continue;
+      if (e.team === u.team || e.down > 0 || (e.alt || 0) > 1.5 || (e.cloakLeft || 0) > 0) continue;
       const dx = e.x - u.x, dy = e.y - u.y;
-      const t = dx * c + dy * s;
-      if (t < 0 || t > bestT) continue;
-      if (Math.abs(dx * s - dy * c) < e.kind.radius + 0.3) { hit = e; bestT = t; }
+      const h = dx * ca + dy * sa;
+      if (h < 0 || Math.abs(dx * sa - dy * ca) >= e.kind.radius + 0.3) continue;
+      const t = h / Math.max(cp, 1e-3);
+      if (t > bestT) continue;
+      const z = z0 + t * sp;
+      if (z < 0 || z > 3.0) continue;
+      hit = e; bestT = t;
     }
-    const ex = u.x + c * bestT, ey = u.y + s * bestT;
-    game.beams.push({ x1: u.x + c * 1.3, y1: u.y + s * 1.3, x2: ex, y2: ey, team: u.team, life: 0.2 });
+    const ex = u.x + ca * cp * bestT, ey = u.y + sa * cp * bestT, ez = Math.max(0, z0 + sp * bestT);
+    const c = ca * cp, s = sa * cp;
+    game.beams.push({ x1: u.x + c * 1.3, y1: u.y + s * 1.3, z1: z0 + sp * 1.3, x2: ex, y2: ey, z2: ez, team: u.team, life: 0.2 });
     if (!hit) return;
     if (hit.guard > 0) { splat(ex, ey, '#bfe9ff'); return; }
     if (hit.frontLeft > 0) { splat(ex, ey, '#9fd4ff'); return; }
@@ -1555,7 +1575,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function mortarTarget(u, aim) {
     let best = null, bs = Infinity;
     for (const e of game.units) {
-      if (e.team === u.team || e.down !== 0 || (e.alt || 0) > 2.5) continue;
+      if (e.team === u.team || e.down !== 0 || (e.alt || 0) > 2.5 || (e.cloakLeft || 0) > 0) continue;
       const d = Math.hypot(e.x - u.x, e.y - u.y);
       if (d > 70) continue;
       let da = Math.atan2(e.y - u.y, e.x - u.x) - aim;
@@ -1572,7 +1592,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (s.t < s.rise) { const k = s.t / s.rise; s.z = s.height * (1 - (1 - k) * (1 - k)); return true; }
     s.z -= (s.height / s.rise) * dt;
     for (const e of game.units) {
-      if (e.team === s.team || e.down !== 0) continue;
+      if (e.team === s.team || e.down !== 0 || (e.cloakLeft || 0) > 0) continue;
       if (Math.hypot(s.x - e.x, s.y - e.y) < e.kind.radius + 0.4 && s.z <= (e.alt || 0) + 2.0) { explodeShell(s); return false; }
     }
     if (s.z <= 0) { s.z = 0; explodeShell(s); return false; }
@@ -1581,7 +1601,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function explodeShell(s) {
     splat(s.x, s.y, '#ffb74d');
     for (const e of game.units) {
-      if (e.team === s.team || e.down !== 0 || (e.alt || 0) > 2.5) continue;
+      if (e.team === s.team || e.down !== 0 || (e.alt || 0) > 2.5 || (e.cloakLeft || 0) > 0) continue;
       if (Math.hypot(e.x - s.x, e.y - s.y) > s.radius + e.kind.radius) continue;
       if (e.guard > 0) { splat(e.x, e.y, '#bfe9ff'); continue; }
       e.hp -= s.dmg;
@@ -1669,6 +1689,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (!s || u.down > 0 || u.skillCd > 0 || u.dash) return;
     if (s.type === 'crash') { crash(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'pshield') { u.aresLeft = s.duration; u.aresHP = s.hp; u.skillCd = s.cooldown; return; }
+    if (s.type === 'cloak') { u.cloakLeft = s.duration; u.skillCd = s.cooldown; return; }
     if (s.type === 'shield') { u.frontLeft = s.duration; u.skillCd = s.cooldown; return; }
     if (s.type === 'wall') { spawnWall(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'boost') { u.boostLeft = s.duration; u.skillCd = s.cooldown; return; }
@@ -1684,7 +1705,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const nx = u.x + d.ax * step, ny = u.y + d.ay * step;
     if (blocked(nx, ny, u.kind.radius, 0)) { endDash(u); return; }
     u.x = nx; u.y = ny; d.left -= step;
-    const e = game.units.find((e) => e.team !== u.team && e.down === 0 && (e.alt || 0) <= 1.5 &&
+    const e = game.units.find((e) => e.team !== u.team && e.down === 0 && (e.alt || 0) <= 1.5 && !((e.cloakLeft || 0) > 0) &&
       Math.hypot(nx - e.x, ny - e.y) < u.kind.radius + e.kind.radius + 0.2);
     if (e) {
       endDash(u);
@@ -1750,7 +1771,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       ai.think = 0.7 + Math.random() * 0.7;
       ai.offX = (Math.random() - 0.5) * 5; ai.offY = (Math.random() - 0.5) * 5;
       let best = null, bd = Infinity;
-      for (const e of game.units) if (e.team !== u.team && e.down === 0) {
+      for (const e of game.units) if (e.team !== u.team && e.down === 0 && !((e.cloakLeft || 0) > 0)) {   // mech tàng hình không bị bot ngắm
         const d = Math.hypot(e.x - u.x, e.y - u.y);
         if (d < bd) { bd = d; best = e; }
       }
@@ -1853,7 +1874,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function respawn(u) {
     u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null;
-    u.alt = 0; u.vz = 0; u.jetFuel = JET_CHARGES; u.frontLeft = 0; u.boostLeft = 0; u.auraLeft = 0; u.aresLeft = 0; u.aresHP = 0;
+    u.alt = 0; u.vz = 0; u.jetFuel = JET_CHARGES; u.frontLeft = 0; u.boostLeft = 0; u.auraLeft = 0; u.aresLeft = 0; u.aresHP = 0; u.cloakLeft = 0;
     u.ammo = {}; u.reloadT = {}; u.wIdx = 0; u.burning = false; u.burnUntil = 0; u.fireLast = -99;
     for (const k of u.loadout) u.ammo[k] = WEAPONS[u.widOf[k]].mag;
     u.energy = {}; u.lockT = {}; u.gunOn = {}; u.firing = {};
@@ -1960,14 +1981,15 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   // Di chuyển một đạn trong bước nhỏ (đạn nhanh không xuyên qua mục tiêu). false = đạn đã biến mất.
   function stepBullet(b, dt) {
-    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
-      if (b.life <= 0 || b.x < 0 || b.y < 0 || b.x > FIELD_W || b.y > FIELD_H) return false;
-      if (blockedBullet(b.x, b.y)) { splat(b.x, b.y, '#ffffff'); return false; }
+    b.x += b.vx * dt; b.y += b.vy * dt; b.z += (b.vz || 0) * dt; b.life -= dt;
+      if (b.life <= 0 || b.x < 0 || b.y < 0 || b.x > FIELD_W || b.y > FIELD_H || b.z > 40) return false;
+      if (b.z <= 0) { splat(b.x, b.y, '#c9b28a'); return false; }   // chạm đất
+      if (blockedBullet(b.x, b.y, b.z)) { splat(b.x, b.y, '#ffffff'); return false; }
       for (const u of game.units) {   // khiên Ares chặn đạn từ phía trước
-        if (u.team !== b.team && (u.aresLeft || 0) > 0 && aresHitAt(u, b.x, b.y)) { aresAbsorb(u, b.dmg); return false; }
+        if (u.team !== b.team && (u.aresLeft || 0) > 0 && b.z <= ARES_H && aresHitAt(u, b.x, b.y)) { aresAbsorb(u, b.dmg); return false; }
       }
       for (const u of game.units) {
-        if (u.team === b.team || u.down > 0 || (u.alt || 0) > 1.5) continue;
+        if (u.team === b.team || u.down > 0 || (u.alt || 0) > 1.5 || b.z > 3.0 || (u.cloakLeft || 0) > 0) continue;
         if (Math.hypot(b.x - u.x, b.y - u.y) < u.kind.radius + 0.3) {
           if (u.guard > 0) { splat(b.x, b.y, '#bfe9ff'); return false; }
           if (u.frontLeft > 0) { splat(b.x, b.y, '#9fd4ff'); return false; }
@@ -1999,6 +2021,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (u.boostLeft > 0) u.boostLeft = Math.max(0, u.boostLeft - dt);
       if (u.frontLeft > 0) u.frontLeft = Math.max(0, u.frontLeft - dt);
       if (u.aresLeft > 0) u.aresLeft = Math.max(0, u.aresLeft - dt);
+      if (u.cloakLeft > 0) u.cloakLeft = Math.max(0, u.cloakLeft - dt);
       if (u.auraLeft > 0) {
         u.auraLeft = Math.max(0, u.auraLeft - dt);
         if (u.down === 0) {
@@ -2063,6 +2086,31 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const k = Math.max(0.35, 1 - alt / 22);
     shadow.scale.setScalar(k);
     shadow.material.opacity = (u.down > 0 ? 0.15 : 0.5) * k;
+    // Tàng hình: thân mech trong suốt, lấp lánh như kính (không biến mất hẳn)
+    const cloaked = u.down === 0 && (u.cloakLeft || 0) > 0;
+    setCloakVisual(u, cloaked);
+    if (cloaked) {
+      const op = 0.2 + 0.12 * Math.sin(game.t * 12 + u.x * 3);
+      for (const r of u.cloakMats) r.c.opacity = op;
+    }
+  }
+  function setCloakVisual(u, on) {
+    if (!!u.cloakOn === on) return;
+    u.cloakOn = on;
+    const m = u.mesh, ud = m.userData;
+    if (on) {
+      u.cloakMats = [];
+      m.traverse((o) => {
+        if (!o.isMesh || !o.material || o === ud.bubble || o === ud.boost || o === ud.shadow) return;
+        const c = o.material.clone();
+        c.transparent = true; c.depthWrite = false;
+        u.cloakMats.push({ o, orig: o.material, c });
+        o.material = c;
+      });
+    } else {
+      for (const r of u.cloakMats || []) r.o.material = r.orig;
+      u.cloakMats = null;
+    }
   }
   function syncPoints() {
     game.points.forEach((p, i) => {
@@ -2108,17 +2156,21 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       dyn.add(m);
     }
     for (const b of game.beams) {
-      const dx = b.x2 - b.x1, dy = b.y2 - b.y1, len = Math.max(0.01, Math.hypot(dx, dy));
-      const ang = Math.atan2(dy, dx);
-      const mx = (b.x1 + b.x2) / 2, mz = (b.y1 + b.y2) / 2;
+      const z1 = b.z1 ?? 1.5, z2 = b.z2 ?? 1.5;
+      const dx = b.x2 - b.x1, dy = b.y2 - b.y1, dz = z2 - z1;
+      const len = Math.max(0.01, Math.hypot(dx, dy, dz));
+      // Hệ tọa độ 3D: x = x, độ cao = z, y của mô phỏng = trục Z
+      const dir = new THREE.Vector3(dx, dz, dy).normalize();
+      const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);
+      const mid = new THREE.Vector3((b.x1 + b.x2) / 2, (z1 + z2) / 2, (b.y1 + b.y2) / 2);
       // Thermal Lance: tia dày màu hồng, có lõi trắng và điểm sáng ở đầu tia (giống bản tham khảo)
       const glow = new THREE.Mesh(unitBoxGeo, mat('#ff3fd0', { basic: true, opacity: 0.85 }));
       glow.scale.set(len, 0.4, 0.4);
       const core = new THREE.Mesh(unitBoxGeo, mat('#ffd6f5', { basic: true }));
       core.scale.set(len, 0.14, 0.14);
-      for (const m of [glow, core]) { m.position.set(mx, 1.5, mz); m.rotation.y = -ang; dyn.add(m); }
+      for (const m of [glow, core]) { m.position.copy(mid); m.quaternion.copy(quat); dyn.add(m); }
       const tip = new THREE.Mesh(lanceTipGeo, mat('#ff3fd0', { basic: true, opacity: 0.6 }));
-      tip.position.set(b.x2, 1.5, b.y2); dyn.add(tip);
+      tip.position.set(b.x2, z2, b.y2); dyn.add(tip);
     }
     for (const p of game.particles) {
       const m = new THREE.Mesh(splatGeo, mat(p.color));
@@ -2138,43 +2190,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const p = new THREE.Vector3(x, y, z).project(camera);
     return { x: (p.x + 1) / 2 * CANVAS_W, y: (1 - p.y) / 2 * CANVAS_H, z: p.z };
   }
-  // Điểm đạn sẽ trúng theo đường ngắm: đi thẳng cho tới khi chạm vật cản, mech địch hoặc hết tầm
-  function aimPoint(u) {
-    const c = Math.cos(u.aim), s = Math.sin(u.aim);
-    let lastX = u.x, lastY = u.y;
-    for (let t = 0.5; t < 200; t += 0.5) {
-      const x = u.x + c * t, y = u.y + s * t;
-      if (x < 0 || y < 0 || x > FIELD_W || y > FIELD_H || blockedBullet(x, y)) break;
-      for (const e of game.units) {
-        if (e.team !== u.team && e.down === 0 && (e.alt || 0) <= 1.5 && Math.hypot(x - e.x, y - e.y) < e.kind.radius + 0.3) return { x, y, hit: e };
-      }
-      lastX = x; lastY = y;
-    }
-    return { x: lastX, y: lastY, hit: null };
-  }
   function drawOverlay(dpr) {
     octx.setTransform(dpr, 0, 0, dpr, 0, 0);
     octx.clearRect(0, 0, CANVAS_W, CANVAS_H);
     octx.textAlign = 'center';
     octx.font = '700 13px system-ui';
-    // Tâm ngắm: vòng tròn đánh dấu đúng chỗ đạn sẽ trúng (đỏ khi đang ngắm vào kẻ thù)
-    if (game.player && game.player.down === 0 && !game.over) {
-      const ap = aimPoint(game.player);
-      const q = projectPoint(ap.x, 1.5, ap.y);
-      if (q.z <= 1) {
-        const col = ap.hit ? '#ff3b3b' : '#ffffff';
-        octx.save();
-        octx.shadowColor = 'rgba(0,0,0,.8)'; octx.shadowBlur = 3;
-        octx.strokeStyle = col; octx.fillStyle = col; octx.lineWidth = 2;
-        octx.beginPath(); octx.arc(q.x, q.y, 9, 0, Math.PI * 2); octx.stroke();
-        octx.beginPath(); octx.arc(q.x, q.y, 2, 0, Math.PI * 2); octx.fill();
-        octx.beginPath();
-        octx.moveTo(q.x - 15, q.y); octx.lineTo(q.x - 11, q.y); octx.moveTo(q.x + 11, q.y); octx.lineTo(q.x + 15, q.y);
-        octx.moveTo(q.x, q.y - 15); octx.lineTo(q.x, q.y - 11); octx.moveTo(q.x, q.y + 11); octx.lineTo(q.x, q.y + 15);
-        octx.stroke();
-        octx.restore();
-      }
-    }
     octx.fillStyle = '#fff'; octx.shadowColor = 'rgba(0,0,0,.7)'; octx.shadowBlur = 4;
     game.points.forEach((p, i) => {
       const q = projectPoint(p.x, 0.8, p.y);
@@ -2192,6 +2212,44 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       octx.fillStyle = u.team === 'A' ? '#4cc3ff' : (f > 0.5 ? '#4cd97b' : f > 0.25 ? '#f2c94c' : '#eb5757');
       octx.fillRect(q.x - bw / 2, q.y - 24, bw * f, 5);
       octx.shadowBlur = 4;
+    }
+    // HUD ngắm Rocket Mortar: thang tầm bắn, khung khóa đỏ có tên + khoảng cách, thẻ RELOADING
+    const pl = game.player;
+    const mhands = pl && pl.down === 0 ? ['L', 'R'].filter((h) => pl.hands[h] && WEAPONS[pl.hands[h]].mortar) : [];
+    if (mhands.length) {
+      const cx = CANVAS_W / 2, cy = CANVAS_H / 2, lx = cx - 150;
+      octx.shadowBlur = 0;
+      octx.strokeStyle = 'rgba(255,255,255,.85)'; octx.lineWidth = 1.5;
+      octx.beginPath();
+      octx.moveTo(lx, cy - 110); octx.lineTo(lx, cy + 110);
+      for (let y = -110; y <= 110; y += 20) {
+        const len = y % 60 === 0 ? 22 : 12;
+        octx.moveTo(lx, cy + y); octx.lineTo(lx + len, cy + y);
+      }
+      octx.stroke();
+      const t = mortarTarget(pl, pl.aim);
+      if (t) {
+        const q = projectPoint(t.x, 1.2 + (t.alt || 0), t.y);
+        const d = Math.hypot(t.x - pl.x, t.y - pl.y);
+        if (q.z <= 1) {
+          const s = Math.max(22, Math.min(90, 2200 / Math.max(d, 1)));
+          const hs = s / 2, L = s / 4;
+          octx.strokeStyle = '#ff3b3b'; octx.lineWidth = 2;
+          octx.beginPath();
+          for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+            const x0 = q.x + sx * hs, y0 = q.y + sy * hs;
+            octx.moveTo(x0, y0); octx.lineTo(x0 - sx * L, y0);
+            octx.moveTo(x0, y0); octx.lineTo(x0, y0 - sy * L);
+          }
+          octx.stroke();
+          octx.fillStyle = '#ff3b3b'; octx.font = '700 13px system-ui';
+          octx.fillText(`${t.name || 'Địch'} · ${Math.round(d)}m`, q.x, q.y - hs - 8);
+        }
+      }
+      if (mhands.some((h) => pl.reloadT[h] > 0)) {
+        octx.fillStyle = '#ff5a4e'; octx.font = '700 14px system-ui';
+        octx.fillText('RELOADING', cx, cy + 130);
+      }
     }
     drawMinimap();
   }
