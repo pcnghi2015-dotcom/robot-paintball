@@ -398,7 +398,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       skill: { name: 'Tốc biến 20 m', type: 'dash', dist: 20, time: 0, cooldown: 4 },
     },
     mech2: {
-      name: 'Paragon · Tấn công', price: 500, color: '#3fa34d', rarity: 'common', hp: 13500, hpMax: 85400, nl: 32, radius: 0.9, speed: 7, mech: true,
+      name: 'Paragon · Tấn công', price: 500, color: '#3fa34d', rarity: 'common', hp: 13500, hpMax: 85400, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'paragon',
       skill: { name: 'Boost 5 s', type: 'boost', duration: 5, mult: 1.3, cooldown: 10 },
     },
     mech3: {
@@ -410,7 +410,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       skill: { name: 'Vùng hồi 8 s', type: 'aura', duration: 8, radius: 5, heal: 1879, cooldown: 12 },
     },
     mech6: {
-      name: 'Puma · Khiên zích zắc', price: 1200, color: '#c77d2e', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 32, radius: 0.9, speed: 7, mech: true,
+      name: 'Puma · Khiên zích zắc', price: 1200, color: '#c77d2e', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'puma',
       skill: { name: 'Khiên zích zắc 6 s', type: 'wall', dist: 3.5, width: 6, duration: 6, cooldown: 10 },
     },
     mech5: {
@@ -418,15 +418,15 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       skill: { name: 'Lướt 25 m · Húc', type: 'dash', dist: 25, speed: 10, time: 0, cooldown: 6, ram: { min: 26098, max: 29361, mult: 1.5 } },
     },
     mech7: {
-      name: 'Guardian · System Crash', price: 800, color: '#2e7d6e', rarity: 'uncommon', hp: 24100, hpMax: 152200, nl: 24, radius: 1.0, speed: 5, mech: true,
+      name: 'Guardian · System Crash', price: 800, color: '#2e7d6e', rarity: 'uncommon', hp: 24100, hpMax: 152200, nl: 24, radius: 1.0, speed: 5, mech: true, look: 'guardian',
       skill: { name: 'System Crash', type: 'crash', radius: 6, cooldown: 14 },
     },
     ares: {
-      name: 'Ares · Khiên đỡ đòn', price: 1000, color: '#8a9a5b', rarity: 'uncommon', hp: 18000, hpMax: 115000, nl: 24, radius: 1.0, speed: 5, mech: true,
+      name: 'Ares · Khiên đỡ đòn', price: 1000, color: '#8a9a5b', rarity: 'uncommon', hp: 18000, hpMax: 115000, nl: 24, radius: 1.0, speed: 5, mech: true, look: 'ares',
       skill: { name: 'Khiên đỡ đòn 8 s', type: 'pshield', duration: 8, hp: 30000, cooldown: 12 },
     },
     shadow: {
-      name: 'Shadow · Tàng hình', price: 1200, color: '#2a2f3a', rarity: 'uncommon', hp: 13000, hpMax: 82000, nl: 24, radius: 0.9, speed: 8, mech: true,
+      name: 'Shadow · Tàng hình', price: 1200, color: '#2a2f3a', rarity: 'uncommon', hp: 13000, hpMax: 82000, nl: 24, radius: 0.9, speed: 8, mech: true, look: 'shadow',
       skill: { name: 'Tàng hình 6 s', type: 'cloak', duration: 6, cooldown: 14 },
     },
   };
@@ -1300,6 +1300,46 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         muzzle.rotation.z = Math.PI / 2; muzzle.position.set(0.76, 3.0, 0); g.add(muzzle);
         g.add(box(0.5, 0.12, 0.6, '#1d2630', -0.1, 2.9, 0));
         hot('#ff9a1f', 0.08, 0.12, 0.5, 0.2, 3.2, 0);
+      } else if (kind.look === 'paragon') {
+        // Paragon: thân rộng, vai dày, hai pháo vai và ống phụt lớn phía sau
+        g.add(box(1.5, 1.4, 1.9, color, 0, 1.7, 0));
+        g.add(box(0.9, 0.5, 1.1, '#2a5e33', 0, 2.55, 0));
+        g.add(box(0.8, 0.5, 0.8, '#cfd8e3', 0.05, 3.0, 0));
+        hot(neon, 0.06, 0.12, 0.6, 0.45, 3.0, 0);
+        for (const sz of [-1, 1]) g.add(box(0.7, 0.7, 0.7, '#3b434d', 0, 2.05, sz * 1.05));
+        g.add(box(0.5, 0.6, 1.4, '#222831', -0.9, 1.5, 0));
+        hot('#ff9a1f', 0.05, 0.25, 1.0, -1.16, 1.5, 0);
+      } else if (kind.look === 'puma') {
+        // Puma: thân thấp dài kiểu thú, đầu nhô về phía trước, lưng có gai, đuôi dài
+        g.add(box(1.9, 0.9, 1.3, color, 0, 1.25, 0));
+        g.add(box(1.1, 0.7, 0.95, '#8a5a22', 0.55, 1.75, 0));
+        g.add(box(0.5, 0.25, 0.7, '#1d2630', 1.0, 1.7, 0));
+        hot(neon, 0.05, 0.08, 0.5, 0.92, 1.9, 0);
+        for (const z of [-0.3, 0, 0.3]) g.add(box(0.25, 0.35, 0.18, '#3a2a18', -0.2 + z * 1.5, 1.85, 0));
+        g.add(box(0.9, 0.12, 0.12, '#3a2a18', -1.4, 1.5, 0));
+      } else if (kind.look === 'guardian') {
+        // Guardian: thân vuông có lõi phát sáng ở ngực và vòng hào quang trên đầu
+        g.add(box(1.4, 1.5, 1.4, color, 0, 1.7, 0));
+        g.add(box(0.7, 0.6, 0.7, '#cfd8e3', 0, 2.6, 0));
+        hot(neon, 0.2, 0.9, 0.2, 0.72, 1.8, 0);
+        const halo = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.06, 10, 28), mat(neon, { basic: true }));
+        halo.rotation.x = Math.PI / 2; halo.position.set(0, 3.2, 0); g.add(halo);
+      } else if (kind.look === 'ares') {
+        // Ares: thân giáp, đầu có hai sừng, một tấm khiên phẳng lớn đứng trước thân
+        g.add(box(1.3, 1.5, 1.5, color, 0, 1.7, 0));
+        g.add(box(0.8, 0.6, 0.8, '#5d6b3c', 0.1, 2.85, 0));
+        g.add(box(0.12, 0.5, 0.12, '#cfd8e3', -0.15, 3.3, 0.35));
+        g.add(box(0.12, 0.5, 0.12, '#cfd8e3', -0.15, 3.3, -0.35));
+        hot(neon, 0.08, 0.14, 0.6, 0.5, 2.85, 0);
+        g.add(box(0.12, 2.2, 1.5, '#4a5532', 0.95, 1.6, 0));
+      } else if (kind.look === 'shadow') {
+        // Shadow: thân mỏng góc cạnh, áo choàng sẫm phía sau, mắt tím
+        g.add(box(0.9, 1.6, 1.1, color, 0, 1.75, 0));
+        g.add(box(0.5, 1.2, 0.2, '#11151c', -0.45, 1.9, 0));
+        g.add(box(0.6, 0.5, 0.6, '#1b2029', 0, 2.8, 0));
+        hot('#b48cff', 0.05, 0.06, 0.5, 0.33, 2.82, 0);
+        g.add(box(0.1, 0.6, 0.1, '#11151c', -0.05, 3.3, 0.25));
+        g.add(box(0.1, 0.6, 0.1, '#11151c', -0.05, 3.3, -0.25));
       } else {
         g.add(box(1.2, 1.5, 1.5, color, 0, 1.7, 0));
         g.add(box(0.6, 0.8, 0.5, '#3b434d', 0, 2.05, -1.0));
