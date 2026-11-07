@@ -98,6 +98,15 @@
   .av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; }
   .av-grid button { font-size: 26px; padding: 6px; border-radius: 50%; }
   .hud-jet { position: absolute; bottom: 40px; left: 10px; z-index: 2; min-height: 44px; padding: 8px 14px; font-size: 14px; background: rgba(0,0,0,.45); color: #fff; border-color: rgba(255,255,255,.35); touch-action: none; user-select: none; -webkit-user-select: none; }
+  /* Đếm ngược trước trận */
+  .countdown { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 5; font-size: 96px; font-weight: 800; color: #fff; text-shadow: 0 3px 10px rgba(0,0,0,.7); pointer-events: none; }
+  /* Nút phóng to màn hình */
+  .hud-fs { position: absolute; right: 10px; bottom: 40px; z-index: 4; min-height: 40px; padding: 6px 12px; font-size: 14px; background: rgba(0,0,0,.45); color: #fff; border-color: rgba(255,255,255,.35); touch-action: manipulation; }
+  body.big-stage #stage { position: fixed; inset: 0; width: 100vw; height: 100vh; aspect-ratio: auto; border-radius: 0; z-index: 90; background: #000; }
+  body.big-stage #cv, body.big-stage #ov { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * 1.6)); height: min(100vh, calc(100vw / 1.6)); }
+  /* Bắt xoay ngang khi chơi trên điện thoại */
+  #rotate-tip { display: none; position: fixed; inset: 0; z-index: 200; background: #0b1a2b; color: #e8fbff; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 18px; }
+  @media (orientation: portrait) and (max-width: 900px) { body.in-match #rotate-tip { display: flex; } }
   .hint { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; color: #fff; font-size: 13px; text-shadow: 0 1px 3px rgba(0,0,0,.7); pointer-events: none; }
   .overlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; text-align: center; color: #fff; }
   .overlay .big { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
@@ -242,6 +251,8 @@
       <button id="btn-leave-hud" class="hud-quit">Thoát</button>
       <button id="btn-jet" class="hud-jet" hidden>Nhảy phản lực</button>
       <div class="hint" id="hint"></div>
+      <div class="countdown" id="countdown" hidden></div>
+      <button id="btn-fs" class="hud-fs">⛶ Phóng to</button>
       <div class="overlay" id="quit-overlay" hidden>
         <div>
           <div class="big">Thoát trận?</div>
@@ -431,9 +442,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun9: { name: 'Autocannon 4 NL', nl: 4, price: 400, color: '#ff7b3d', desc: '1 nòng xoay · 1 đạn mỗi phát · giữ nút bắn liên thanh · đạn bay nhanh gấp 3.5 lần · 80 viên · hồi đạn 6 s', dmg: 327, cd: 0.0667, barrels: 1, spread: 0, mag: 80, reload: 6, rocket: false, speedMul: 3.5 },
     gun10: { name: 'Thermal Lance 4 NL', nl: 4, price: 1500, color: '#ff5a1f', desc: 'Bắn nguồn năng lượng mặt trời · 560 ST mỗi giây · cần 100 NL để bắn, tốn 8 NL mỗi giây · hết NL: khóa 6–7 s · không bắn thì hồi 5–6 NL mỗi giây · gây lửa (sau 3.5 s bắn trúng): đối thủ cháy nhận thêm 1.4× ST, lửa tồn tại 5 s sau khi ngừng bắn', dmg: 112, cd: 0.2, barrels: 1, spread: 0, mag: Infinity, reload: 0, fire: true, beam: true, energy: { start: 100, max: 100, drain: 8, regenMin: 5, regenMax: 6, lockMin: 6, lockMax: 7 } },
     gun11: { name: 'Thermal Lance 6 NL', nl: 6, price: 1500, color: '#ff5a1f', desc: 'Bắn nguồn năng lượng mặt trời · 630 ST mỗi giây · cần 100 NL để bắn, tốn 8 NL mỗi giây · hết NL: khóa 6–7 s · không bắn thì hồi 5–6 NL mỗi giây · gây lửa (sau 3.5 s bắn trúng): đối thủ cháy nhận thêm 1.4× ST, lửa tồn tại 5 s sau khi ngừng bắn', dmg: 126, cd: 0.2, barrels: 1, spread: 0, mag: Infinity, reload: 0, fire: true, beam: true, energy: { start: 100, max: 100, drain: 8, regenMin: 5, regenMax: 6, lockMin: 6, lockMax: 7 } },
-    gun12: { name: 'Longarm 8 NL', nl: 8, price: 1400, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false },
-    gun13: { name: 'Longarm 10 NL', nl: 10, price: 1600, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 11250, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false },
-    gun14: { name: 'Longarm 12 NL', nl: 12, price: 1800, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 13500, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false },
+    gun12: { name: 'Longarm 8 NL', nl: 8, price: 1400, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · đạn bay nhanh gấp 5,5 lần, để lại vệt sáng · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false, speedMul: 5.5, tracer: true },
+    gun13: { name: 'Longarm 10 NL', nl: 10, price: 1600, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · đạn bay nhanh gấp 5,5 lần, để lại vệt sáng · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 11250, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false, speedMul: 5.5, tracer: true },
+    gun14: { name: 'Longarm 12 NL', nl: 12, price: 1800, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · đạn bay nhanh gấp 5,5 lần, để lại vệt sáng · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 13500, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false, speedMul: 5.5, tracer: true },
     gun15: { name: 'Rocket Mortar 8 NL', nl: 8, price: 2200, color: '#8e6b3e', desc: 'Cối phóng · 4 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 2 500 ST mỗi quả · hồi đạn 10 s', dmg: 2500, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, mortar: { shells: 4, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun16: { name: 'Rocket Mortar 10 NL', nl: 10, price: 2500, color: '#8e6b3e', desc: 'Cối phóng · 6 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 125 ST mỗi quả · hồi đạn 10 s', dmg: 3125, cd: 0.6, barrels: 1, spread: 0, mag: 6, reload: 10, rocket: false, mortar: { shells: 6, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun17: { name: 'Rocket Mortar 12 NL', nl: 12, price: 2800, color: '#8e6b3e', desc: 'Cối phóng · 8 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 750 ST mỗi quả · hồi đạn 10 s', dmg: 3750, cd: 0.6, barrels: 1, spread: 0, mag: 8, reload: 10, rocket: false, mortar: { shells: 8, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
@@ -1418,9 +1429,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
 
   // ---------- Bắn ----------
-  function fire(u, aim, dmg, cd, rocket, burn, spdMul, range, invisible) {
+  function fire(u, aim, dmg, cd, rocket, burn, spdMul, range, invisible, tracer) {
     const c = Math.cos(aim), s = Math.sin(aim);
-    game.bullets.push({ x: u.x + c * 1.3, y: u.y + s * 1.3, vx: c * BULLET_SPEED * (spdMul || 1), vy: s * BULLET_SPEED * (spdMul || 1), life: range ? range / (BULLET_SPEED * (spdMul || 1)) : BULLET_LIFE, team: u.team, dmg, rocket, burn: !!burn, invisible: !!invisible, shooter: u });
+    game.bullets.push({ x: u.x + c * 1.3, y: u.y + s * 1.3, vx: c * BULLET_SPEED * (spdMul || 1), vy: s * BULLET_SPEED * (spdMul || 1), life: range ? range / (BULLET_SPEED * (spdMul || 1)) : BULLET_LIFE, team: u.team, dmg, rocket, burn: !!burn, invisible: !!invisible, tracer: !!tracer, shooter: u });
     u.cd = cd;
   }
   // Thermal Lance: tia chùm trúng ngay mục tiêu đầu tiên theo đường ngắm (không phải đạn)
@@ -1451,7 +1462,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (Math.abs(dx * s - dy * c) < e.kind.radius + 0.3) { hit = e; bestT = t; }
     }
     const ex = u.x + c * bestT, ey = u.y + s * bestT;
-    game.beams.push({ x1: u.x + c * 1.3, y1: u.y + s * 1.3, x2: ex, y2: ey, team: u.team, life: 0.12 });
+    game.beams.push({ x1: u.x + c * 1.3, y1: u.y + s * 1.3, x2: ex, y2: ey, team: u.team, life: 0.2 });
     if (!hit) return;
     if (hit.guard > 0) { splat(ex, ey, '#bfe9ff'); return; }
     if (hit.frontLeft > 0) { splat(ex, ey, '#9fd4ff'); return; }
@@ -1538,7 +1549,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     const n = Math.min(W.barrels, u.ammo[key]);
     if (n <= 0) return false;
-    for (let i = 0; i < n; i++) fire(u, aim + (i - (W.barrels - 1) / 2) * W.spread, u.dmg[key], W.cd, W.rocket, W.fire, W.speedMul, W.range, W.invisible);
+    for (let i = 0; i < n; i++) fire(u, aim + (i - (W.barrels - 1) / 2) * W.spread, u.dmg[key], W.cd, W.rocket, W.fire, W.speedMul, W.range, W.invisible, W.tracer);
     u.ammo[key] -= n;
     return true;
   }
@@ -1996,6 +2007,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(TEAM_COLOR[b.team]));
       m.position.set(b.x, 1.5, b.y);
       dyn.add(m);
+      if (b.tracer) {   // vệt sáng của Longarm: đạn bay rất nhanh nên hiện thành một đường
+        const dir = Math.atan2(b.vy, b.vx);
+        const tr = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.08, 0.08), new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.9 }));
+        tr.position.set(b.x - Math.cos(dir) * 1.5, 1.5, b.y - Math.sin(dir) * 1.5);
+        tr.rotation.y = -dir;
+        dyn.add(tr);
+      }
     }
     for (const u of game.units) {   // khiên Ares: tấm chữ nhật trước mặt, đi theo mech
       if (u.down !== 0 || !((u.aresLeft || 0) > 0)) continue;
@@ -2016,8 +2034,15 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       dyn.add(m);
     }
     for (const b of game.beams) {
-      const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(b.x1, 1.5, b.y1), new THREE.Vector3(b.x2, 1.5, b.y2)]);
-      dyn.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: TEAM_COLOR[b.team] })));
+      const dx = b.x2 - b.x1, dy = b.y2 - b.y1, len = Math.max(0.01, Math.hypot(dx, dy));
+      const ang = Math.atan2(dy, dx);
+      const mx = (b.x1 + b.x2) / 2, mz = (b.y1 + b.y2) / 2;
+      // Thermal Lance: tia dày màu hồng, có lõi trắng và điểm sáng ở đầu tia (giống bản tham khảo)
+      const glow = new THREE.Mesh(new THREE.BoxGeometry(len, 0.4, 0.4), new THREE.MeshBasicMaterial({ color: 0xff3fd0, transparent: true, opacity: 0.85, depthWrite: false }));
+      const core = new THREE.Mesh(new THREE.BoxGeometry(len, 0.14, 0.14), new THREE.MeshBasicMaterial({ color: 0xffd6f5, depthWrite: false }));
+      for (const m of [glow, core]) { m.position.set(mx, 1.5, mz); m.rotation.y = -ang; dyn.add(m); }
+      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.7, 12, 10), new THREE.MeshBasicMaterial({ color: 0xff3fd0, transparent: true, opacity: 0.6, depthWrite: false }));
+      tip.position.set(b.x2, 1.5, b.y2); dyn.add(tip);
     }
     for (const p of game.particles) {
       const m = new THREE.Mesh(splatGeo, mat(p.color));
@@ -2115,7 +2140,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function loop(ts) {
     const dt = Math.min(0.05, (ts - last) / 1000 || 0);
     last = ts;
-    if (game && !game.over && !paused) tick(dt);
+    if (game && !game.over && !paused) {
+      if (game.countdown > 0) {   // đếm ngược 15 giây trước khi trận bắt đầu: chưa ai di chuyển hay bắn
+        game.countdown = Math.max(0, game.countdown - dt);
+        pendingSkill = false; pendingJet = false;
+        showCountdown();
+      } else tick(dt);
+    }
     if (game) draw();
     if (game && !game.over) raf = requestAnimationFrame(loop);
   }
@@ -2226,8 +2257,26 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   };
   renderAvatar();
 
+  // Hiện số đếm ngược giữa màn hình; về 0 thì ẩn và trận bắt đầu
+  function showCountdown() {
+    const el = $('countdown');
+    if (!game || game.countdown <= 0) { el.hidden = true; return; }
+    el.hidden = false; el.textContent = String(Math.ceil(game.countdown));
+  }
+  $('btn-fs').onclick = () => {
+    const on = !document.body.classList.contains('big-stage');
+    document.body.classList.toggle('big-stage', on);
+    try {
+      if (on && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    } catch (_) {}
+    $('btn-fs').textContent = on ? '✕ Thu nhỏ' : '⛶ Phóng to';
+    resizeCanvas();
+  };
   function startMatch() {
     if (!MAP) MAP = genMap();
+    document.body.classList.add('in-match');
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (_) {}
     OBST = MAP.obst;
     buildMap(MAP);
     clearUnits();
@@ -2237,7 +2286,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const pool = BOT_NAMES.slice().sort(() => Math.random() - 0.5); let bi = 0;
     for (const u of units) u.name = u.isP ? playerName : pool[bi++];
     game = {
-      t: 0, over: false, units, player: units[0], bullets: [], shells: [], beams: [], walls: [], particles: [],
+      t: 0, over: false, countdown: 15, units, player: units[0], bullets: [], shells: [], beams: [], walls: [], particles: [],
       points: MAP.points.map((p) => ({ x: p.x, y: p.y, owner: null, capTeam: null, prog: 0 })),
       score: { A: 0, B: 0 }, timeLeft: MATCH_LEN,
     };
@@ -2249,7 +2298,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     clearInterval(endTimer); $('btn-again').disabled = false; $('btn-again').textContent = 'Về sảnh';
     $('end-overlay').hidden = true; $('quit-overlay').hidden = true;
     $('btn-jet').hidden = !game.player.kind.jet;
-    $('hint').textContent = 'W S A D di chuyển · Chuột ngắm · Chuột trái bắn súng trái · Chuột phải bắn súng phải · Space kỹ năng · Shift nhảy phản lực · Q nạp súng trái · E nạp súng phải (1000 xu mỗi lần)';
+    showCountdown();
+    $('hint').textContent ='W S A D di chuyển · Chuột ngắm · Chuột trái bắn súng trái · Chuột phải bắn súng phải · Space kỹ năng · Shift nhảy phản lực · Q nạp súng trái · E nạp súng phải (1000 xu mỗi lần)';
     setTimeout(() => { if (game && !game.over) $('hint').textContent = ''; }, 6000);
     resizeCanvas();
     last = performance.now();
@@ -2258,6 +2308,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function leaveMatch() {
     cancelAnimationFrame(raf);
+    document.body.classList.remove('in-match', 'big-stage');
+    $('btn-fs').textContent = '⛶ Phóng to';
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (_) {}
+    try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (_) {}
+    $('countdown').hidden = true;
     game = null; mouseL = mouseR = false; touchMove = null; touchFire = false; pendingSkill = false; pendingJet = false;
     paused = false; lastMX = null; lastMY = null;
     $('pick').hidden = true;
@@ -2439,6 +2494,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 </script>
 
 <body>
+<div id="rotate-tip">📱 Xoay ngang điện thoại để chơi</div>
 <div id="login" hidden style="position:fixed;inset:0;background:#0b1a2b;display:flex;align-items:center;justify-content:center;z-index:9999;color:#e8fbff;font-family:sans-serif;text-align:center;padding:20px">
   <div>
     <h2 style="font-size:28px;letter-spacing:.05em">ROBOT SÚNG SƠN</h2>
