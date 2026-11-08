@@ -512,6 +512,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun15: { name: 'Rocket Mortar 8 NL', nl: 8, price: 2200, color: '#8e6b3e', desc: 'Cối phóng · 4 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 2 500 ST mỗi quả · hồi đạn 10 s', dmg: 2500, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, mortar: { shells: 4, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun16: { name: 'Rocket Mortar 10 NL', nl: 10, price: 2500, color: '#8e6b3e', desc: 'Cối phóng · 6 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 125 ST mỗi quả · hồi đạn 10 s', dmg: 3125, cd: 0.6, barrels: 1, spread: 0, mag: 6, reload: 10, rocket: false, mortar: { shells: 6, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun17: { name: 'Rocket Mortar 12 NL', nl: 12, price: 2800, color: '#8e6b3e', desc: 'Cối phóng · 8 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 750 ST mỗi quả · hồi đạn 10 s', dmg: 3750, cd: 0.6, barrels: 1, spread: 0, mag: 8, reload: 10, rocket: false, mortar: { shells: 8, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
+    gun19: { name: 'Gauss Rifle 6 NL', nl: 6, price: 1600, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 3 000 ST mỗi viên · hồi đạn 8 s', dmg: 3000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
+    gun20: { name: 'Gauss Rifle 4 NL', nl: 4, price: 1200, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 2 000 ST mỗi viên · hồi đạn 8 s', dmg: 2000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
+    gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 2200, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 2000, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
   // Nâng cấp súng: mỗi cấp nhân sát thương ×1.2; đủ 5 cấp được 1 sao, mỗi sao nhân sát thương ×1.3. Tối đa 7 sao.
@@ -839,7 +842,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare' };
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'uncommon', gun20: 'uncommon', gun21: 'rare' };
     const gunGroup = (id, w) => (w.energy ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl);
     for (const [id, w] of gunList) {
@@ -1066,8 +1069,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     msg.className = 'msg ok'; msg.textContent = `${note}. Sát thương ${wDmg(id)}.`;
     saveWallet(); renderShop();
   }
-  // Bậc mở súng: súng 2 NL và Shotgun, Plasma ở bậc 1; Rocket Mortar ở bậc 3; còn lại ở bậc 2
-  const weaponTier = (id) => ((WEAPONS[id].mortar || WEAPONS[id].javelin) ? 3 : (WEAPONS[id].nl === 2 || /^(Shotgun|Plasma)/.test(WEAPONS[id].name)) ? 1 : 2);
+  // Bậc mở súng: súng 2 NL ở bậc 1; Shotgun 4/8 NL và Plasma 4/6 NL ở bậc 2; còn lại theo từng nhóm bên dưới
+  // Cối tên lửa theo NL: 8 NL bậc 3, 10 NL bậc 4, 12 NL bậc 5
+  const MORTAR_TIER = { 8: 3, 10: 4, 12: 5 };
+  // Gauss theo NL: 4 NL bậc 2, 6 NL bậc 3, 10 NL bậc 4
+  const GAUSS_TIER = { 4: 2, 6: 3, 10: 4 };
+  const weaponTier = (id) => (WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
+    : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
+    : WEAPONS[id].nl === 2 ? 1 : 2);
   function buyWeapon(id) {
     const w = WEAPONS[id], msg = $('shop-msg');
     if (weaponTier(id) > wallet.tier) { msg.className = 'msg'; msg.textContent = `Cần bậc ${weaponTier(id)} để mua ${w.name}.`; return; }
@@ -1664,7 +1673,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (e.aresHP <= 0) { e.aresHP = 0; e.aresLeft = 0; splat(e.x, e.y, '#7fd3ff'); }
     else splat(e.x, e.y, '#9fd4ff');
   }
-  function beamShot(u, aim, dmg, burn, range) {
+  function beamShot(u, aim, dmg, burn, range, style) {
     dmg *= outMult(u);
     // Tia theo đúng hướng ngắm 3D (pitch): nhìn lên thì tia bay lên trời, nhìn xuống thì dừng ở mặt đất
     const dir = aimVector(u, aim), cp = dir.h, sp = dir.v;
@@ -1685,7 +1694,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     const ex = u.x + ca * cp * bestT, ey = u.y + sa * cp * bestT, ez = Math.max(0, z0 + sp * bestT);
     const c = ca * cp, s = sa * cp;
-    game.beams.push({ x1: u.x + c * 1.3, y1: u.y + s * 1.3, z1: z0 + sp * 1.3, x2: ex, y2: ey, z2: ez, team: u.team, life: 0.2 });
+    game.beams.push({ x1: u.x + c * 1.3, y1: u.y + s * 1.3, z1: z0 + sp * 1.3, x2: ex, y2: ey, z2: ez, team: u.team, life: 0.2, style: style || null });
     if (!hit) return;
     if (hit.guard > 0) { splat(ex, ey, '#bfe9ff'); return; }
     if (hit.frontLeft > 0) { splat(ex, ey, '#9fd4ff'); return; }
@@ -1799,6 +1808,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
           speed: J.speed, turn: J.turn, target: tgt, dmg: u.dmg[key] * outMult(u), team: u.team, shooter: u });
       }
       u.ammo[key] = 0;
+      u.cd = W.cd;
+      return true;
+    }
+    if (W.gauss) {   // Gauss Rifle: tia điện từ tức thì trúng mục tiêu đầu tiên trên đường ngắm, mỗi lần bắn 1 viên
+      if (u.ammo[key] <= 0) return false;
+      beamShot(u, aim, u.dmg[key], false, W.range, { color: '#3fe0ff', core: '#e6ffff', thin: true });
+      u.ammo[key] -= 1;
       u.cd = W.cd;
       return true;
     }
@@ -2409,12 +2425,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);
       const mid = new THREE.Vector3((b.x1 + b.x2) / 2, (z1 + z2) / 2, (b.y1 + b.y2) / 2);
       // Thermal Lance: tia dày màu hồng, có lõi trắng và điểm sáng ở đầu tia (giống bản tham khảo)
-      const glow = new THREE.Mesh(unitBoxGeo, mat('#ff3fd0', { basic: true, opacity: 0.85 }));
-      glow.scale.set(len, 0.4, 0.4);
-      const core = new THREE.Mesh(unitBoxGeo, mat('#ffd6f5', { basic: true }));
-      core.scale.set(len, 0.14, 0.14);
+      const st = b.style || {}, gc = st.color || '#ff3fd0', gcore = st.core || '#ffd6f5', gw = st.thin ? 0.22 : 0.4;   // tia Gauss mỏng hơn, màu xanh
+      const glow = new THREE.Mesh(unitBoxGeo, mat(gc, { basic: true, opacity: 0.85 }));
+      glow.scale.set(len, gw, gw);
+      const core = new THREE.Mesh(unitBoxGeo, mat(gcore, { basic: true }));
+      core.scale.set(len, gw * 0.35, gw * 0.35);
       for (const m of [glow, core]) { m.position.copy(mid); m.quaternion.copy(quat); dyn.add(m); }
-      const tip = new THREE.Mesh(lanceTipGeo, mat('#ff3fd0', { basic: true, opacity: 0.6 }));
+      const tip = new THREE.Mesh(lanceTipGeo, mat(gc, { basic: true, opacity: 0.6 }));
+      tip.scale.setScalar(st.thin ? 0.5 : 1);
       tip.position.set(b.x2, z2, b.y2); dyn.add(tip);
     }
     for (const p of game.particles) {
