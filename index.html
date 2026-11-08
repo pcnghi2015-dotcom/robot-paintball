@@ -83,6 +83,14 @@
   .crosshair::after { top: 12px; left: 0; height: 2px; width: 26px; }
   .crosshair i { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #ff4d4d; box-shadow: 0 0 2px rgba(0,0,0,.8); }
   /* Nút hồ sơ (hình bình hành) góc trên trái */
+  .tier-btn { position: fixed; left: 12px; bottom: 12px; z-index: 40; padding: 10px 16px; border-radius: 12px; border: 1px solid #3c6a8f; background: rgba(20, 40, 60, .9); color: #dff4ff; font-weight: 700; }
+  body.in-match .tier-btn { display: none; }
+  .tier-box { max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .tier-row { padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, .05); margin-top: 8px; }
+  .tier-row.locked { opacity: .55; }
+  .tier-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .tier-items { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tier-chip { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: rgba(76, 195, 255, .18); }
   .prof-btn { position: fixed; top: 10px; left: 12px; z-index: 40; width: 74px; height: 48px; padding: 0; border: 2px solid #1b2330; border-radius: 8px; background: #fff; transform: skewX(-16deg); cursor: pointer; overflow: hidden; }
   .prof-btn > span { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transform: skewX(16deg); font-size: 24px; background-size: cover; background-position: center; }
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 60; }
@@ -192,6 +200,15 @@
 
   <div class="notice" id="update-notice" hidden></div>
   <button class="prof-btn" id="prof-btn" aria-label="Hồ sơ"><span id="prof-av">🙂</span></button>
+  <button class="tier-btn" id="tier-btn">Cửa hàng</button>
+  <div class="modal" id="tier-modal" hidden>
+    <div class="modal-box tier-box">
+      <div class="row" style="justify-content:space-between;align-items:center"><h3 id="tier-title" style="margin:0">Bản đồ bậc</h3><button id="tier-close">Đóng</button></div>
+      <p class="muted" id="tier-now"></p>
+      <div id="tier-list"></div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="tier-to-shop">Mở cửa hàng</button></div>
+    </div>
+  </div>
   <div class="hg" id="hangar">
     <div class="hg-stage">
       <nav class="hg-nav">
@@ -2811,6 +2828,25 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       $('hgm-mechs').textContent = wallet.hall.slice(0, wallet.slotsOpen).filter(Boolean).map((id) => MECHS[id].name.split(' · ')[0]).join(' · ') || 'Chưa có mech trong đội hình';
     }
   }
+  // Nút Cửa hàng góc trái dưới: bản đồ bậc 1–10, mỗi bậc mở những mech và súng nào
+  function renderTierMap() {
+    const cur = wallet.tier;
+    $('tier-now').textContent = cur >= TIER_MAX ? `Bạn đang ở bậc cao nhất ${TIER_MAX}/${TIER_MAX} · ${wallet.tierPts} điểm bậc` : `Bạn đang ở bậc ${cur}/${TIER_MAX} · ${wallet.tierPts} điểm bậc · cần ${cur * TIER_STEP} điểm để lên bậc ${cur + 1}`;
+    let html = '';
+    for (let n = 1; n <= TIER_MAX; n++) {
+      const st = n < cur ? 'Đã mở' : n === cur ? 'Đang ở' : 'Chưa mở';
+      const need = n === 1 ? 'mở từ đầu' : `cần ${(n - 1) * TIER_STEP} điểm bậc`;
+      const mechs = Object.keys(SHOP).filter((id) => SHOP[id].tier === n).map((id) => `${SHOP[id].name.split(' · ')[0]} (mech)`);
+      const guns = Object.keys(WEAPONS).filter((id) => weaponTier(id) === n).map((id) => `${WEAPONS[id].name}`);
+      const items = mechs.concat(guns);
+      html += `<div class="tier-row${n > cur ? ' locked' : ''}"><div class="tier-head"><b>Bậc ${n}</b><span class="muted">${need} · ${st}</span></div>` +
+        `<div class="tier-items">${items.length ? items.map((t) => `<span class="tier-chip">${t}</span>`).join('') : '<span class="muted">Chưa có món</span>'}</div></div>`;
+    }
+    $('tier-list').innerHTML = html;
+  }
+  $('tier-btn').onclick = () => { renderTierMap(); $('tier-modal').hidden = false; };
+  $('tier-close').onclick = () => { $('tier-modal').hidden = true; };
+  $('tier-to-shop').onclick = () => { $('tier-modal').hidden = true; showTab('shop'); };
   $('hg-battle').onclick = () => showMode(true);
   $('hgm-change').onclick = () => showMode(false);
   $('hgm-quick').onclick = () => { pendingMode = 'cp'; openPre(); };
