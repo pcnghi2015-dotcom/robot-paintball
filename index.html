@@ -121,6 +121,8 @@
   .tut-card { background: var(--panel); color: var(--ink); border-radius: 14px; padding: 20px; max-width: 440px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
   .tut-card h3 { margin: 6px 0 8px; font-size: 20px; }
   .tut-card p { line-height: 1.5; margin: 0 0 16px; }
+  #pick .tut-card { max-height: 92%; overflow-y: auto; padding: 14px; max-width: 420px; }
+  #pick h3 { font-size: 17px; }
   .shop-sub { font-weight: 800; margin: 14px 0 4px; font-size: 14px; }
   .hall { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
   .slot { border: 2px dashed var(--line); border-radius: 12px; padding: 8px 6px; text-align: center; cursor: pointer; background: var(--bg); min-width: 0; }
@@ -272,6 +274,13 @@
           <button class="accent" id="btn-again">Về sảnh</button>
         </div>
       </div>
+      <div class="overlay" id="pick" hidden>
+        <div class="tut-card" role="dialog" aria-modal="true" aria-labelledby="pick-title">
+          <h3 id="pick-title"></h3>
+          <p class="muted" id="pick-desc"></p>
+          <div id="pick-list"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -283,13 +292,6 @@
       <button id="owned-close">Đóng</button>
     </div>
     <div id="owned-list" style="margin-top:12px"></div>
-  </div>
-</div>
-<div class="tut" id="pick" hidden>
-  <div class="tut-card" role="dialog" aria-modal="true" aria-labelledby="pick-title">
-    <h3 id="pick-title"></h3>
-    <p class="muted" id="pick-desc"></p>
-    <div id="pick-list"></div>
   </div>
 </div>
 <div id="prof-panel" class="modal" hidden>
@@ -1549,11 +1551,23 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
 
   // ---------- Bắn ----------
+  // Hướng bắn: đạn bay thẳng tới điểm nằm đúng giữa tâm ngắm (điểm tia giữa camera chạm tới),
+  // để đạn đi qua đúng chỗ tâm hiển thị thay vì song song bên dưới tâm
+  function aimVector(u, aim) {
+    const P = u.pitch || 0, lift = (u.alt || 0) * 0.35;
+    const camH = 3.7 + lift, Ly = 1.0 + lift + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
+    const rayH = (x) => camH + (Ly - camH) * (5 + x) / H;   // độ cao tia tâm tại x m phía trước mech
+    let xp = 45;
+    if (Ly < camH) { const xg = camH * H / (camH - Ly) - 5; if (xg < 45) xp = Math.max(8, xg); }
+    const hp = Math.max(0, rayH(xp));
+    const dx = xp - 1.3, dz = hp - (1.5 + (u.alt || 0)), L = Math.hypot(dx, dz) || 1;
+    return { h: dx / L, v: dz / L };
+  }
   function fire(u, aim, dmg, cd, rocket, burn, spdMul, range, invisible, tracer) {
     // Đạn bay theo đúng hướng ngắm 3D: góc ngẩng/cúi (pitch) quyết định đạn bay lên trời hay xuống đất
-    const P = u.pitch || 0, sp = BULLET_SPEED * (spdMul || 1), cp = Math.cos(P);
-    const c = Math.cos(aim) * cp, s = Math.sin(aim) * cp;
-    game.bullets.push({ x: u.x + c * 1.3, y: u.y + s * 1.3, z: 1.5 + (u.alt || 0), vx: c * sp, vy: s * sp, vz: Math.sin(P) * sp, life: range ? range / sp : BULLET_LIFE, team: u.team, dmg, rocket, burn: !!burn, invisible: !!invisible, tracer: !!tracer, shooter: u });
+    const dir = aimVector(u, aim), sp = BULLET_SPEED * (spdMul || 1);
+    const c = Math.cos(aim) * dir.h, s = Math.sin(aim) * dir.h;
+    game.bullets.push({ x: u.x + c * 1.3, y: u.y + s * 1.3, z: 1.5 + (u.alt || 0), vx: c * sp, vy: s * sp, vz: dir.v * sp, life: range ? range / sp : BULLET_LIFE, team: u.team, dmg, rocket, burn: !!burn, invisible: !!invisible, tracer: !!tracer, shooter: u });
     u.cd = cd;
   }
   // Thermal Lance: tia chùm trúng ngay mục tiêu đầu tiên theo đường ngắm (không phải đạn)
@@ -1575,7 +1589,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function beamShot(u, aim, dmg, burn, range) {
     // Tia theo đúng hướng ngắm 3D (pitch): nhìn lên thì tia bay lên trời, nhìn xuống thì dừng ở mặt đất
-    const P = u.pitch || 0, cp = Math.cos(P), sp = Math.sin(P);
+    const dir = aimVector(u, aim), cp = dir.h, sp = dir.v;
     const ca = Math.cos(aim), sa = Math.sin(aim), R = range || 60;
     const z0 = 1.5 + (u.alt || 0);
     let hit = null, bestT = R;
