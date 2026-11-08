@@ -455,6 +455,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun15: { name: 'Rocket Mortar 8 NL', nl: 8, price: 2200, color: '#8e6b3e', desc: 'Cối phóng · 4 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 2 500 ST mỗi quả · hồi đạn 10 s', dmg: 2500, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, mortar: { shells: 4, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun16: { name: 'Rocket Mortar 10 NL', nl: 10, price: 2500, color: '#8e6b3e', desc: 'Cối phóng · 6 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 125 ST mỗi quả · hồi đạn 10 s', dmg: 3125, cd: 0.6, barrels: 1, spread: 0, mag: 6, reload: 10, rocket: false, mortar: { shells: 6, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun17: { name: 'Rocket Mortar 12 NL', nl: 12, price: 2800, color: '#8e6b3e', desc: 'Cối phóng · 8 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 750 ST mỗi quả · hồi đạn 10 s', dmg: 3750, cd: 0.6, barrels: 1, spread: 0, mag: 8, reload: 10, rocket: false, mortar: { shells: 8, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
+    gun18: { name: 'Javelin Launcher 10 NL', nl: 10, price: 2500, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 125 ST mỗi tên · hồi đạn 10 s', dmg: 3125, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
   // Nâng cấp súng: mỗi cấp nhân sát thương ×1.2; đủ 5 cấp được 1 sao, mỗi sao nhân sát thương ×1.3. Tối đa 7 sao.
   const MAX_STAR = 7;
@@ -780,7 +781,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare' };
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare' };
     const gunGroup = (id, w) => (w.energy ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl);
     for (const [id, w] of gunList) {
@@ -1008,7 +1009,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     saveWallet(); renderShop();
   }
   // Bậc mở súng: súng 2 NL và Shotgun, Plasma ở bậc 1; Rocket Mortar ở bậc 3; còn lại ở bậc 2
-  const weaponTier = (id) => (WEAPONS[id].mortar ? 3 : (WEAPONS[id].nl === 2 || /^(Shotgun|Plasma)/.test(WEAPONS[id].name)) ? 1 : 2);
+  const weaponTier = (id) => ((WEAPONS[id].mortar || WEAPONS[id].javelin) ? 3 : (WEAPONS[id].nl === 2 || /^(Shotgun|Plasma)/.test(WEAPONS[id].name)) ? 1 : 2);
   function buyWeapon(id) {
     const w = WEAPONS[id], msg = $('shop-msg');
     if (weaponTier(id) > wallet.tier) { msg.className = 'msg'; msg.textContent = `Cần bậc ${weaponTier(id)} để mua ${w.name}.`; return; }
@@ -1554,11 +1555,21 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // Hướng bắn: đạn bay thẳng tới điểm nằm đúng giữa tâm ngắm (điểm tia giữa camera chạm tới),
   // để đạn đi qua đúng chỗ tâm hiển thị thay vì song song bên dưới tâm
   function aimVector(u, aim) {
+    if (!u.isP) return { h: 1, v: 0 };   // bot bắn ngang như cũ
     const P = u.pitch || 0, lift = (u.alt || 0) * 0.35;
     const camH = 3.7 + lift, Ly = 1.0 + lift + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
     const rayH = (x) => camH + (Ly - camH) * (5 + x) / H;   // độ cao tia tâm tại x m phía trước mech
     let xp = 45;
-    if (Ly < camH) { const xg = camH * H / (camH - Ly) - 5; if (xg < 45) xp = Math.max(8, xg); }
+    if (Ly < camH) { const xg = camH * H / (camH - Ly) - 5; if (xg < 45) xp = Math.max(1.8, xg); }
+    // Nếu tia tâm chạm thân kẻ thù trước khi chạm đất thì đạn bay tới đúng thân kẻ thù đó
+    const ca = Math.cos(aim), sa = Math.sin(aim);
+    for (const e of game.units) {
+      if (e.team === u.team || e.down > 0 || (e.alt || 0) > 1.5 || (e.cloakLeft || 0) > 0) continue;
+      const dx0 = e.x - u.x, dy0 = e.y - u.y, h = dx0 * ca + dy0 * sa;
+      if (h < 1.8 || h >= xp || Math.abs(dx0 * sa - dy0 * ca) >= e.kind.radius + 0.3) continue;
+      const z = rayH(h);
+      if (z >= 0.3 && z <= 3.0) xp = h;
+    }
     const hp = Math.max(0, rayH(xp));
     const dx = xp - 1.3, dz = hp - (1.5 + (u.alt || 0)), L = Math.hypot(dx, dz) || 1;
     return { h: dx / L, v: dz / L };
@@ -1664,6 +1675,35 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (e.hp <= 0) { e.hp = 0; e.down = e.isP ? PLAYER_DOWN : RESPAWN_T; splat(e.x, e.y, TEAM_COLOR[e.team]); if (e.isP) playerDied(e); }
     }
   }
+  // Tên bệ phóng lao: bay thẳng lên trời, rồi bẻ hướng dí theo mục tiêu đã khóa
+  function updateMissile(m, dt) {
+    m.t += dt; m.life -= dt;
+    if (m.life <= 0) { splat(m.x, m.y, '#9bd16a'); return false; }
+    if (m.t < m.climbT) { m.x += m.vx * dt; m.y += m.vy * dt; m.z += m.vz * dt; return true; }
+    const T = m.target;
+    if (T && T.down === 0 && !((T.cloakLeft || 0) > 0)) {
+      const dx = T.x - m.x, dy = T.y - m.y, dz = (T.alt || 0) + 1.5 - m.z, L = Math.hypot(dx, dy, dz) || 1;
+      const k = Math.min(1, m.turn * dt);
+      m.vx += (dx / L * m.speed - m.vx) * k; m.vy += (dy / L * m.speed - m.vy) * k; m.vz += (dz / L * m.speed - m.vz) * k;
+    } else {
+      m.vz -= 15 * dt;   // mất mục tiêu thì rơi thẳng xuống
+    }
+    m.x += m.vx * dt; m.y += m.vy * dt; m.z += m.vz * dt;
+    if (m.z <= 0) { splat(m.x, m.y, '#9bd16a'); return false; }
+    if (blockedBullet(m.x, m.y, m.z)) { splat(m.x, m.y, '#ffffff'); return false; }
+    for (const e of game.units) {
+      if (e.team === m.team || e.down !== 0 || (e.cloakLeft || 0) > 0) continue;
+      if ((e.aresLeft || 0) > 0 && m.z <= ARES_H && aresHitAt(e, m.x, m.y)) { aresAbsorb(e, m.dmg); return false; }
+      if (Math.hypot(m.x - e.x, m.y - e.y) >= e.kind.radius + 0.4 || m.z > (e.alt || 0) + 3.0) continue;
+      if (e.guard > 0 || e.frontLeft > 0) { splat(m.x, m.y, '#bfe9ff'); return false; }
+      e.hp -= m.dmg;
+      creditHit(m.shooter, e, m.dmg, e.hp <= 0 && e.down === 0);
+      splat(e.x, e.y, TEAM_COLOR[e.team]);
+      if (e.hp <= 0) { e.hp = 0; e.down = e.isP ? PLAYER_DOWN : RESPAWN_T; splat(e.x, e.y, TEAM_COLOR[e.team]); if (e.isP) playerDied(e); }
+      return false;
+    }
+    return true;
+  }
   function volley(u, key, aim) {
     const W = WEAPONS[u.widOf[key]];
     if (W.mortar) {   // Rocket Mortar: một lần bắn dùng hết băng (4/6/8 quả); chỉ bắn khi có kẻ thù trong tầm ngắm
@@ -1674,6 +1714,22 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       for (let i = 0; i < M.shells; i++) {
         const a = Math.random() * Math.PI * 2, r = Math.random() * M.spread;
         game.shells.push({ x: tgt.x + Math.cos(a) * r, y: tgt.y + Math.sin(a) * r, t: 0, rise: M.rise, height: M.height, radius: M.radius, dmg: u.dmg[key], team: u.team, shooter: u, z: 0 });
+      }
+      u.ammo[key] = 0;
+      u.cd = W.cd;
+      return true;
+    }
+    if (W.javelin) {   // Bệ phóng lao: bắn hết băng (4 tên) cùng lúc; chỉ bắn khi có kẻ thù trong tầm ngắm
+      if (u.ammo[key] < W.mag) return false;
+      const tgt = mortarTarget(u, aim);
+      if (!tgt) return false;
+      const J = W.javelin;
+      game.missiles = game.missiles || [];
+      for (let i = 0; i < J.count; i++) {
+        const side = (i - (J.count - 1) / 2) * 0.8;   // tỏa nhẹ hai bên lúc phóng
+        game.missiles.push({ x: u.x + Math.cos(aim) * 1.3, y: u.y + Math.sin(aim) * 1.3, z: 1.5 + (u.alt || 0),
+          vx: -Math.sin(aim) * side, vy: Math.cos(aim) * side, vz: J.climbV, t: 0, life: J.life, climbT: J.climbT,
+          speed: J.speed, turn: J.turn, target: tgt, dmg: u.dmg[key], team: u.team, shooter: u });
       }
       u.ammo[key] = 0;
       u.cd = W.cd;
@@ -1976,8 +2032,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   // Thống kê trận để chọn MVP: giết, chiếm (có mặt trong vòng điểm lúc đội chiếm xong), sát thương (ST)
   const mst = (u) => u.mst || (u.mst = { k: 0, c: 0, d: 0 });
+  const DMG_TEXT_T = 1.25;   // số sát thương hiện 1.25 giây
+  function popDmg(v, dmg) {
+    game.dmgTexts = game.dmgTexts || [];
+    game.dmgTexts.push({ x: v.x, y: v.y, h: 3.4 + (v.alt || 0), v: Math.round(dmg), t: 0 });
+  }
   function creditHit(att, victim, dmg, killed) {
     if (!att || att.team === victim.team) return;
+    if (att === game.player && dmg > 0) popDmg(victim, dmg);   // số sát thương bay lên khi mình bắn trúng
     mst(att).d += dmg;
     if (killed) mst(att).k++;
   }
@@ -2028,6 +2090,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       return false;
     });
     game.shells = game.shells.filter((s) => updateShell(s, dt));
+    game.missiles = (game.missiles || []).filter((m) => updateMissile(m, dt));
     game.beams = game.beams.filter((b) => (b.life -= dt) > 0);
     game.particles = game.particles.filter((p) => {
       p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.9; p.vy *= 0.9; p.life -= dt; return p.life > 0;
@@ -2066,6 +2129,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function tick(dt) {
     game.t += dt;
+    if (game.dmgTexts && game.dmgTexts.length) {
+      for (const d of game.dmgTexts) d.t += dt;
+      game.dmgTexts = game.dmgTexts.filter((d) => d.t < DMG_TEXT_T);
+    }
     game.timeLeft -= dt;
     for (const u of game.units) {
       if (u.burning && u.down === 0 && game.t < u.burnUntil && Math.random() < 0.4) {
@@ -2203,6 +2270,17 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       m.position.set(s.x, s.z + 0.3, s.y);
       dyn.add(m);
     }
+    for (const m of game.missiles || []) {   // tên bệ phóng lao đang bay, kèm vệt khói
+      const mesh = new THREE.Mesh(rocketGeo, mat('#9bd16a'));
+      mesh.position.set(m.x, m.z, m.y);
+      dyn.add(mesh);
+      const dir = Math.atan2(m.vy, m.vx);
+      const tr = new THREE.Mesh(unitBoxGeo, mat('#e6f5c8', { basic: true, opacity: 0.8 }));
+      tr.scale.set(2.0, 0.08, 0.08);
+      tr.position.set(m.x - Math.cos(dir) * 1.0, m.z, m.y - Math.sin(dir) * 1.0);
+      tr.rotation.y = -dir;
+      dyn.add(tr);
+    }
     for (const w of game.walls) for (const o of w.boxes) {
       const m = new THREE.Mesh(unitBoxGeo, mat('#c77d2e'));
       m.scale.set(o.w, 3.0, o.h);
@@ -2303,6 +2381,44 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (mhands.some((h) => pl.reloadT[h] > 0)) {
         octx.fillStyle = '#ff5a4e'; octx.font = '700 14px system-ui';
         octx.fillText('RELOADING', cx, cy + 130);
+      }
+    }
+    if (game.dmgTexts && game.dmgTexts.length) {
+      octx.textAlign = 'center'; octx.font = '800 17px system-ui'; octx.fillStyle = '#ffe066';
+      octx.shadowColor = 'rgba(0,0,0,.8)'; octx.shadowBlur = 4;
+      for (const d of game.dmgTexts) {
+        const q = projectPoint(d.x, d.h + d.t * 0.7, d.y);   // bay lên dần khi mờ đi
+        if (q.z > 1) continue;
+        octx.globalAlpha = Math.max(0, 1 - d.t / DMG_TEXT_T);
+        octx.fillText(`-${d.v}`, q.x, q.y);
+      }
+      octx.globalAlpha = 1;
+    }
+    // Tấm ngắm bệ phóng lao: khung khóa vàng quanh mục tiêu kèm khoảng cách; RELOADING khi đang nạp
+    const jpl = game.player;
+    const jhands = jpl && jpl.down === 0 ? ['L', 'R'].filter((h) => jpl.hands[h] && WEAPONS[jpl.hands[h]].javelin) : [];
+    if (jhands.length) {
+      const jt = mortarTarget(jpl, jpl.aim);
+      if (jt) {
+        const q = projectPoint(jt.x, 1.2 + (jt.alt || 0), jt.y);
+        const d = Math.hypot(jt.x - jpl.x, jt.y - jpl.y);
+        if (q.z <= 1) {
+          const s = Math.max(24, Math.min(90, 2200 / Math.max(d, 1))), hs = s / 2, L = s / 4;
+          octx.shadowBlur = 0; octx.strokeStyle = '#ffd23f'; octx.lineWidth = 2;
+          octx.beginPath();
+          for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+            const x0 = q.x + sx * hs, y0 = q.y + sy * hs;
+            octx.moveTo(x0, y0); octx.lineTo(x0 - sx * L, y0);
+            octx.moveTo(x0, y0); octx.lineTo(x0, y0 - sy * L);
+          }
+          octx.stroke();
+          octx.fillStyle = '#ffd23f'; octx.font = '700 13px system-ui'; octx.textAlign = 'center';
+          octx.fillText(`KHÓA · ${Math.round(d)}m`, q.x, q.y - hs - 8);
+        }
+      }
+      if (jhands.some((h) => jpl.reloadT[h] > 0)) {
+        octx.fillStyle = '#ffd23f'; octx.font = '700 14px system-ui'; octx.textAlign = 'center';
+        octx.fillText('RELOADING', CANVAS_W / 2, CANVAS_H / 2 + 130);
       }
     }
     drawMinimap();
