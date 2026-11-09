@@ -83,7 +83,7 @@
   .crosshair::after { top: 12px; left: 0; height: 2px; width: 26px; }
   .crosshair i { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #ff4d4d; box-shadow: 0 0 2px rgba(0,0,0,.8); }
   /* Nút hồ sơ (hình bình hành) góc trên trái */
-  .tier-btn { position: fixed; left: 12px; bottom: 12px; z-index: 40; padding: 10px 16px; border-radius: 12px; border: 1px solid #3c6a8f; background: rgba(20, 40, 60, .9); color: #dff4ff; font-weight: 700; }
+  .tier-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 40; padding: 10px 16px; border-radius: 12px; border: 1px solid #3c6a8f; background: rgba(20, 40, 60, .9); color: #dff4ff; font-weight: 700; }
   body.in-match .tier-btn { display: none; }
   .tier-box { max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .tier-row { padding: 10px 12px; border-radius: 10px; background: rgba(0, 0, 0, .05); margin-top: 8px; }
@@ -203,10 +203,13 @@
   <button class="tier-btn" id="tier-btn">Cửa hàng</button>
   <div class="modal" id="tier-modal" hidden>
     <div class="modal-box tier-box">
-      <div class="row" style="justify-content:space-between;align-items:center"><h3 id="tier-title" style="margin:0">Bản đồ bậc</h3><button id="tier-close">Đóng</button></div>
-      <p class="muted" id="tier-now"></p>
-      <div id="tier-list"></div>
-      <div class="row" style="margin-top:10px"><button class="primary" id="tier-to-shop">Mở cửa hàng</button></div>
+      <div class="row" style="justify-content:space-between;align-items:center"><h3 id="tier-title" style="margin:0">Cửa hàng</h3><button id="tier-close">Đóng</button></div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="shop-pick-mech">Mech</button><button class="primary" id="shop-pick-gun">Súng</button></div>
+      <div class="row" style="margin-top:8px"><button id="shop-pick-tier">Bản đồ bậc</button></div>
+      <div id="tier-view" hidden>
+        <p class="muted" id="tier-now"></p>
+        <div id="tier-list"></div>
+      </div>
     </div>
   </div>
   <div class="hg" id="hangar">
@@ -271,7 +274,7 @@
       <p class="muted">Điều khiển: W tiến, S lùi, A và D đi ngang, di chuột để xoay góc nhìn và ngắm, chuột trái bắn súng tay trái, chuột phải bắn súng tay phải, Space để dùng kỹ năng. Kéo chuột lên/xuống để ngước/cúi. Lancer bấm Shift (hoặc nút Nhảy phản lực trên điện thoại) để nhảy lên, có thể nhảy 2 lần liên tiếp. Trên điện thoại: kéo nửa trái để đi, kéo nửa phải để xoay và giữ để bắn, nút kỹ năng ở thanh trên.</p>
     </section>
     <section class="card" id="shop-card" style="grid-column: 1 / -1" hidden>
-      <div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Cửa hàng mech</h2><button id="btn-shop-back">← Về sảnh</button></div>
+      <div class="row" style="justify-content:space-between;align-items:center"><h2 id="shop-title" style="margin:0">Cửa hàng mech</h2><button id="btn-shop-back">← Về sảnh</button></div>
       <div id="shop" style="margin-top:8px"></div>
       <div class="row" style="margin-top:10px">
         <button id="btn-topup" disabled>Nạp xu (đang khóa)</button>
@@ -421,6 +424,17 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const OBST_TOP = 2.6;                      // chiều cao vật cản: robot bay trên mức này thì vượt qua được
   const TIER_MAX = 10, TIER_STEP = 2;        // tối đa 10 bậc. Mỗi món mua (mech hoặc súng) được 1 điểm bậc; cứ 2 điểm lên 1 bậc (bậc 1: mua Lancer + Bệ phóng)
   const tierOf = (p) => Math.min(TIER_MAX, 1 + Math.floor(p / TIER_STEP));
+  // Bậc theo sao: tích lũy đủ sao từ đồ của bậc n thì mở bậc n+1. Bậc 10 mở toàn bộ kho đồ, không cần cày sao nữa.
+  const TIER_NAMES = ['Tân thủ', 'Sơ cấp', 'Trung cấp', 'Cao cấp', 'Bản lề', 'Chuyên nghiệp', 'Kỳ cựu', 'Tinh anh', 'Thử thách', 'Vạch đích'];
+  const TIER_STARS = [5, 18, 24, 28, 32, 34, 36, 40, 45];   // sao cần tích lũy từ đồ bậc n (n = 1..9)
+  const mechTier = (id) => (SHOP[id] ? SHOP[id].tier : 1);   // Paragon (mech miễn phí lúc đầu) thuộc bậc 1
+  const starsOfTier = (t) => {
+    let s = 0;
+    for (const id of wallet.owned) if (mechTier(id) === t) s += starsOf(id);
+    for (const id of wallet.weapons.owned) if (weaponTier(id) === t) s += wUp(id).st;
+    return s;
+  };
+  const computeTier = () => { let t = 1; while (t < TIER_MAX && starsOfTier(t) >= TIER_STARS[t - 1]) t++; return t; };
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
   const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
@@ -514,6 +528,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun17: { name: 'Rocket Mortar 12 NL', nl: 12, price: 2800, color: '#8e6b3e', desc: 'Cối phóng · 8 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 750 ST mỗi quả · hồi đạn 10 s', dmg: 3750, cd: 0.6, barrels: 1, spread: 0, mag: 8, reload: 10, rocket: false, mortar: { shells: 8, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
     gun19: { name: 'Gauss Rifle 6 NL', nl: 6, price: 1600, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 3 000 ST mỗi viên · hồi đạn 8 s', dmg: 3000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun20: { name: 'Gauss Rifle 4 NL', nl: 4, price: 1200, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 2 000 ST mỗi viên · hồi đạn 8 s', dmg: 2000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
+    gun22: { name: 'Pulse Cannon 4 NL', nl: 4, price: 18000, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 2 000 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 2000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
+    gun23: { name: 'Pulse Cannon 6 NL', nl: 6, price: 24000, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 3 000 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 3000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
+    gun24: { name: 'Pulse Cannon 8 NL', nl: 8, price: 28500, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 3 500 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 3500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 2200, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 2000, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -556,17 +573,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) wallet = Object.assign(wallet, s); } catch (_) {}
   wallet.owned = Array.from(new Set(['mech2', ...(wallet.owned || []).filter((id) => MECHS[id])]));
   wallet.wins = wallet.wins | 0;
-  wallet.tierPts = wallet.tierPts | 0;
-  wallet.tier = tierOf(wallet.tierPts);
+  wallet.tier = 1;   // bậc được tính lại theo sao (computeTier) khi mở cửa hàng hoặc bản đồ bậc
   wallet.upgrades = wallet.upgrades || {};
   wallet.weapons = wallet.weapons || { owned: ['gun1'], equipped: ['gun1'] };
   wallet.weaponUp = wallet.weaponUp || {};
   wallet.weapons.owned = Array.from(new Set(['gun1', ...(wallet.weapons.owned || []).filter((id) => WEAPONS[id])]));
   wallet.weapons.equipped = (wallet.weapons.equipped || []).filter((id) => wallet.weapons.owned.includes(id)).slice(0, MAX_WEAPONS);
   if (!wallet.weapons.equipped.length) wallet.weapons.equipped = ['gun1'];
-  // Điểm bậc: mỗi món đã mua (mech trong cửa hàng, súng trừ súng miễn phí) được 1 điểm. Bù điểm cho món mua trước khi có cơ chế này.
-  wallet.tierPts = Math.max(wallet.tierPts | 0, wallet.owned.filter((id) => SHOP[id]).length + wallet.weapons.owned.filter((id) => id !== 'gun1').length);
-  wallet.tier = tierOf(wallet.tierPts);
   // ---------- Chỉnh thông số (chỉ tài khoản chủ): ST, tốc độ, HP, thời gian, hồi chiêu... ----------
   // Chỉ lưu trong tài khoản chủ (wallet.tune), chỉ áp dụng cho các trận của tài khoản đó; người khác không bị ảnh hưởng.
   const numFields = (obj) => {
@@ -809,10 +822,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }).catch((e) => { banList.textContent = 'Không tải được: ' + e.message; });
     return wrap;
   }
+  // Cửa hàng chia hai phần: 'mech' hoặc 'gun' (chọn ở nút Cửa hàng dưới giữa)
+  let shopKind = 'mech';
   function renderShop() {
     const box = $('shop'); box.innerHTML = '';
+    $('shop-title').textContent = shopKind === 'gun' ? 'Cửa hàng súng' : 'Cửa hàng mech';
+    wallet.tier = computeTier();
     const th = document.createElement('div'); th.className = 'shop-sub';
-    th.textContent = wallet.tier >= TIER_MAX ? `Bậc ${TIER_MAX}/${TIER_MAX} · cao nhất` : `Bậc ${wallet.tier}/${TIER_MAX} · điểm bậc ${wallet.tierPts}/${wallet.tier * TIER_STEP} để lên bậc ${wallet.tier + 1}`;
+    th.textContent = wallet.tier >= TIER_MAX ? `Bậc ${TIER_MAX}/${TIER_MAX} · ${TIER_NAMES[TIER_MAX - 1]} · mở khóa toàn bộ kho đồ` : `Bậc ${wallet.tier}/${TIER_MAX} · ${TIER_NAMES[wallet.tier - 1]} · tích lũy ${starsOfTier(wallet.tier)}/${TIER_STARS[wallet.tier - 1]} Sao từ đồ Bậc ${wallet.tier} để mở bậc ${wallet.tier + 1}`;
     box.appendChild(th);
     if (isAdminNow()) {
       const tog = document.createElement('button'); tog.textContent = '⚙ Admin';
@@ -821,7 +838,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       box.appendChild(tog);
       if (adminMenuOpen) box.appendChild(adminMenu());
     }
-    for (const [id, it] of Object.entries(SHOP)) {
+    for (const [id, it] of (shopKind === 'mech' ? Object.entries(SHOP) : [])) {
       if (wallet.owned.includes(id)) continue;
       const m = MECHS[id];
       const row = document.createElement('div'); row.className = 'shop-row';
@@ -840,11 +857,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     const wh = document.createElement('div'); wh.className = 'shop-sub';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
-    box.appendChild(wh);
+    if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'uncommon', gun20: 'uncommon', gun21: 'rare' };
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare' };
     const gunGroup = (id, w) => (w.energy ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
-    const gunList = Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl);
+    const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
       const row = document.createElement('div'); row.className = 'shop-row';
       const owned = wallet.weapons.owned.includes(id);
@@ -1074,8 +1091,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const MORTAR_TIER = { 8: 3, 10: 4, 12: 5 };
   // Gauss theo NL: 4 NL bậc 2, 6 NL bậc 3, 10 NL bậc 4
   const GAUSS_TIER = { 4: 2, 6: 3, 10: 4 };
+  // Pulse theo NL: 4 NL bậc 2, 6 và 8 NL bậc 3
+  const PULSE_TIER = { 4: 2, 6: 3, 8: 3 };
   const weaponTier = (id) => (WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
+    : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].nl === 2 ? 1 : 2);
   function buyWeapon(id) {
     const w = WEAPONS[id], msg = $('shop-msg');
@@ -1102,7 +1122,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     saveWallet(); renderShop();
   }
   // Mỗi món mua tăng 1 điểm bậc
-  function addTierPoint() { wallet.tierPts = (wallet.tierPts | 0) + 1; wallet.tier = tierOf(wallet.tierPts); }
+  function addTierPoint() { wallet.tier = computeTier(); }   // bậc tính lại theo sao sau mỗi lần mua
   function buy(id) {
     const it = SHOP[id], msg = $('shop-msg');
     if (it.tier > wallet.tier) { msg.className = 'msg'; msg.textContent = `Cần bậc ${it.tier} để mua.`; return; }
@@ -1123,7 +1143,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     document.querySelectorAll('.hg-nav [data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === t));
     if (t === 'shop') renderShop();
   }
-  function openShop() { showTab('shop'); }
+  function openShop() { shopKind = 'mech'; showTab('shop'); }
   function closeShop() { showTab('hall'); }
   $('btn-open-shop').onclick = openShop;
   $('lo-close').onclick = closeLoadout;
@@ -1834,6 +1854,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const n = Math.min(W.barrels, u.ammo[key]);
     if (n <= 0) return false;
     for (let i = 0; i < n; i++) fire(u, aim + (i - (W.barrels - 1) / 2) * W.spread, u.dmg[key], W.cd, W.rocket, W.fire, W.speedMul, W.range, W.invisible, W.tracer);
+    if (W.bulletColor) game.bullets.slice(-n).forEach((bl) => { bl.color = W.bulletColor; });   // đạn có màu riêng (Pulse Cannon: xanh dương)
     u.ammo[key] -= n;
     return true;
   }
@@ -2373,7 +2394,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     while (dyn.children.length) dyn.remove(dyn.children[dyn.children.length - 1]);
     for (const b of game.bullets) {
       if (b.invisible) continue;   // đạn vô hình (súng săn)
-      const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(TEAM_COLOR[b.team]));
+      const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(b.color || TEAM_COLOR[b.team]));
       m.position.set(b.x, 1.5, b.y);
       dyn.add(m);
       if (b.tracer) {   // vệt sáng của Longarm: đạn bay rất nhanh nên hiện thành một đường
@@ -2848,23 +2869,27 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   // Nút Cửa hàng góc trái dưới: bản đồ bậc 1–10, mỗi bậc mở những mech và súng nào
   function renderTierMap() {
+    wallet.tier = computeTier();
     const cur = wallet.tier;
-    $('tier-now').textContent = cur >= TIER_MAX ? `Bạn đang ở bậc cao nhất ${TIER_MAX}/${TIER_MAX} · ${wallet.tierPts} điểm bậc` : `Bạn đang ở bậc ${cur}/${TIER_MAX} · ${wallet.tierPts} điểm bậc · cần ${cur * TIER_STEP} điểm để lên bậc ${cur + 1}`;
+    $('tier-now').textContent = cur >= TIER_MAX ? `Bạn đang ở bậc cao nhất ${TIER_MAX}/${TIER_MAX} · ${TIER_NAMES[TIER_MAX - 1]}` : `Bạn đang ở bậc ${cur}/${TIER_MAX} · ${TIER_NAMES[cur - 1]} · tích lũy ${starsOfTier(cur)}/${TIER_STARS[cur - 1]} Sao từ đồ Bậc ${cur}`;
     let html = '';
     for (let n = 1; n <= TIER_MAX; n++) {
       const st = n < cur ? 'Đã mở' : n === cur ? 'Đang ở' : 'Chưa mở';
-      const need = n === 1 ? 'mở từ đầu' : `cần ${(n - 1) * TIER_STEP} điểm bậc`;
+      const flow = n === TIER_MAX ? 'Mở khóa toàn bộ kho đồ, KHÔNG CẦN CÀY SAO NỮA' : `Tích lũy ${TIER_STARS[n - 1]} Sao từ đồ Bậc ${n} → Mở khóa Bậc ${n + 1}`;
+      const need = flow + (n === cur && n < TIER_MAX ? ` · đang có ${starsOfTier(n)}/${TIER_STARS[n - 1]} Sao` : '');
       const mechs = Object.keys(SHOP).filter((id) => SHOP[id].tier === n).map((id) => `${SHOP[id].name.split(' · ')[0]} (mech)`);
       const guns = Object.keys(WEAPONS).filter((id) => weaponTier(id) === n).map((id) => `${WEAPONS[id].name}`);
       const items = mechs.concat(guns);
-      html += `<div class="tier-row${n > cur ? ' locked' : ''}"><div class="tier-head"><b>Bậc ${n}</b><span class="muted">${need} · ${st}</span></div>` +
+      html += `<div class="tier-row${n > cur ? ' locked' : ''}"><div class="tier-head"><b>Bậc ${n}: ${TIER_NAMES[n - 1]}</b><span class="muted">${st}</span></div><div class="muted">${need}</div>` +
         `<div class="tier-items">${items.length ? items.map((t) => `<span class="tier-chip">${t}</span>`).join('') : '<span class="muted">Chưa có món</span>'}</div></div>`;
     }
     $('tier-list').innerHTML = html;
   }
-  $('tier-btn').onclick = () => { renderTierMap(); $('tier-modal').hidden = false; };
+  $('tier-btn').onclick = () => { $('tier-view').hidden = true; $('tier-modal').hidden = false; };
   $('tier-close').onclick = () => { $('tier-modal').hidden = true; };
-  $('tier-to-shop').onclick = () => { $('tier-modal').hidden = true; showTab('shop'); };
+  $('shop-pick-mech').onclick = () => { shopKind = 'mech'; $('tier-modal').hidden = true; showTab('shop'); };
+  $('shop-pick-gun').onclick = () => { shopKind = 'gun'; $('tier-modal').hidden = true; showTab('shop'); };
+  $('shop-pick-tier').onclick = () => { renderTierMap(); $('tier-view').hidden = !$('tier-view').hidden; };
   $('hg-battle').onclick = () => showMode(true);
   $('hgm-change').onclick = () => showMode(false);
   $('hgm-quick').onclick = () => { pendingMode = 'cp'; openPre(); };
