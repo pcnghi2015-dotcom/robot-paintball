@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rogue Unit</title>
+<title>Storm of Steel</title>
 <style>
   :root {
     --bg: #eef3ea; --panel: #ffffff; --ink: #1d2a22; --muted: #5d6f63;
@@ -194,7 +194,7 @@
 
 <div class="wrap">
   <div class="topbar">
-    <h1>🤖 Rogue Unit</h1>
+    <h1>🤖 Storm of Steel</h1>
     <div class="coins" aria-live="polite">💰 <span id="coins">0</span> xu</div>
   </div>
 
@@ -437,7 +437,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const computeTier = () => { let t = 1; while (t < TIER_MAX && starsOfTier(t) >= TIER_STARS[t - 1]) t++; return t; };
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
-  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
+  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
   const NL_BY_STAR = {   // NL của mech theo số sao: Lancer +2/sao, Paragon +4/sao, Rampart và M.D theo bảng riêng
     kind1: () => 16,
     mech2: () => 32,
@@ -447,7 +447,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech6: () => 32,
     mech7: () => 24,
     ares: () => 24,
-    shadow: () => 24, stalker: () => 24,
+    shadow: () => 24, stalker: () => 24, arachnos: () => 24,
   };
   const MAX_UPGRADE = 5, UPGRADE_BASE = 200, UPGRADE_STEP = 100;  // nâng cấp tối đa 5 cấp, cấp đầu 200 xu, mỗi cấp sau đắt hơn 100 xu
   const JET_CHARGES = 2, JET_CHARGE_SEC = 2, JET_UP_V = 20.5, JET_GRAV = 14;  // 2 lần nhảy phản lực (mỗi lần cao khoảng 15 m), hồi sau 2 giây
@@ -463,7 +463,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // Các mech người chơi có thể trang bị
   const MECHS = {
     kind1: {
-      name: 'Lancer · Đỏ, mảnh, nhanh', price: 200, color: '#e04848', rarity: 'common', hp: 13500, hpMax: 85400, nl: 16, radius: 0.7, speed: 12, slim: true, jet: true,
+      name: 'Lancer · Đỏ, mảnh, nhanh', price: 200, color: '#e04848', rarity: 'common', hp: 13500, hpMax: 85400, nl: 16, radius: 0.7, speed: 12, slim: true, jet: true, look: 'lancer',
       skill: { name: 'Tốc biến 20 m', type: 'dash', dist: 20, time: 0, cooldown: 4 },
     },
     mech2: {
@@ -502,6 +502,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       name: 'Stalker · Tăng ST', price: 1400, color: '#5a1f1f', rarity: 'rare', hp: 14000, hpMax: 90000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'stalker',
       skill: { name: 'Săn mồi 8 s', type: 'rage', duration: 8, cooldown: 14, dmgMul: 1.5, hurtMul: 1.25, healKill: 0.1 },
     },
+    arachnos: {
+      name: 'Arachnos · Tháp nhện', price: 1500, color: '#5a4a2e', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
+      skill: { name: 'Tháp nhện 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 1500, fireCd: 0.8, range: 30, cooldown: 22 },
+    },
   };
   // Súng: trang bị tối đa MAX_WEAPONS khẩu cho cả biệt đội
   const MAX_WEAPONS = 2;
@@ -523,9 +527,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun12: { name: 'Longarm 8 NL', nl: 8, price: 1400, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · đạn bay nhanh gấp 5,5 lần, để lại vệt sáng · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false, speedMul: 5.5, tracer: true },
     gun13: { name: 'Longarm 10 NL', nl: 10, price: 1600, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · đạn bay nhanh gấp 5,5 lần, để lại vệt sáng · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 11250, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false, speedMul: 5.5, tracer: true },
     gun14: { name: 'Longarm 12 NL', nl: 12, price: 1800, color: '#5d6d7e', desc: 'Súng bắn tỉa · 1 viên mỗi phát · đạn bay nhanh gấp 5,5 lần, để lại vệt sáng · 60 phát mỗi phút · băng 5 viên · hồi đạn 12 s', dmg: 13500, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 12, rocket: false, speedMul: 5.5, tracer: true },
-    gun15: { name: 'Rocket Mortar 8 NL', nl: 8, price: 2200, color: '#8e6b3e', desc: 'Cối phóng · 4 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 2 500 ST mỗi quả · hồi đạn 10 s', dmg: 2500, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, mortar: { shells: 4, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
-    gun16: { name: 'Rocket Mortar 10 NL', nl: 10, price: 2500, color: '#8e6b3e', desc: 'Cối phóng · 6 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 125 ST mỗi quả · hồi đạn 10 s', dmg: 3125, cd: 0.6, barrels: 1, spread: 0, mag: 6, reload: 10, rocket: false, mortar: { shells: 6, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
-    gun17: { name: 'Rocket Mortar 12 NL', nl: 12, price: 2800, color: '#8e6b3e', desc: 'Cối phóng · 8 quả mỗi lần bắn · quả đạn bay lên ~1 s rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 750 ST mỗi quả · hồi đạn 10 s', dmg: 3750, cd: 0.6, barrels: 1, spread: 0, mag: 8, reload: 10, rocket: false, mortar: { shells: 8, radius: 3, spread: 1.2, rise: 1.0, height: 18 } },
+    gun15: { name: 'Rocket Mortar 8 NL', nl: 8, price: 2200, color: '#8e6b3e', desc: 'Cối phóng · 4 quả mỗi lần bắn · quả đạn bay lên ~95 m rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 2 500 ST mỗi quả · hồi đạn 10 s', dmg: 2500, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, mortar: { shells: 4, radius: 3, spread: 1.2, rise: 1.76, height: 95, fall: 108 } },
+    gun16: { name: 'Rocket Mortar 10 NL', nl: 10, price: 2500, color: '#8e6b3e', desc: 'Cối phóng · 6 quả mỗi lần bắn · quả đạn bay lên ~95 m rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 125 ST mỗi quả · hồi đạn 10 s', dmg: 3125, cd: 0.6, barrels: 1, spread: 0, mag: 6, reload: 10, rocket: false, mortar: { shells: 6, radius: 3, spread: 1.2, rise: 1.76, height: 95, fall: 108 } },
+    gun17: { name: 'Rocket Mortar 12 NL', nl: 12, price: 2800, color: '#8e6b3e', desc: 'Cối phóng · 8 quả mỗi lần bắn · quả đạn bay lên ~95 m rồi rơi thẳng xuống điểm đã ngắm, nổ khi chạm đất hoặc mech · chỉ bắn khi có kẻ thù trong tầm ngắm · 3 750 ST mỗi quả · hồi đạn 10 s', dmg: 3750, cd: 0.6, barrels: 1, spread: 0, mag: 8, reload: 10, rocket: false, mortar: { shells: 8, radius: 3, spread: 1.2, rise: 1.76, height: 95, fall: 108 } },
     gun19: { name: 'Gauss Rifle 6 NL', nl: 6, price: 1600, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 3 000 ST mỗi viên · hồi đạn 8 s', dmg: 3000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun20: { name: 'Gauss Rifle 4 NL', nl: 4, price: 1200, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 2 000 ST mỗi viên · hồi đạn 8 s', dmg: 2000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun22: { name: 'Pulse Cannon 4 NL', nl: 4, price: 18000, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 2 000 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 2000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
@@ -563,6 +567,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     ares: { name: 'Ares · Khiên đỡ đòn', price: MECHS.ares.price, type: 'mech', color: MECHS.ares.color, tier: 2 },
     shadow: { name: 'Shadow · Tàng hình', price: MECHS.shadow.price, type: 'mech', color: MECHS.shadow.color, tier: 2 },
     stalker: { name: 'Stalker · Tăng ST', price: MECHS.stalker.price, type: 'mech', color: MECHS.stalker.color, tier: 4 },
+    arachnos: { name: 'Arachnos · Tháp nhện', price: MECHS.arachnos.price, type: 'mech', color: MECHS.arachnos.color, tier: 4 },
   };
 
   // ---------- Lưu trữ (bọc try/catch) ----------
@@ -1334,11 +1339,71 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     m.position.set(x, y, z);
     return m;
   }
+  // Tháp nhện (Arachnos): tháp pháo nhỏ 4 chân, đứng yên và tự bắn kẻ địch gần nhất trong tầm.
+  // Tháp có HP và bị đạn địch phá; hết thời gian hoặc hết HP thì biến mất.
+  const turretGroup = new THREE.Group(); scene.add(turretGroup);
+  const TURRETS = [];
+  function buildTurret(team) {
+    const g = new THREE.Group();
+    g.add(box(0.9, 0.5, 0.9, '#3b434d', 0, 0.75, 0));                 // thân tháp
+    g.add(box(0.6, 0.3, 0.6, '#2b3138', 0, 1.15, 0));                 // nắp tháp
+    g.add(box(0.94, 0.12, 0.94, TEAM_COLOR[team], 0, 0.45, 0));       // viền màu đội
+    g.add(box(0.9, 0.2, 0.2, '#161c22', 0.55, 1.15, 0));              // nòng pháo chỉ về phía +x
+    g.add(box(0.08, 0.08, 0.08, '#ff9a1f', 1.02, 1.15, 0));           // đầu nòng phát sáng
+    for (let i = 0; i < 4; i++) {                                      // 4 chân chéo ra ngoài, có khớp gập
+      const a = Math.PI / 4 + (i * Math.PI) / 2;
+      const leg = new THREE.Group();
+      leg.position.set(Math.cos(a) * 0.45, 0.6, Math.sin(a) * 0.45);
+      leg.rotation.y = -a;
+      leg.add(box(1.0, 0.12, 0.12, '#161c22', 0.5, 0, 0));
+      leg.add(box(0.12, 0.7, 0.12, '#161c22', 1.0, -0.25, 0));
+      g.add(leg);
+    }
+    return g;
+  }
+  function deployTurret(u, s) {
+    const x = Math.min(FIELD_W - 1, Math.max(1, u.x + Math.cos(u.aim) * s.dist));
+    const y = Math.min(FIELD_H - 1, Math.max(1, u.y + Math.sin(u.aim) * s.dist));
+    const group = buildTurret(u.team);
+    turretGroup.add(group);
+    TURRETS.push({ x, y, sx: u.x, sy: u.y, team: u.team, owner: u, aim: u.aim, cd: 0, age: 0, life: s.duration, hp: s.hp, dmg: s.dmg, fireCd: s.fireCd, range: s.range, group });
+  }
+  function removeTurret(t) {
+    turretGroup.remove(t.group);
+    t.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    const k = TURRETS.indexOf(t); if (k >= 0) TURRETS.splice(k, 1);
+  }
+  function clearTurrets() { while (TURRETS.length) removeTurret(TURRETS[TURRETS.length - 1]); }
+  function updateTurrets(dt) {
+    for (const t of TURRETS.slice()) {
+      t.age += dt;
+      if (t.age >= t.life || t.hp <= 0) { removeTurret(t); continue; }
+      // Hiệu ứng: tháp "bung" từ phía sau mech ra phía trước trong 0.5 s
+      const k = Math.min(1, t.age / 0.5), e = k * k * (3 - 2 * k);
+      t.group.position.set(t.sx + (t.x - t.sx) * e, 0, t.sy + (t.y - t.sy) * e);
+      t.group.scale.setScalar(0.35 + 0.65 * e);
+      t.cd = Math.max(0, t.cd - dt);
+      let best = null, bd = t.range;
+      for (const e2 of game.units) {
+        if (e2.team === t.team || e2.down > 0 || (e2.alt || 0) > 1.5 || (e2.cloakLeft || 0) > 0) continue;
+        const d = Math.hypot(e2.x - t.x, e2.y - t.y);
+        if (d <= bd) { bd = d; best = e2; }
+      }
+      if (!best) continue;
+      t.aim = Math.atan2(best.y - t.y, best.x - t.x);
+      t.group.rotation.y = -t.aim;
+      if (t.cd > 0) continue;
+      t.cd = t.fireCd;
+      const c = Math.cos(t.aim), sn = Math.sin(t.aim);
+      game.bullets.push({ x: t.x + c * 1.1, y: t.y + sn * 1.1, z: 1.2, vx: c * BULLET_SPEED, vy: sn * BULLET_SPEED, vz: 0, life: 0.7, team: t.team, dmg: t.dmg, rocket: false, burn: false, invisible: false, tracer: false, shooter: t.owner });
+    }
+  }
 
   // Dựng robot. Phía trước là +x. Vòng/bóng dưới chân có màu đội.
   function buildRobot(kind, color, accent, teamColor) {
     const g = new THREE.Group();
     const neon = '#7ff7ff';
+    let podsRef = null;   // cặp pod sau lưng của Arachnos (ẩn khi đã bung thành tháp)
     const hot = (c, w, h, d, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ color: c })); m.position.set(x, y, z); g.add(m); return m; };
     if (kind.rampart) {
       g.add(box(0.7, 0.9, 0.7, '#161c22', 0, 0.45, -0.55));
@@ -1362,7 +1427,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         // M.D bay lơ lửng: không có chân, chỉ có đèn đẩy phát sáng xanh bên dưới
         const thr = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.7, 0.2, 24), new THREE.MeshBasicMaterial({ color: '#4cf0a0', transparent: true, opacity: 0.55 }));
         thr.position.set(0, 1.25, 0); g.add(thr);
-      } else {
+      } else if (kind.look !== 'arachnos') {
         g.add(box(0.5, 1.1, 0.5, '#161c22', 0, 0.55, -0.42));
         g.add(box(0.5, 1.1, 0.5, '#161c22', 0, 0.55, 0.42));
       }
@@ -1430,6 +1495,24 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         hot('#ff4d3d', 0.05, 0.12, 0.5, 0.33, 2.7, 0);
         for (const sz of [-1, 1]) g.add(box(0.4, 0.6, 0.25, '#2b2b33', -0.1, 1.9, sz * 0.75));
         for (const sz of [-1, 1]) g.add(box(0.9, 0.2, 0.2, '#1d2630', -0.7, 2.0, sz * 0.3));
+      } else if (kind.look === 'arachnos') {
+        // Arachnos: thân dẹt như nhện, bốn chân dài gập khớp chéo ra ngoài, cặp pod (hộp tháp) gắn sau lưng
+        g.add(box(1.5, 0.6, 1.5, color, 0, 1.55, 0));
+        g.add(box(0.8, 0.4, 0.9, '#2b3138', 0.3, 1.95, 0));                    // đầu cảm biến
+        hot(neon, 0.06, 0.12, 0.6, 0.72, 1.95, 0);
+        for (let i = 0; i < 4; i++) {
+          const a = Math.PI / 4 + (i * Math.PI) / 2;
+          const leg = new THREE.Group();
+          leg.position.set(Math.cos(a) * 0.5, 1.55, Math.sin(a) * 0.5);
+          leg.rotation.y = -a;
+          leg.add(box(1.1, 0.14, 0.14, '#161c22', 0.55, 0, 0));                // đốt trên
+          leg.add(box(0.14, 1.5, 0.14, '#161c22', 1.1, -0.75, 0));             // đốt dưới chạm đất
+          g.add(leg);
+        }
+        const pods = new THREE.Group();
+        for (const sz of [-1, 1]) pods.add(box(0.7, 0.8, 0.6, '#4e5d3a', -0.9, 1.9, sz * 0.5));
+        for (const sz of [-1, 1]) pods.add(box(0.5, 0.12, 0.5, teamColor, -0.9, 2.37, sz * 0.5));
+        g.add(pods); podsRef = pods;
       } else if (kind.look === 'shadow') {
         // Shadow: thân mỏng góc cạnh, áo choàng sẫm phía sau, mắt tím
         g.add(box(0.9, 1.6, 1.1, color, 0, 1.75, 0));
@@ -1444,6 +1527,24 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         g.add(box(0.6, 0.8, 0.5, '#3b434d', 0, 2.05, 1.0));
         g.add(box(0.8, 0.6, 0.8, '#cfd8e3', 0.1, 2.85, 0));
         hot(neon, 0.08, 0.14, 0.7, 0.5, 2.85, 0);
+      }
+    } else if (kind.look === 'lancer') {
+      // Lancer: mech nhỏ gọn, thân đỏ giáp dày, đầu sẫm có kính neon, chân có đùi giáp và bàn chân tối,
+      // hai ăng-ten cong ra sau như ảnh tham khảo
+      for (const sz of [-1, 1]) {
+        g.add(box(0.3, 0.95, 0.3, '#2b2b33', 0, 0.5, sz * 0.24));              // cẳng chân
+        g.add(box(0.36, 0.45, 0.36, color, -0.02, 1.12, sz * 0.24));            // đùi giáp màu đội
+        g.add(box(0.5, 0.14, 0.42, '#1d2630', 0.08, 0.07, sz * 0.24));          // bàn chân
+      }
+      g.add(box(0.7, 0.3, 1.0, '#2b2b33', 0, 1.0, 0));                           // hông
+      g.add(box(0.9, 1.0, 1.1, color, 0, 1.7, 0));                               // thân giáp
+      g.add(box(0.2, 0.6, 0.8, '#8f1d1d', 0.5, 1.7, 0));                         // ngực trước đậm màu hơn
+      g.add(box(0.7, 0.38, 0.62, '#1d2630', 0.02, 2.3, 0));                      // đầu sẫm
+      hot(neon, 0.05, 0.1, 0.5, 0.38, 2.32, 0);                                  // kính neon
+      for (const sz of [-1, 1]) g.add(box(0.5, 0.2, 0.6, '#1d2630', 0, 2.05, sz * 0.62));   // vai
+      for (const sz of [-1, 1]) {                                                 // hai ăng-ten cong ra sau
+        const h = box(0.06, 1.1, 0.06, '#c9d3dc', -0.25, 2.85, sz * 0.22);
+        h.rotation.z = 0.35; g.add(h);
       }
     } else {
       const slim = !!kind.slim;
@@ -1466,14 +1567,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     hot(neon, 0.04, 0.06, halfZ * 1.5, halfX + 0.02, bodyY + 0.42, 0);              // dải neon trên mặt trước
     hot(neon, 0.04, 0.5, 0.05, halfX + 0.02, bodyY - 0.1, halfZ - 0.12);            // gờ neon bên
     hot(neon, 0.04, 0.5, 0.05, halfX + 0.02, bodyY - 0.1, -(halfZ - 0.12));
-    if (kind.rampart || (kind.mech && !kind.wheels && !kind.dome)) {
+    if (kind.rampart || (kind.mech && !kind.wheels && !kind.dome && kind.look !== 'arachnos')) {
       const topY = bodyY + (kind.rampart ? 0.8 : 0.75);
       g.add(box(0.7, 0.32, 0.7, '#3a424c', 0, topY, halfZ + 0.12));                // vai giáp
       g.add(box(0.7, 0.32, 0.7, '#3a424c', 0, topY, -(halfZ + 0.12)));
       hot(teamColor, 0.72, 0.06, 0.72, 0, topY + 0.17, halfZ + 0.12);             // viền màu đội trên vai
       hot(teamColor, 0.72, 0.06, 0.72, 0, topY + 0.17, -(halfZ + 0.12));
     }
-    const headTop = kind.rampart ? 2.95 : kind.dome ? 2.55 : kind.mech ? 3.15 : 3.3;
+    const headTop = kind.rampart ? 2.95 : kind.dome ? 2.55 : kind.mech ? 3.15 : kind.look === 'lancer' ? 2.35 : 3.3;
     g.add(box(0.05, 0.35, 0.05, '#2b2b33', -0.1, headTop + 0.15, 0));            // ăng-ten
     hot(neon, 0.12, 0.12, 0.12, -0.1, headTop + 0.36, 0);
     // Hai tay: cánh tay mỗi bên và điểm gắn súng ở cuối tay
@@ -1495,7 +1596,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.95, 20), new THREE.MeshBasicMaterial({ color: teamColor, transparent: true, opacity: 0.5, depthWrite: false }));
     shadow.rotation.x = -Math.PI / 2;
     g.add(shadow); g.add(bubble); g.add(boost);
-    g.userData = { bubble, boost, shadow, hands: handAnchors, arms: armMeshes };
+    g.userData = { bubble, boost, shadow, hands: handAnchors, arms: armMeshes, pods: podsRef };
     g.traverse((o) => { if (o.isMesh && !o.material.transparent) o.castShadow = true; });
     return g;
   }
@@ -1603,6 +1704,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     return u;
   }
   function clearUnits() {
+    clearTurrets();
     while (unitGroup.children.length) unitGroup.remove(unitGroup.children[unitGroup.children.length - 1]);
     while (dyn.children.length) dyn.remove(dyn.children[dyn.children.length - 1]);
   }
@@ -1751,7 +1853,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function updateShell(s, dt) {
     s.t += dt;
     if (s.t < s.rise) { const k = s.t / s.rise; s.z = s.height * (1 - (1 - k) * (1 - k)); return true; }
-    s.z -= (s.height / s.rise) * dt;
+    s.z -= s.fall * dt;   // rơi thẳng xuống với tốc độ fall (m/s)
     for (const e of game.units) {
       if (e.team === s.team || e.down !== 0 || (e.cloakLeft || 0) > 0) continue;
       if (Math.hypot(s.x - e.x, s.y - e.y) < e.kind.radius + 0.4 && s.z <= (e.alt || 0) + 2.0) { explodeShell(s); return false; }
@@ -1809,7 +1911,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       const M = W.mortar;
       for (let i = 0; i < M.shells; i++) {
         const a = Math.random() * Math.PI * 2, r = Math.random() * M.spread;
-        game.shells.push({ x: tgt.x + Math.cos(a) * r, y: tgt.y + Math.sin(a) * r, t: 0, rise: M.rise, height: M.height, radius: M.radius, dmg: u.dmg[key] * outMult(u), team: u.team, shooter: u, z: 0 });
+        game.shells.push({ x: tgt.x + Math.cos(a) * r, y: tgt.y + Math.sin(a) * r, t: 0, rise: M.rise, height: M.height, fall: M.fall, radius: M.radius, dmg: u.dmg[key] * outMult(u), team: u.team, shooter: u, z: 0 });
       }
       u.ammo[key] = 0;
       u.cd = W.cd;
@@ -1909,6 +2011,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (s.type === 'wall') { spawnWall(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'boost') { u.boostLeft = s.duration; u.skillCd = s.cooldown; return; }
     if (s.type === 'aura') { u.auraLeft = s.duration; u.skillCd = s.cooldown; return; }
+    if (s.type === 'turret') { deployTurret(u, s); u.skillCd = s.cooldown; return; }
     u.body = u.aim;   // thân giữ hướng lúc bấm Space; đầu (ngắm) vẫn quay để bắn
     u.dash = { ax: Math.cos(u.body), ay: Math.sin(u.body), left: s.dist };   // bắt đầu lướt, di chuyển dần theo tốc độ; hồi chiêu tính sau khi lướt xong
   }
@@ -2154,7 +2257,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     game.timeLeft = ROUND_LEN;
     game.roundKills = { A: 0, B: 0 };
     game.squadDead = {};
-    game.bullets = []; game.shells = []; game.beams = []; game.missiles = [];
+    game.bullets = []; game.shells = []; game.beams = []; game.missiles = []; clearTurrets();
     for (const u of game.units) respawn(u);   // mọi mech hồi đầy máu về vị trí xuất phát
     pendingSkill = false; pendingJet = false;
     game.countdown = 10; showCountdown();
@@ -2254,6 +2357,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       for (const u of game.units) {   // khiên Ares chặn đạn từ phía trước
         if (u.team !== b.team && (u.aresLeft || 0) > 0 && b.z <= ARES_H && aresHitAt(u, b.x, b.y)) { aresAbsorb(u, b.dmg); return false; }
       }
+      for (const t of TURRETS) {   // đạn địch trúng tháp nhện: tháp mất HP, đạn dừng lại
+        if (t.team !== b.team && b.z <= 2.2 && Math.hypot(b.x - t.x, b.y - t.y) < 0.9) { t.hp -= b.dmg; splat(b.x, b.y, '#ffffff'); return false; }
+      }
       for (const u of game.units) {
         if (u.team === b.team || u.down > 0 || (u.alt || 0) > 1.5 || b.z > 3.0 || (u.cloakLeft || 0) > 0) continue;
         if (Math.hypot(b.x - u.x, b.y - u.y) < u.kind.radius + 0.3) {
@@ -2325,6 +2431,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (u.dash) { stepDash(u, dt); continue; }
       if (u.isP) playerControl(u, dt); else aiControl(u, dt);
     }
+    updateTurrets(dt);
     updateBullets(dt);
     if (game.mode === 'elim') checkRound();
     else { updatePoints(dt); updateScore(dt); checkEnd(); }
@@ -2343,7 +2450,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       u.ring.position.set(u.x, 0.05, u.y);
       u.ring.visible = u.down === 0 && u.auraLeft > 0;
     }
-    const { bubble, boost, shadow, arms } = m.userData;
+    const { bubble, boost, shadow, arms, pods } = m.userData;
+    if (pods) pods.visible = (u.skillCd || 0) <= 0;   // pod sau lưng: ẩn khi đã bung thành tháp, hiện lại khi hết hồi chiêu
     if (arms) {   // tay ôm: xoay vào trong khi húc (mềm, không giật)
       const hug = (u.hugT || 0) > 0 ? 0.9 : 0;
       if (arms.L) arms.L.rotation.y += (hug - arms.L.rotation.y) * 0.35;
@@ -3001,7 +3109,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
   // ---------- Hướng dẫn cho người mới (chỉ hiện khi chưa có ví đã lưu) ----------
   const TUT = [
-    { t: 'Chào mừng đến Rogue Unit', b: 'Chế độ chiếm cứ điểm 5 chọi 5. Chiếm điểm để tạo điểm, đạt 100 điểm hoặc tiêu diệt hết mech đối thủ để thắng.' },
+    { t: 'Chào mừng đến Storm of Steel', b: 'Chế độ chiếm cứ điểm 5 chọi 5. Chiếm điểm để tạo điểm, đạt 100 điểm hoặc tiêu diệt hết mech đối thủ để thắng.' },
     { t: 'Di chuyển và ngắm', b: 'W, S, A, D để đi. Di chuột để xoay góc nhìn, kéo lên hoặc xuống để ngước hoặc cúi. Trên điện thoại: kéo nửa trái để đi, kéo nửa phải để xoay.' },
     { t: 'Bắn và kỹ năng', b: 'Chuột trái để bắn. Space để dùng kỹ năng của mech. Lancer tốc biến 20 m, Paragon tăng tốc, Juggernaut có khiên bao quanh 6 giây.' },
     { t: 'Chiếm điểm', b: 'Đứng trong vòng điểm để chiếm, mất 7 giây (đông người thì nhanh hơn). Mỗi điểm bạn giữ tạo 1 điểm mỗi 4 giây cho đội.' },
