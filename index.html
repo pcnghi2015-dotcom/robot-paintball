@@ -188,7 +188,8 @@
   .rarity { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #fff; margin-left: 4px; vertical-align: middle; }
   .r-common { background: #8a9099; }
   .r-uncommon { background: #2f9e44; }
-  .r-rare { background: #8e44ad; }
+  .r-rare { background: #2f7de1; }
+  .r-epic { background: #8e44ad; }
   .wallet-note { font-size: 13px; color: var(--muted); }
 </style>
 
@@ -437,7 +438,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const computeTier = () => { let t = 1; while (t < TIER_MAX && starsOfTier(t) >= TIER_STARS[t - 1]) t++; return t; };
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
-  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
+  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2, redeemer: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
   const NL_BY_STAR = {   // NL của mech theo số sao: Lancer +2/sao, Paragon +4/sao, Rampart và M.D theo bảng riêng
     kind1: () => 16,
     mech2: () => 32,
@@ -447,7 +448,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech6: () => 32,
     mech7: () => 24,
     ares: () => 24,
-    shadow: () => 24, stalker: () => 24, arachnos: () => 24,
+    shadow: () => 24, stalker: () => 24, arachnos: () => 24, redeemer: () => 24,
   };
   const MAX_UPGRADE = 5, UPGRADE_BASE = 200, UPGRADE_STEP = 100;  // nâng cấp tối đa 5 cấp, cấp đầu 200 xu, mỗi cấp sau đắt hơn 100 xu
   const JET_CHARGES = 2, JET_CHARGE_SEC = 2, JET_UP_V = 20.5, JET_GRAV = 14;  // 2 lần nhảy phản lực (mỗi lần cao khoảng 15 m), hồi sau 2 giây
@@ -506,6 +507,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       name: 'Arachnos · Tháp nhện', price: 1500, color: '#8a5a3c', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
       skill: { name: 'Tháp nhện 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 1500, fireCd: 0.8, range: 30, cooldown: 22 },
     },
+    redeemer: {
+      name: 'Redeemer · Hồi tố', price: 1600, color: '#d9d2c8', rarity: 'epic', hp: 13000, hpMax: 85000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'redeemer',
+      skill: { name: 'Hồi tố 7 s', type: 'rewind', back: 7, travel: 1.5, cooldown: 20 },
+    },
   };
   // Súng: trang bị tối đa MAX_WEAPONS khẩu cho cả biệt đội
   const MAX_WEAPONS = 2;
@@ -535,6 +540,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun22: { name: 'Pulse Cannon 4 NL', nl: 4, price: 18000, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 2 000 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 2000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
     gun23: { name: 'Pulse Cannon 6 NL', nl: 6, price: 24000, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 3 000 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 3000, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
     gun24: { name: 'Pulse Cannon 8 NL', nl: 8, price: 28500, color: '#3aa0ff', desc: 'Pháo xung · bắn liên tục các viên đạn xanh dương · 3 500 ST mỗi viên · 10 viên mỗi băng · hồi đạn 8 s', dmg: 3500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, bulletColor: '#3aa0ff', pulse: true },
+    gun25: { name: 'Fusion Cannon 8 NL', nl: 8, price: 45000, color: '#a64cff', desc: 'Pháo dung hợp · bắn liên tục các cục plasma tím · 1 800 ST mỗi cục · 25 viên mỗi băng · hồi đạn 8 s', dmg: 1800, cd: 0.25, barrels: 1, spread: 0, mag: 25, reload: 8, rocket: false, range: 80, bulletColor: '#b44cff', fusion: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 2200, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 2000, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -568,6 +574,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     shadow: { name: 'Shadow · Tàng hình', price: MECHS.shadow.price, type: 'mech', color: MECHS.shadow.color, tier: 2 },
     stalker: { name: 'Stalker · Tăng ST', price: MECHS.stalker.price, type: 'mech', color: MECHS.stalker.color, tier: 4 },
     arachnos: { name: 'Arachnos · Tháp nhện', price: MECHS.arachnos.price, type: 'mech', color: MECHS.arachnos.color, tier: 4 },
+    redeemer: { name: 'Redeemer · Hồi tố', price: MECHS.redeemer.price, type: 'mech', color: MECHS.redeemer.color, tier: 5 },
   };
 
   // ---------- Lưu trữ (bọc try/catch) ----------
@@ -722,7 +729,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function rarityBadge(m) {
     const r = m.rarity || 'common';
-    return `<span class="rarity r-${r}">${r === 'uncommon' ? 'uncommon' : 'common'}</span>`;
+    return `<span class="rarity r-${r}">${r}</span>`;
   }
   let adminMenuOpen = false, adminView = 'main';
   // Menu admin: Danh sách người chơi / Danh sách người dùng admin / Vật phẩm
@@ -864,8 +871,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare' };
-    const gunGroup = (id, w) => (w.energy ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic' };
+    const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
       const row = document.createElement('div'); row.className = 'shop-row';
@@ -1101,6 +1108,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const weaponTier = (id) => (WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
     : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
+    : WEAPONS[id].fusion ? 5
     : WEAPONS[id].nl === 2 ? 1 : 2);
   function buyWeapon(id) {
     const w = WEAPONS[id], msg = $('shop-msg');
@@ -1523,6 +1531,17 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         for (const sz of [-1, 1]) pods.add(box(0.7, 0.6, 0.5, '#4e5d3a', -0.8, 2.95, sz * 0.4));
         for (const sz of [-1, 1]) pods.add(box(0.5, 0.1, 0.4, teamColor, -0.8, 3.28, sz * 0.4));
         g.add(pods); podsRef = pods;
+      } else if (kind.look === 'redeemer') {
+        // Redeemer: thân sáng viền vàng, đầu trắng mắt tím, vầng sáng trên đầu, hai cánh giáp sau lưng
+        g.add(box(1.2, 1.4, 1.4, color, 0, 1.7, 0));
+        g.add(box(0.7, 0.6, 0.7, '#f1ece4', 0.05, 2.75, 0));
+        hot('#b48cff', 0.05, 0.12, 0.5, 0.42, 2.78, 0);
+        const halo = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.06, 10, 28), mat('#e0b84a', { basic: true }));
+        halo.rotation.x = Math.PI / 2; halo.position.set(0, 3.4, 0); g.add(halo);
+        for (const sz of [-1, 1]) {
+          g.add(box(0.1, 1.3, 0.55, '#e0b84a', -0.75, 2.2, sz * 0.55));
+          g.add(box(0.5, 0.2, 0.3, '#3b3550', 0.1, 1.2, sz * 0.8));
+        }
       } else if (kind.look === 'shadow') {
         // Shadow: thân mỏng góc cạnh, áo choàng sẫm phía sau, mắt tím
         g.add(box(0.9, 1.6, 1.1, color, 0, 1.75, 0));
@@ -1763,21 +1782,34 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // để đạn đi qua đúng chỗ tâm hiển thị thay vì song song bên dưới tâm
   function aimVector(u, aim) {
     if (!u.isP) return { h: 1, v: 0 };   // bot bắn ngang như cũ
-    const P = u.pitch || 0, lift = (u.alt || 0) * 0.35;
-    const camH = 3.7 + lift, Ly = 1.0 + lift + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
+    const P = u.pitch || 0, lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3);   // dive: camera cúi xuống khi bay cao
+    const camH = 3.7 + lift, Ly = 1.0 + lift - dive + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
     const rayH = (x) => camH + (Ly - camH) * (5 + x) / H;   // độ cao tia tâm tại x m phía trước mech
     let xp = 45;
     if (Ly < camH) { const xg = camH * H / (camH - Ly) - 5; if (xg < 45) xp = Math.max(1.8, xg); }
     // Nếu tia tâm chạm thân kẻ thù trước khi chạm đất thì đạn bay tới đúng thân kẻ thù đó
     const ca = Math.cos(aim), sa = Math.sin(aim);
+    let rayHit = false;
     for (const e of game.units) {
       if (e.team === u.team || e.down > 0 || (e.alt || 0) > 1.5 || (e.cloakLeft || 0) > 0) continue;
       const dx0 = e.x - u.x, dy0 = e.y - u.y, h = dx0 * ca + dy0 * sa;
       if (h < 1.8 || h >= xp || Math.abs(dx0 * sa - dy0 * ca) >= e.kind.radius + 0.3) continue;
       const z = rayH(h);
-      if (z >= 0.3 && z <= 3.0) xp = h;
+      if (z >= 0.3 && z <= 3.0) { xp = h; rayHit = true; }
     }
-    const hp = Math.max(0, rayH(xp));
+    // Đang bay cao mà tia tâm không trúng ai: hỗ trợ ngắm, đạn bay tới thân kẻ thù gần đường ngắm nhất để không bắn hụt xuống đất
+    let zt = null;
+    if ((u.alt || 0) > 1 && !rayHit) {
+      let bh = 70;
+      for (const e of game.units) {
+        if (e.team === u.team || e.down > 0 || (e.alt || 0) > 1.5 || (e.cloakLeft || 0) > 0) continue;
+        const dx0 = e.x - u.x, dy0 = e.y - u.y, h = dx0 * ca + dy0 * sa;
+        if (h < 1.8 || h >= bh || Math.abs(dx0 * sa - dy0 * ca) >= e.kind.radius + 1.2) continue;
+        bh = h; zt = 1.5;
+      }
+      if (zt !== null) xp = bh;
+    }
+    const hp = zt !== null ? zt : Math.max(0, rayH(xp));
     const dx = xp - 1.3, dz = hp - (1.5 + (u.alt || 0)), L = Math.hypot(dx, dz) || 1;
     return { h: dx / L, v: dz / L };
   }
@@ -1997,7 +2029,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // Đồng đội trong vùng (kể cả bản thân) được xóa hiệu ứng cháy (Overheat).
   function crash(u, s) {
     for (const e of game.units) {
-      if (e.down !== 0) continue;
+      if (e.down !== 0 || e.rw) continue;
       if (Math.hypot(e.x - u.x, e.y - u.y) > s.radius) continue;
       if (e.team === u.team) { e.burning = false; e.burnUntil = 0; splat(e.x, e.y, '#7CFFB2'); continue; }
       e.frontLeft = 0; e.guard = 0; e.boostLeft = 0; e.auraLeft = 0; e.dash = null;
@@ -2010,9 +2042,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       splat(e.x, e.y, '#7CFFB2');
     }
   }
+  function stepRewind(u, dt) {
+    const s = u.kind.skill, r = u.rw;
+    r.el += dt;
+    const k = Math.min(1, r.el / s.travel), p = r.path[Math.floor(k * (r.path.length - 1))];
+    u.x = p.x; u.y = p.y; u.alt = p.alt || 0; u.vz = 0;
+    if (k >= 1) { u.rw = null; u.hist = []; u.skillCd = s.cooldown; }
+  }
   function useSkill(u) {
     const s = u.kind.skill;
-    if (!s || u.down > 0 || u.skillCd > 0 || u.dash) return;
+    if (!s || u.down > 0 || u.skillCd > 0 || u.dash || u.rw) return;
     if (s.type === 'crash') { crash(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'pshield') { u.aresLeft = s.duration; u.aresHP = s.hp; u.skillCd = s.cooldown; return; }
     if (s.type === 'cloak') { u.cloakLeft = s.duration; u.skillCd = s.cooldown; return; }
@@ -2021,6 +2060,12 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (s.type === 'wall') { spawnWall(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'boost') { u.boostLeft = s.duration; u.skillCd = s.cooldown; return; }
     if (s.type === 'aura') { u.auraLeft = s.duration; u.skillCd = s.cooldown; return; }
+    if (s.type === 'rewind') {   // Hồi tố: chỉ chính Redeemer lùi về chỗ đã đứng s.back giây trước; bất tử trong lúc lùi
+      const from = game.t - s.back, path = (u.hist || []).filter((p) => p.t >= from).reverse();
+      if (path.length < 2) return;
+      u.rw = { path, el: 0 }; u.guard = Math.max(u.guard, s.travel + 0.3); u.pitch = 0;
+      return;
+    }
     if (s.type === 'turret') { deployTurret(u, s); u.skillCd = s.cooldown; return; }
     u.body = u.aim;   // thân giữ hướng lúc bấm Space; đầu (ngắm) vẫn quay để bắn
     u.dash = { ax: Math.cos(u.body), ay: Math.sin(u.body), left: s.dist };   // bắt đầu lướt, di chuyển dần theo tốc độ; hồi chiêu tính sau khi lướt xong
@@ -2201,7 +2246,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     $('pick').hidden = true; paused = false;
   }
   function respawn(u) {
-    u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null;
+    u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null; u.rw = null; u.hist = [];
     u.alt = 0; u.vz = 0; u.jetFuel = JET_CHARGES; u.frontLeft = 0; u.boostLeft = 0; u.auraLeft = 0; u.aresLeft = 0; u.aresHP = 0; u.cloakLeft = 0; u.rageLeft = 0;
     u.ammo = {}; u.reloadT = {}; u.wIdx = 0; u.burning = false; u.burnUntil = 0; u.fireLast = -99;
     for (const k of u.loadout) u.ammo[k] = WEAPONS[u.widOf[k]].mag;
@@ -2438,6 +2483,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       }
       if (u.down > 0) { if (game.mode !== 'elim') { u.down -= dt; if (u.down <= 0) respawn(u); } continue; }   // tử vong: không hồi sinh trong ván
       if (u.kind.hover) u.alt += (HOVER_ALT - (u.alt || 0)) * Math.min(1, dt * 6);   // M.D giữ độ cao bay
+      if (u.kind.skill && u.kind.skill.type === 'rewind' && !u.rw) {   // ghi lại vị trí để hồi tố
+        (u.hist = u.hist || []).push({ t: game.t, x: u.x, y: u.y, alt: u.alt || 0 });
+        while (u.hist.length && u.hist[0].t < game.t - u.kind.skill.back - 0.5) u.hist.shift();
+      }
+      if (u.rw) { stepRewind(u, dt); continue; }
       if (u.dash) { stepDash(u, dt); continue; }
       if (u.isP) playerControl(u, dt); else aiControl(u, dt);
     }
@@ -2584,9 +2634,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function updateCamera(u) {
     const fx = Math.cos(u.aim), fz = Math.sin(u.aim);
     const cp = Math.cos(u.pitch), sp = Math.sin(u.pitch);
-    const lift = (u.alt || 0) * 0.35, back = 5.0, height = 3.7 + lift;   // góc nhìn gần hơn
+    const lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3), back = 5.0, height = 3.7 + lift;   // góc nhìn gần hơn; bay cao thì cúi xuống
     camera.position.set(u.x - fx * back, height, u.y - fz * back);
-    camera.lookAt(u.x + fx * cp * 12, 1.0 + lift + sp * 10, u.y + fz * cp * 12);
+    camera.lookAt(u.x + fx * cp * 12, 1.0 + lift - dive + sp * 10, u.y + fz * cp * 12);
   }
   function projectPoint(x, y, z) {
     const p = new THREE.Vector3(x, y, z).project(camera);
