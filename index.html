@@ -2860,7 +2860,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const dt = Math.min(0.05, (ts - last) / 1000 || 0);
     last = ts;
     if (game && !game.over && !paused) {
-      if (game.countdown > 0) {   // đếm ngược 15 giây trước khi trận bắt đầu: chưa ai di chuyển hay bắn
+      if (game.countdown > 0) {   // đếm ngược 9 giây trước khi trận bắt đầu: chưa ai di chuyển hay bắn
         game.countdown = Math.max(0, game.countdown - dt);
         pendingSkill = false; pendingJet = false;
         showCountdown();
@@ -3006,7 +3006,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const pool = BOT_NAMES.slice().sort(() => Math.random() - 0.5); let bi = 0;
     for (const u of units) u.name = u.isP ? playerName : pool[bi++];
     game = {
-      t: 0, over: false, countdown: 15, units, player: units[0], bullets: [], shells: [], beams: [], walls: [], particles: [],
+      t: 0, over: false, countdown: 9, units, player: units[0], bullets: [], shells: [], beams: [], walls: [], particles: [],
       points: pendingMode === 'elim' ? [] : MAP.points.map((p) => ({ x: p.x, y: p.y, owner: null, capTeam: null, prog: 0 })),
       score: { A: 0, B: 0 }, timeLeft: pendingMode === 'elim' ? ROUND_LEN : MATCH_LEN,
       mode: pendingMode, round: 1, roundWins: { A: 0, B: 0 }, roundKills: { A: 0, B: 0 },
