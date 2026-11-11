@@ -547,6 +547,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun29: { name: 'Fragment Gun 12 NL', nl: 12, price: 78930, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 36702–61170 ST · 6 phát · hồi đạn 5 s', dmg: 48934, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 36702, dmgMax: 61170, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun30: { name: 'Fragment Gun 14 NL', nl: 14, price: 153850, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 42819–71365 ST · 6 phát · hồi đạn 5 s', dmg: 57090, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 42819, dmgMax: 71365, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
+    gun32: { name: 'Twin Slug 8 NL', nl: 8, price: 40000, color: '#8d6e63', desc: 'Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên 39148–65248 ST (gấp 4× Shotgun) · hồi đạn 1 s', dmg: 52198, cd: 0.4, barrels: 1, spread: 0, dmgMin: 39148, dmgMax: 65248, mag: 2, reload: 1, range: 35, invisible: true, twin: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -877,7 +878,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic' };
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare' };
     const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
@@ -1116,6 +1117,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
     : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].fusion || WEAPONS[id].frost ? 5
+    : WEAPONS[id].twin ? 4
     : WEAPONS[id].breacher ? (FRAG_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].nl === 2 ? 1 : 2);
   function buyWeapon(id) {
@@ -2028,6 +2030,18 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (W.energy) {   // Thermal Lance: bắn khi giữ chuột và còn năng lượng (xét ở playerControl)
       if (!u.firing[key]) return false;
       beamShot(u, aim, u.dmg[key], W.fire, W.range);
+      u.cd = W.cd;
+      return true;
+    }
+    if (W.twin) {   // Twin Slug: mỗi lần bấm bắn 2 viên vô hình liên tiếp (cách nhau 0.12 s)
+      if (u.ammo[key] < 2) return false;
+      game.delayed = game.delayed || [];
+      const f = u.dmg[key] / W.dmg;
+      for (let i = 0; i < 2; i++) game.delayed.push({ t: game.t + i * 0.12, fn: () => {
+        if (u.down !== 0 || u.rw) return;
+        fire(u, aim, (W.dmgMin + Math.random() * (W.dmgMax - W.dmgMin)) * f, W.cd, false, false, W.speedMul, W.range, true);
+      } });
+      u.ammo[key] -= 2;
       u.cd = W.cd;
       return true;
     }
