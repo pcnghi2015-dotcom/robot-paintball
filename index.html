@@ -2318,6 +2318,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     $('btn-jet').hidden = !nu.kind.jet;
     $('pick').hidden = true; paused = false;
   }
+  // 5v5: bot còn mech dự bị thì sau khi mech trước bị hạ sẽ ra mech mới (ngẫu nhiên) tại điểm xuất phát
+  function botSwap(u) {
+    const idx = game.units.indexOf(u);
+    if (idx < 0) return;
+    unitGroup.remove(u.mesh);
+    if (u.ring) unitGroup.remove(u.ring);
+    const nu = makeUnit(u.team, pickKind(), false, u.sp);
+    nu.name = u.name; nu.mst = u.mst; nu.reserve = u.reserve - 1;
+    game.units[idx] = nu;
+  }
   function respawn(u) {
     u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null; u.rw = null; u.hist = [];
     u.alt = 0; u.vz = 0; u.jetFuel = JET_CHARGES; u.frontLeft = 0; u.boostLeft = 0; u.auraLeft = 0; u.aresLeft = 0; u.aresHP = 0; u.cloakLeft = 0; u.rageLeft = 0;
@@ -2359,8 +2369,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function checkRound() {
     if (game.over) return;
-    const aliveA = game.units.some((u) => u.team === 'A' && u.down === 0);
-    const aliveB = game.units.some((u) => u.team === 'B' && u.down === 0);
+    // còn sống = đang chiến đấu hoặc còn mech dự bị để ra tiếp (người chơi còn mech trong đội hình, bot còn reserve)
+    const stillIn = (u) => u.down === 0 || (u.isP ? squadAlive().length > 0 : u.reserve > 0);
+    const aliveA = game.units.some((u) => u.team === 'A' && stillIn(u));
+    const aliveB = game.units.some((u) => u.team === 'B' && stillIn(u));
     if (!aliveA && !aliveB) return endRound(killsWinner(), 'hai đội bị hạ cùng lúc');
     if (!aliveB) return endRound('A', 'hạ hết đội địch');
     if (!aliveA) return endRound('B', 'đội bạn bị hạ hết');
@@ -2385,6 +2397,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     game.timeLeft = ROUND_LEN;
     game.roundKills = { A: 0, B: 0 };
     game.squadDead = {};
+    for (const u of game.units) if (!u.isP) u.reserve = game.botReserve || 0;
     game.bullets = []; game.shells = []; game.beams = []; game.missiles = []; clearTurrets();
     for (const u of game.units) respawn(u);   // mọi mech hồi đầy máu về vị trí xuất phát
     pendingSkill = false; pendingJet = false;
@@ -2560,7 +2573,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         } else if (u.lockT[k] > 0) u.lockT[k] = Math.max(0, u.lockT[k] - dt);
         else u.energy[k] = Math.min(E.max, u.energy[k] + (E.regenMin + Math.random() * (E.regenMax - E.regenMin)) * dt);
       }
-      if (u.down > 0) { if (game.mode !== 'elim') { u.down -= dt; if (u.down <= 0) respawn(u); } continue; }   // tử vong: không hồi sinh trong ván
+      if (u.down > 0) {
+        if (game.mode !== 'elim') { u.down -= dt; if (u.down <= 0) respawn(u); }
+        else if (!u.isP && u.reserve > 0) { u.down -= dt; if (u.down <= 0) botSwap(u); }   // 5v5: bot chết thì ra mech tiếp theo
+        continue;
+      }   // tử vong: không hồi sinh trong ván
       if (u.kind.hover) u.alt += (HOVER_ALT - (u.alt || 0)) * Math.min(1, dt * 6);   // M.D giữ độ cao bay
       if (u.kind.skill && u.kind.skill.type === 'rewind' && !u.rw) {   // ghi lại vị trí để hồi tố
         (u.hist = u.hist || []).push({ t: game.t, x: u.x, y: u.y, alt: u.alt || 0 });
@@ -3038,6 +3055,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     };
     game.squad = wallet.hall.slice(0, wallet.slotsOpen).filter(Boolean);
     game.squadDead = {};
+    game.botReserve = game.mode === 'elim' ? Math.max(0, game.squad.length - 1) : 0;   // 5v5: bot cũng có nhiều mech như đội hình của bạn
+    for (const u of game.units) if (!u.isP) u.reserve = game.botReserve;
     paused = false;
     $('pick').hidden = true;
     $('lobby').hidden = true; $('match').hidden = false;
