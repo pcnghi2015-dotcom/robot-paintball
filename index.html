@@ -107,7 +107,7 @@
   .av-grid button { font-size: 26px; padding: 6px; border-radius: 50%; }
   .hud-jet { position: absolute; bottom: 40px; left: 10px; z-index: 2; min-height: 44px; padding: 8px 14px; font-size: 14px; background: rgba(0,0,0,.45); color: #fff; border-color: rgba(255,255,255,.35); touch-action: none; user-select: none; -webkit-user-select: none; }
   /* Đếm ngược trước trận */
-  .countdown { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 5; font-size: 96px; font-weight: 800; color: #fff; text-shadow: 0 3px 10px rgba(0,0,0,.7); pointer-events: none; }
+  .countdown { white-space: nowrap; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 5; font-size: 96px; font-weight: 800; color: #fff; text-shadow: 0 3px 10px rgba(0,0,0,.7); pointer-events: none; }
   /* Nút phóng to màn hình */
   .hud-fs { position: absolute; right: 10px; bottom: 40px; z-index: 4; min-height: 40px; padding: 6px 12px; font-size: 14px; background: rgba(0,0,0,.45); color: #fff; border-color: rgba(255,255,255,.35); touch-action: manipulation; }
   body.big-stage #stage { position: fixed; inset: 0; width: 100vw; height: 100vh; aspect-ratio: auto; border-radius: 0; z-index: 90; background: #000; }
@@ -546,7 +546,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun28: { name: 'Fragment Gun 10 NL', nl: 10, price: 63080, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 30585–50975 ST · 6 phát · hồi đạn 5 s', dmg: 40779, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 30585, dmgMax: 50975, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun29: { name: 'Fragment Gun 12 NL', nl: 12, price: 78930, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 36702–61170 ST · 6 phát · hồi đạn 5 s', dmg: 48934, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 36702, dmgMax: 61170, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun30: { name: 'Fragment Gun 14 NL', nl: 14, price: 153850, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 42819–71365 ST · 6 phát · hồi đạn 5 s', dmg: 57090, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 42819, dmgMax: 71365, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
-    gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, luôn bắn chếch lên 45° theo đường cong, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
+    gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -1826,7 +1826,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function aimVector(u, aim) {
     if (!u.isP) return { h: 1, v: 0 };   // bot bắn ngang như cũ
     const P = u.pitch || 0, lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3);   // dive: camera cúi xuống khi bay cao
-    const camH = 3.7 + lift, Ly = 1.0 + lift - dive + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
+    const camH = 6.2 + lift, Ly = 4.6 + lift - dive + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
     const rayH = (x) => camH + (Ly - camH) * (5 + x) / H;   // độ cao tia tâm tại x m phía trước mech
     let xp = 45;
     if (Ly < camH) { const xg = camH * H / (camH - Ly) - 5; if (xg < 45) xp = Math.max(1.8, xg); }
@@ -1854,7 +1854,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     const hp = zt !== null ? zt : Math.max(0, rayH(xp));
     const dx = xp - 1.3, dz = hp - (1.5 + (u.alt || 0)), L = Math.hypot(dx, dz) || 1;
-    return { h: dx / L, v: dz / L };
+    return { h: dx / L, v: dz / L, xp, hp };
   }
   function fire(u, aim, dmg, cd, rocket, burn, spdMul, range, invisible, tracer) {
     // Đạn bay theo đúng hướng ngắm 3D: góc ngẩng/cúi (pitch) quyết định đạn bay lên trời hay xuống đất
@@ -2038,8 +2038,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       for (let i = 0; i < n; i++) game.delayed.push({ t: game.t + i * 0.15, fn: () => {
         if (u.down !== 0 || u.rw) return;
         // Luôn bắn chếch lên 45° theo đường cong (rơi xuống do trọng lực), nổ khi chạm đất, vật cản hoặc mech
-        const sp = 42, c = Math.cos(aim), sn = Math.sin(aim), vh = sp * Math.SQRT1_2;
-        game.bullets.push({ x: u.x + c * 1.3, y: u.y + sn * 1.3, z: 1.5 + (u.alt || 0), vx: c * vh, vy: sn * vh, vz: vh, grav: 25, life: 4, team: u.team, dmg: u.dmg[key] * outMult(u), rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: W.bulletColor, ice: true });
+        // Tốc độ được tính để quả lựu đạn bay cong (góc 45°) rơi đúng vào điểm tâm ngắm
+        const A = aimVector(u, aim), z0 = 1.5 + (u.alt || 0), d = Math.max(3, (A.xp === undefined ? 40 : A.xp) - 1.3), ht = A.hp === undefined ? 0 : A.hp;
+        const vh = Math.min(70, Math.sqrt(25 * d * d / Math.max(4, 2 * (z0 + d - ht)))), c = Math.cos(aim), sn = Math.sin(aim);
+        game.bullets.push({ x: u.x + c * 1.3, y: u.y + sn * 1.3, z: 1.5 + (u.alt || 0), vx: c * vh, vy: sn * vh, vz: vh, grav: 25, life: 8, team: u.team, dmg: u.dmg[key] * outMult(u), rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: W.bulletColor, ice: true });
       } });
       u.ammo[key] -= n;
       u.cd = W.cd;
@@ -2698,9 +2700,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function updateCamera(u) {
     const fx = Math.cos(u.aim), fz = Math.sin(u.aim);
     const cp = Math.cos(u.pitch), sp = Math.sin(u.pitch);
-    const lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3), back = 5.0, height = 3.7 + lift;   // góc nhìn gần hơn; bay cao thì cúi xuống
+    const lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3), back = 5.0, height = 6.2 + lift;   // góc nhìn gần hơn; bay cao thì cúi xuống
     camera.position.set(u.x - fx * back, height, u.y - fz * back);
-    camera.lookAt(u.x + fx * cp * 12, 1.0 + lift - dive + sp * 10, u.y + fz * cp * 12);
+    camera.lookAt(u.x + fx * cp * 12, 4.6 + lift - dive + sp * 10, u.y + fz * cp * 12);
   }
   function projectPoint(x, y, z) {
     const p = new THREE.Vector3(x, y, z).project(camera);
@@ -2989,7 +2991,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (!game || game.countdown <= 0) { el.hidden = true; return; }
     el.hidden = false;
     const n = Math.ceil(game.countdown);
-    el.textContent = n === 1 ? 'CHIẾN!' : (n === 2 || n === 3) ? 'SẴN SÀNG' : String(n);   // 3 và 2: sẵn sàng, 1: chiến
+    el.textContent = n === 1 ? 'CHIẾN!' : (n === 2 || n === 3) ? 'SẴN SÀNG' : String(n);
+    el.style.fontSize = el.textContent.length > 2 ? 'clamp(36px, 8vw, 64px)' : '';   // chữ dài thì nhỏ lại để nằm trên một dòng   // 3 và 2: sẵn sàng, 1: chiến
   }
   $('btn-fs').onclick = () => {
     const on = !document.body.classList.contains('big-stage');
