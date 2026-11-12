@@ -505,7 +505,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     },
     arachnos: {
       name: 'Arachnos · Tháp nhện', price: 1500, color: '#8a5a3c', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
-      skill: { name: 'Tháp nhện 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 1500, fireCd: 0.8, range: 30, cooldown: 22 },
+      skill: { name: 'Tháp minigun 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 190, fireCd: 0.1, range: 30, cooldown: 22 },
     },
     redeemer: {
       name: 'Redeemer · Hồi tố', price: 1600, color: '#d9d2c8', rarity: 'epic', hp: 13000, hpMax: 85000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'redeemer',
@@ -1397,7 +1397,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     g.add(box(0.9, 0.5, 0.9, '#3b434d', 0, 0.75, 0));                 // thân tháp
     g.add(box(0.6, 0.3, 0.6, '#2b3138', 0, 1.15, 0));                 // nắp tháp
     g.add(box(0.94, 0.12, 0.94, TEAM_COLOR[team], 0, 0.45, 0));       // viền màu đội
-    g.add(box(0.9, 0.2, 0.2, '#161c22', 0.55, 1.15, 0));              // nòng pháo chỉ về phía +x
+    for (const [by, bz] of [[1.22, 0], [1.1, 0.09], [1.1, -0.09]]) g.add(box(1.0, 0.09, 0.09, '#161c22', 0.6, by, bz));   // chùm 3 nòng minigun chỉ về phía +x
+    g.add(box(0.2, 0.3, 0.3, '#2b3138', 0.2, 1.15, 0));               // bộ quay nòng
     g.add(box(0.08, 0.08, 0.08, '#ff9a1f', 1.02, 1.15, 0));           // đầu nòng phát sáng
     for (let i = 0; i < 4; i++) {                                      // 4 chân chéo ra ngoài, có khớp gập
       const a = Math.PI / 4 + (i * Math.PI) / 2;
@@ -1443,7 +1444,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       t.group.rotation.y = -t.aim;
       if (t.cd > 0) continue;
       t.cd = t.fireCd;
-      const c = Math.cos(t.aim), sn = Math.sin(t.aim);
+      const ja = t.aim + (Math.random() - 0.5) * 0.07, c = Math.cos(ja), sn = Math.sin(ja);   // minigun: tản đạn nhẹ
       game.bullets.push({ x: t.x + c * 1.1, y: t.y + sn * 1.1, z: 1.2, vx: c * BULLET_SPEED, vy: sn * BULLET_SPEED, vz: 0, life: 0.7, team: t.team, dmg: t.dmg, rocket: false, burn: false, invisible: false, tracer: false, shooter: t.owner });
     }
   }
@@ -1669,7 +1670,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.95, 20), new THREE.MeshBasicMaterial({ color: teamColor, transparent: true, opacity: 0.5, depthWrite: false }));
     shadow.rotation.x = -Math.PI / 2;
     g.add(shadow); g.add(bubble); g.add(boost);
-    g.userData = { bubble, boost, shadow, hands: handAnchors, arms: armMeshes, pods: podsRef };
+    // Các bộ phận chân (khối thấp hai bên thân, hoặc chân nhện của Arachnos) để làm hiệu ứng đi bộ
+    const legs = [];
+    if (!kind.wheels && !kind.dome) for (const o of g.children) {
+      if (o === shadow || o === bubble || o === boost || o === podsRef || Math.abs(o.position.z) < 0.1) continue;
+      if ((o.isMesh && o.position.y < 1.2 && o.geometry && o.geometry.type === 'BoxGeometry') || (o.isGroup && kind.look === 'arachnos')) legs.push({ o, x0: o.position.x, side: o.position.z >= 0 ? 1 : -1 });
+    }
+    g.userData = { bubble, boost, shadow, hands: handAnchors, arms: armMeshes, pods: podsRef, legs };
     g.traverse((o) => { if (o.isMesh && !o.material.transparent) o.castShadow = true; });
     return g;
   }
@@ -2601,6 +2608,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const alt = u.alt || 0;
     m.position.set(u.x, alt, u.y);
     m.rotation.y = -(u.dash && u.body !== undefined ? u.body : u.aim);
+    // Hiệu ứng đi bộ: hai bên chân bước tới lui ngược pha, thân nhún nhẹ theo quãng đường đã đi
+    const dm = u.px === undefined ? 0 : Math.min(1, Math.hypot(u.x - u.px, u.y - u.py));
+    u.px = u.x; u.py = u.y;
+    u.walkPh = (u.walkPh || 0) + dm * 2.4;
+    u.walkAmp = (u.walkAmp || 0) + ((dm > 0.003 && u.down === 0 ? 1 : 0) - (u.walkAmp || 0)) * 0.25;
+    const swing = Math.sin(u.walkPh) * 0.3 * u.walkAmp;
+    if (m.userData.legs) for (const l of m.userData.legs) l.o.position.x = l.x0 + swing * l.side;
+    if (alt < 0.3) m.position.y += Math.abs(Math.sin(u.walkPh)) * 0.1 * u.walkAmp;
     const sc = u.kind.scale || 1;
   m.scale.set(sc, sc * (u.down > 0 ? 0.3 : 1), sc);
     if (u.ring) {
