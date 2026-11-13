@@ -713,7 +713,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   wallet.slotsOpen = Math.min(5, Math.max(2, wallet.slotsOpen | 0));
   const HALL_COST = [0, 0, 2000, 10000, 40000];  // giá mở ô 3, 4, 5 (ô 1 và 2 miễn phí)
   const hallCost = (i) => HALL_COST[i];
-  const REDEEM_CODES = { welcome: 100000 };   // code nhập một lần mỗi tài khoản, nhận xu
+  const REDEEM_CODES = { welcome: 100000, yuki: 100000 };   // code nhập một lần mỗi tài khoản, nhận xu
   function redeemCode() {
     const c = $('code-in').value.trim().toLowerCase(), msg = $('code-msg');
     if (!REDEEM_CODES[c]) { msg.textContent = 'Code không đúng'; return; }
