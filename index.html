@@ -201,6 +201,7 @@
   <div class="topbar">
     <h1>🤖 Storm of Steel</h1>
     <div class="coins" aria-live="polite">💰 <span id="coins">0</span> xu</div>
+    <button id="btn-logout" style="margin-left:8px;min-height:0;padding:6px 12px;font-size:13px">Đăng xuất</button>
   </div>
 
   <div class="notice" id="update-notice" hidden></div>
@@ -3476,6 +3477,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   window.cloudSave = (data) => {
     const u = fbAuth.currentUser; if (!u) return;
     fbDb.collection('users').doc(u.uid).set(JSON.parse(JSON.stringify(data))).catch((e) => console.warn('Lưu cloud lỗi', e));
+  };
+  // Đăng xuất: xóa dữ liệu lưu trên máy (để tài khoản khác không thừa hưởng tiến độ) rồi về màn hình đăng nhập
+  document.getElementById('btn-logout').onclick = async () => {
+    if (!confirm('Đăng xuất khỏi tài khoản này? Tiến độ đã được lưu trên cloud nên đăng nhập lại sẽ có lại.')) return;
+    try { if (window.cloudSave) { const w = JSON.parse(localStorage.getItem(WALLET_KEY) || 'null'); if (w) await fbDb.collection('users').doc(fbAuth.currentUser.uid).set(w); } } catch (_) {}
+    try { await fbAuth.signOut(); } catch (_) {}
+    try { localStorage.removeItem(WALLET_KEY); sessionStorage.removeItem('synced-uid'); } catch (_) {}
+    location.reload();
   };
   document.getElementById('google-login').onclick = async () => {
     try { await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
