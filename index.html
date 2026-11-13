@@ -177,6 +177,10 @@
   .hgm-btn:disabled { opacity: .5; }
   .hgm-quick { background: linear-gradient(#ff5a5a, #c81e1e); }
   @media (max-width: 600px) { .hgm-row { grid-template-columns: 1fr; } }
+  .hg-code { display: flex; align-items: center; gap: 6px; }
+  .hg-code input { width: 120px; padding: 6px 10px; border-radius: 999px; border: 1px solid #3c6a8f; background: rgba(0,0,0,.4); color: #fff; font-size: 13px; }
+  .hg-code button { padding: 6px 12px; min-height: 0; border-radius: 999px; font-size: 13px; }
+  #code-msg { font-size: 12px; color: #ffd65c; }
   .hg-coins { background: rgba(0, 0, 0, .4); padding: 6px 12px; border-radius: 999px; color: #ffd65c; font-weight: 700; }
   .hg-battle { background: linear-gradient(#ff5a5a, #c81e1e); color: #fff; border: none; border-radius: 12px; padding: 14px 34px; font-weight: 800; letter-spacing: .08em; box-shadow: 0 6px 18px rgba(255, 60, 60, .35); }
   @media (max-width: 560px) {
@@ -226,6 +230,7 @@
       </div>
       <div class="hg-bottom">
         <div class="hg-coins" id="hg-coins"></div>
+        <div class="hg-code"><input id="code-in" placeholder="Nhập code" autocomplete="off" maxlength="30"><button id="code-btn">Nhận</button><span id="code-msg"></span></div>
         <button class="hg-battle" id="hg-battle">BẮT ĐẦU</button>
       </div>
       <div class="hg-mode" id="hg-mode" hidden>
@@ -548,6 +553,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun30: { name: 'Fragment Gun 14 NL', nl: 14, price: 153850, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 42819–71365 ST · 6 phát · hồi đạn 5 s', dmg: 57090, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 42819, dmgMax: 71365, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
     gun32: { name: 'Twin Slug 8 NL', nl: 8, price: 40000, color: '#8d6e63', desc: 'Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên 39148–65248 ST (gấp 4× Shotgun) · hồi đạn 1 s', dmg: 52198, cd: 0.4, barrels: 1, spread: 0, dmgMin: 39148, dmgMax: 65248, mag: 2, reload: 1, range: 35, invisible: true, twin: true },
+    gun33: { name: 'Quantum Rifle 10 NL', nl: 10, price: 90000, color: '#7a5cff', desc: 'Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · 9 000 ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 6, rocket: false, range: 120, quantum: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -707,6 +713,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   wallet.slotsOpen = Math.min(5, Math.max(2, wallet.slotsOpen | 0));
   const HALL_COST = [0, 0, 2000, 10000, 40000];  // giá mở ô 3, 4, 5 (ô 1 và 2 miễn phí)
   const hallCost = (i) => HALL_COST[i];
+  const REDEEM_CODES = { welcome: 100000 };   // code nhập một lần mỗi tài khoản, nhận xu
+  function redeemCode() {
+    const c = $('code-in').value.trim().toLowerCase(), msg = $('code-msg');
+    if (!REDEEM_CODES[c]) { msg.textContent = 'Code không đúng'; return; }
+    wallet.codes = wallet.codes || [];
+    if (wallet.codes.includes(c)) { msg.textContent = 'Bạn đã dùng code này rồi'; return; }
+    wallet.codes.push(c); wallet.coins += REDEEM_CODES[c]; saveWallet();
+    $('coins').textContent = wallet.coins; $('hg-coins').textContent = `${wallet.coins} xu`;
+    msg.textContent = `Nhận ${REDEEM_CODES[c]} xu!`; $('code-in').value = '';
+  }
   function saveWallet() { try { localStorage.setItem(KEY, JSON.stringify(wallet)); } catch (_) {} if (window.cloudSave) window.cloudSave(wallet); }
   const $ = (id) => document.getElementById(id);
 
@@ -878,7 +894,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare' };
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic' };
     const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
@@ -1116,7 +1132,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const weaponTier = (id) => (WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
     : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
-    : WEAPONS[id].fusion || WEAPONS[id].frost ? 5
+    : WEAPONS[id].fusion || WEAPONS[id].frost || WEAPONS[id].quantum ? 5
     : WEAPONS[id].twin ? 4
     : WEAPONS[id].breacher ? (FRAG_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].nl === 2 ? 1 : 2);
@@ -1811,7 +1827,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (dx && dy) { dx *= Math.SQRT1_2; dy *= Math.SQRT1_2; }
     const rad = u.kind.radius;
     const mult = u.boostLeft > 0 ? u.kind.skill.mult : 1;
-    const sp = u.kind.speed * mult * SPEED_MUL;
+    const sp = u.kind.speed * mult * SPEED_MUL * ((u.qIceUntil || 0) > game.t ? 0.6 : 1);   // băng lượng tử: giảm 40% tốc độ
     const isBlocked = (x, y) => blocked(x, y, rad, u.alt || 0);
     const nx = u.x + dx * sp * dt, ny = u.y + dy * sp * dt;
     if (!isBlocked(nx, u.y)) u.x = nx;
@@ -1889,7 +1905,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (e.aresHP <= 0) { e.aresHP = 0; e.aresLeft = 0; splat(e.x, e.y, '#7fd3ff'); }
     else splat(e.x, e.y, '#9fd4ff');
   }
+  let lastBeamHit = null;   // mục tiêu bị tia bắn trúng ở lần gọi beamShot gần nhất (Quantum Rifle dùng)
   function beamShot(u, aim, dmg, burn, range, style) {
+    lastBeamHit = null;
     dmg *= outMult(u);
     // Tia theo đúng hướng ngắm 3D (pitch): nhìn lên thì tia bay lên trời, nhìn xuống thì dừng ở mặt đất
     const dir = aimVector(u, aim), cp = dir.h, sp = dir.v;
@@ -1916,6 +1934,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (hit.frontLeft > 0) { splat(ex, ey, '#9fd4ff'); return; }
     if ((hit.aresLeft || 0) > 0 && aresFront(hit, u.x, u.y)) { aresAbsorb(hit, dmg); return; }
     splat(hit.x, hit.y, TEAM_COLOR[u.team]);
+    lastBeamHit = hit;
     if (burn) {
       if (game.t - (hit.fireLast ?? -99) > FIRE_GAP) hit.fireFirst = game.t;
       hit.fireLast = game.t;
@@ -2040,6 +2059,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       u.cd = W.cd;
       return true;
     }
+    if (W.quantum) {   // Quantum Rifle: tia xanh + tia đỏ cùng lúc; trúng 3–4 lần thì dính băng và lửa
+      if (u.ammo[key] <= 0) return false;
+      beamShot(u, aim, u.dmg[key], false, W.range, { color: '#3fa8ff', core: '#e6f4ff', thin: true });
+      const bm = game.beams[game.beams.length - 1], ox = -Math.sin(aim) * 0.35, oy = Math.cos(aim) * 0.35;
+      game.beams.push({ ...bm, x1: bm.x1 + ox, y1: bm.y1 + oy, x2: bm.x2 + ox, y2: bm.y2 + oy, style: { color: '#ff4d3d', core: '#ffe6e0', thin: true } });
+      if (lastBeamHit) quantumHit(lastBeamHit);
+      u.ammo[key] -= 1;
+      u.cd = W.cd;
+      return true;
+    }
     if (W.twin) {   // Twin Slug: mỗi lần bấm bắn 2 viên vô hình liên tiếp (cách nhau 0.12 s)
       if (u.ammo[key] < 2) return false;
       game.delayed = game.delayed || [];
@@ -2128,6 +2157,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const k = Math.min(1, r.el / s.travel), p = r.path[Math.floor(k * (r.path.length - 1))];
     u.x = p.x; u.y = p.y; u.alt = p.alt || 0; u.vz = 0;
     if (k >= 1) { u.rw = null; u.hist = []; u.skillCd = s.cooldown; }
+  }
+  // Quantum Rifle: mỗi mục tiêu bị trúng 3–4 lần (trong 6 s) thì dính băng và lửa trong 6 s
+  function quantumHit(e) {
+    if (game.t - (e.qLast ?? -99) > 6) e.qCount = 0;
+    e.qLast = game.t; e.qCount = (e.qCount || 0) + 1;
+    if (!e.qNeed) e.qNeed = 3 + (Math.random() < 0.5 ? 1 : 0);
+    if (e.qCount >= e.qNeed) { e.qFireUntil = e.qIceUntil = game.t + 6; e.qCount = 0; e.qNeed = 3 + (Math.random() < 0.5 ? 1 : 0); }
   }
   function useSkill(u) {
     const s = u.kind.skill;
@@ -2336,7 +2372,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     game.units[idx] = nu;
   }
   function respawn(u) {
-    u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null; u.rw = null; u.hist = [];
+    u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null; u.rw = null; u.hist = []; u.qFireUntil = 0; u.qIceUntil = 0; u.qCount = 0;
     u.alt = 0; u.vz = 0; u.jetFuel = JET_CHARGES; u.frontLeft = 0; u.boostLeft = 0; u.auraLeft = 0; u.aresLeft = 0; u.aresHP = 0; u.cloakLeft = 0; u.rageLeft = 0;
     u.ammo = {}; u.reloadT = {}; u.wIdx = 0; u.burning = false; u.burnUntil = 0; u.fireLast = -99;
     for (const k of u.loadout) u.ammo[k] = WEAPONS[u.widOf[k]].mag;
@@ -2428,7 +2464,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const mst = (u) => u.mst || (u.mst = { k: 0, c: 0, d: 0 });
   // Săn mồi (Stalker): khi bật kỹ năng thì ST gây ra ×1.5, ST nhận vào ×1.25
   const outMult = (u) => ((u.rageLeft || 0) > 0 ? u.kind.skill.dmgMul : 1);
-  const inMult = (e) => ((e.rageLeft || 0) > 0 ? e.kind.skill.hurtMul : 1);
+  const inMult = (e) => ((e.rageLeft || 0) > 0 ? e.kind.skill.hurtMul : 1) * ((e.qFireUntil || 0) > game.t ? 1.2 : 1);   // lửa lượng tử: nhận thêm 20% ST
   const DMG_TEXT_T = 1.25;   // số sát thương hiện 1.25 giây
   function popDmg(v, dmg) {
     game.dmgTexts = game.dmgTexts || [];
@@ -2547,6 +2583,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (u.burning && u.down === 0 && game.t < u.burnUntil && Math.random() < 0.4) {
         game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.5, y: u.y + (Math.random() - 0.5) * 1.5, vx: 0, vy: 1.5, life: 0.4, color: '#ff7a1a' });
       }
+      if ((u.qFireUntil || 0) > game.t && u.down === 0 && Math.random() < 0.5) game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.2, y: u.y + (Math.random() - 0.5) * 1.2, z: 1 + Math.random() * 1.5, vx: 0, vy: 0, life: 0.4, color: '#ff6a3a' });
+      if ((u.qIceUntil || 0) > game.t && u.down === 0 && Math.random() < 0.5) game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.2, y: u.y + (Math.random() - 0.5) * 1.2, z: 0.5 + Math.random() * 1.5, vx: 0, vy: 0, life: 0.4, color: '#9fe8ff' });
       if (u.guard > 0) u.guard = Math.max(0, u.guard - dt);
       if (u.boostLeft > 0) u.boostLeft = Math.max(0, u.boostLeft - dt);
       if (u.frontLeft > 0) u.frontLeft = Math.max(0, u.frontLeft - dt);
@@ -3170,6 +3208,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     $('tier-list').innerHTML = html;
   }
+  $('code-btn').onclick = redeemCode;
+  $('code-in').onkeydown = (e) => { if (e.key === 'Enter') redeemCode(); e.stopPropagation(); };
   $('tier-btn').onclick = () => { $('tier-view').hidden = true; $('tier-modal').hidden = false; };
   $('tier-close').onclick = () => { $('tier-modal').hidden = true; };
   $('shop-pick-mech').onclick = () => { shopKind = 'mech'; $('tier-modal').hidden = true; showTab('shop'); };
