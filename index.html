@@ -194,6 +194,7 @@
   .r-uncommon { background: #2f9e44; }
   .r-rare { background: #2f7de1; }
   .r-epic { background: #8e44ad; }
+  .r-legend { background: #e8a317; }
   .wallet-note { font-size: 13px; color: var(--muted); }
 </style>
 
@@ -515,7 +516,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     },
     orion: {
       name: 'Orion · Đánh dấu', price: 1700, color: '#2b4a8a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'orion',
-      skill: { name: 'Đánh dấu 15 s', type: 'orb', duration: 15, weakMul: 1.5, slow: 0.6, cooldown: 12, color: '#ff9bf0' },
+      skill: { name: 'Đánh dấu 15 s', type: 'orb', duration: 15, weakMul: 1.5, slow: 0.6, cooldown: 12, missCd: 2, color: '#ff9bf0' },
     },
     redeemer: {
       name: 'Redeemer · Hồi tố', price: 1600, color: '#d9d2c8', rarity: 'epic', hp: 13000, hpMax: 85000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'redeemer',
@@ -559,6 +560,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
     gun32: { name: 'Twin Slug 8 NL', nl: 8, price: 40000, color: '#8d6e63', desc: 'Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên 39148–65248 ST (gấp 4× Shotgun) · hồi đạn 1 s', dmg: 52198, cd: 0.4, barrels: 1, spread: 0, dmgMin: 39148, dmgMax: 65248, mag: 2, reload: 1, range: 35, invisible: true, twin: true },
     gun33: { name: 'Quantum Rifle 10 NL', nl: 10, price: 90000, color: '#7a5cff', desc: 'Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · 9 000 ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 6, rocket: false, range: 120, quantum: true },
+    gun34: { name: 'Minigun 14 NL', nl: 14, price: 300000, color: '#ffb02e', desc: 'Minigun huyền thoại · bắn hàng loạt viên đạn liên tục · 1 400 ST mỗi viên · 200 viên mỗi băng · hồi đạn 12 s', dmg: 1400, cd: 0.06, barrels: 1, spread: 0, mag: 200, reload: 12, rocket: false, range: 70, bulletColor: '#ffb02e', minigun: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -900,8 +902,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic' };
-    const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
+    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic', gun34: 'legend' };
+    const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' || GUN_RARITY[id] === 'legend' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
       const row = document.createElement('div'); row.className = 'shop-row';
@@ -1033,6 +1035,12 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       const t = document.createElement('div');
       t.innerHTML = `<div class="lbl2">${label}</div><b>${g ? g.name : 'Trống'}</b><div class="lbl2">${g ? `${g.nl} NL · Sát thương ${wDmg(l[hand])}` : 'Bấm để chọn súng'}</div>`;
       cell.appendChild(t);
+      if (g) {   // nút tháo súng khỏi tay này
+        const ub = document.createElement('button');
+        ub.textContent = 'Unequip'; ub.style.cssText = 'margin-top:6px;min-height:0;padding:4px 10px;font-size:12px';
+        ub.onclick = (ev) => { ev.stopPropagation(); setHand(hand, null); };
+        cell.appendChild(ub);
+      }
       cell.onclick = () => { loPick = loPick === hand ? null : hand; renderLoadout(); };
     }
     const pick = $('lo-picker'); pick.innerHTML = '';
@@ -1139,6 +1147,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
     : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].fusion || WEAPONS[id].frost || WEAPONS[id].quantum ? 5
+    : WEAPONS[id].minigun ? 6
     : WEAPONS[id].twin ? 4
     : WEAPONS[id].breacher ? (FRAG_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].nl === 2 ? 1 : 2);
@@ -2180,21 +2189,28 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (e.qCount >= e.qNeed) { e.qFireUntil = e.qIceUntil = game.t + 6; e.qCount = 0; e.qNeed = 3 + (Math.random() < 0.5 ? 1 : 0); }
   }
   // Orion: bắn cục hiệu ứng bay cong rơi vào điểm tâm ngắm (không gây ST). Chỉ khi trúng địch mới tạo hiệu ứng 15 s: nhận thêm 50% ST và bị chậm.
-  function launchOrb(u, s) {
+  const ORB_TAN = 0.268;   // góc phóng ~15°: quả cầu bay cong thấp, gần như ngang
+  function orbParams(u) {
     const aim = u.aim, A = aimVector(u, aim), z0 = 1.5 + (u.alt || 0);
     const d = Math.max(3, (A.xp === undefined ? 40 : A.xp) - 1.3), ht = A.hp === undefined ? 0 : A.hp;
-    const vh = Math.min(70, Math.sqrt(25 * d * d / Math.max(4, 2 * (z0 + d - ht)))), c = Math.cos(aim), sn = Math.sin(aim);
-    game.bullets.push({ x: u.x + c * 1.3, y: u.y + sn * 1.3, z: z0, vx: c * vh, vy: sn * vh, vz: vh, grav: 25, life: 8, team: u.team, dmg: 0, rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: s.color, orb: true, orbS: s });
+    const vh = Math.min(90, Math.sqrt(25 * d * d / Math.max(2, 2 * (z0 + d * ORB_TAN - ht))));
+    return { aim, z0, d, vh, vz: vh * ORB_TAN, c: Math.cos(aim), sn: Math.sin(aim) };
+  }
+  function launchOrb(u, s) {
+    const P = orbParams(u);
+    game.bullets.push({ x: u.x + P.c * 1.3, y: u.y + P.sn * 1.3, z: P.z0, vx: P.c * P.vh, vy: P.sn * P.vh, vz: P.vz, grav: 25, life: 8, team: u.team, dmg: 0, rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: s.color, orb: true, orbS: s });
   }
   function applyOrb(e, s) {
     e.weakUntil = e.slowUntil = game.t + s.duration;
     splat(e.x, e.y, s.color);
   }
   function orbSplash(b) {
+    let n = 0;
     for (const e of game.units) {
       if (e.team === b.team || e.down !== 0 || (e.alt || 0) > 2.5 || (e.cloakLeft || 0) > 0 || e.guard > 0 || e.frontLeft > 0) continue;
-      if (Math.hypot(e.x - b.x, e.y - b.y) <= 2.5 + e.kind.radius) applyOrb(e, b.orbS);
+      if (Math.hypot(e.x - b.x, e.y - b.y) <= 2.5 + e.kind.radius) { applyOrb(e, b.orbS); n++; }
     }
+    return n;
   }
   function useSkill(u) {
     const s = u.kind.skill;
@@ -2550,7 +2566,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     game.bullets = game.bullets.filter((b) => {
       const n = Math.max(1, Math.ceil(Math.hypot(b.vx, b.vy) * dt / 0.5));
       for (let k = 0; k < n; k++) if (!stepBullet(b, dt / n)) {
-        if (b.orb && b.life > 0) orbSplash(b);
+        if (b.orb) {   // bắn trượt (không trúng ai) thì hồi chiêu chỉ còn 2 giây
+          const hit = b.orbHit || (b.life > 0 && orbSplash(b) > 0);
+          if (!hit && b.shooter) b.shooter.skillCd = Math.min(b.shooter.skillCd, b.orbS.missCd);
+        }
         if (b.ice && b.life > 0) explodeShell({ x: b.x, y: b.y, radius: 3, dmg: b.dmg, team: b.team, shooter: b.shooter, color: '#bfefff' });   // nổ băng lan 3 m
         return false;
       }
@@ -2585,7 +2604,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       for (const u of game.units) {
         if (u.team === b.team || u.down > 0 || (u.alt || 0) > 1.5 || b.z > 3.0 || (u.cloakLeft || 0) > 0) continue;
         if (Math.hypot(b.x - u.x, b.y - u.y) < u.kind.radius + 0.3) {
-          if (b.orb) { if (u.guard > 0 || u.frontLeft > 0) { splat(b.x, b.y, '#bfe9ff'); return false; } applyOrb(u, b.orbS); return false; }   // cục hiệu ứng Orion: không gây ST
+          if (b.orb) { if (u.guard > 0 || u.frontLeft > 0) { splat(b.x, b.y, '#bfe9ff'); return false; } applyOrb(u, b.orbS); b.orbHit = true; return false; }   // cục hiệu ứng Orion: không gây ST
           if (b.ice) return false;   // lựu đạn băng: nổ lan xử lý ở updateBullets
           if (u.guard > 0) { splat(b.x, b.y, '#bfe9ff'); return false; }
           if (u.frontLeft > 0) { splat(b.x, b.y, '#9fd4ff'); return false; }
@@ -2743,12 +2762,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       pm.disc.material.opacity = p.owner ? 0.55 : 0.35;
     });
   }
+  let orbRingGeo = null;
   function syncDynamic() {
     while (dyn.children.length) dyn.remove(dyn.children[dyn.children.length - 1]);
     for (const b of game.bullets) {
       if (b.invisible) continue;   // đạn vô hình (súng săn)
       const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(b.color || TEAM_COLOR[b.team]));
-      m.position.set(b.x, 1.5, b.y);
+      m.position.set(b.x, b.z ?? 1.5, b.y);
       dyn.add(m);
       if (b.tracer) {   // vệt sáng của Longarm: đạn bay rất nhanh nên hiện thành một đường
         const dir = Math.atan2(b.vy, b.vx);
@@ -2783,6 +2803,22 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       tr.position.set(m.x - Math.cos(dir) * 1.0, m.z, m.y - Math.sin(dir) * 1.0);
       tr.rotation.y = -dir;
       dyn.add(tr);
+    }
+    // Orion: hiện đường bay cong và vòng điểm rơi khi kỹ năng sẵn sàng
+    const opl = game.player;
+    if (opl && opl.down === 0 && opl.kind.skill && opl.kind.skill.type === 'orb' && opl.skillCd <= 0) {
+      const P = orbParams(opl);
+      let x = opl.x + P.c * 1.3, y = opl.y + P.sn * 1.3, z = P.z0, vz = P.vz;
+      const dtp = 0.06;
+      for (let i = 0; i < 40; i++) {
+        x += P.c * P.vh * dtp; y += P.sn * P.vh * dtp; z += vz * dtp; vz -= 25 * dtp;
+        if (z <= 0.05) { z = 0.05; break; }
+        const dot = new THREE.Mesh(splatGeo, mat('#ff9bf0', { basic: true, opacity: 0.8 }));
+        dot.position.set(x, z, y); dot.scale.setScalar(0.7); dyn.add(dot);
+      }
+      if (!orbRingGeo) orbRingGeo = new THREE.RingGeometry(2.2, 2.5, 32);
+      const ring = new THREE.Mesh(orbRingGeo, mat('#ff9bf0', { basic: true, opacity: 0.85 }));
+      ring.rotation.x = -Math.PI / 2; ring.position.set(x, 0.08, y); dyn.add(ring);
     }
     for (const w of game.walls) for (const o of w.boxes) {
       const m = new THREE.Mesh(unitBoxGeo, mat('#c77d2e'));
