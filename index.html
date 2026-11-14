@@ -445,7 +445,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const computeTier = () => { let t = 1; while (t < TIER_MAX && starsOfTier(t) >= TIER_STARS[t - 1]) t++; return t; };
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
-  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2, redeemer: 2, orion: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
+  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2, redeemer: 2, orion: 2, hemlock: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
   const NL_BY_STAR = {   // NL của mech theo số sao: Lancer +2/sao, Paragon +4/sao, Rampart và M.D theo bảng riêng
     kind1: () => 16,
     mech2: () => 32,
@@ -455,7 +455,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech6: () => 32,
     mech7: () => 24,
     ares: () => 24,
-    shadow: () => 24, stalker: () => 24, arachnos: () => 24, redeemer: () => 24, orion: () => 24,
+    shadow: () => 24, stalker: () => 24, arachnos: () => 24, redeemer: () => 24, orion: () => 24, hemlock: () => 24,
   };
   const MAX_UPGRADE = 5, UPGRADE_BASE = 200, UPGRADE_STEP = 100;  // nâng cấp tối đa 5 cấp, cấp đầu 200 xu, mỗi cấp sau đắt hơn 100 xu
   const JET_CHARGES = 2, JET_CHARGE_SEC = 2, JET_UP_V = 20.5, JET_GRAV = 14;  // 2 lần nhảy phản lực (mỗi lần cao khoảng 15 m), hồi sau 2 giây
@@ -476,7 +476,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     },
     mech2: {
       name: 'Paragon · Tấn công', price: 500, color: '#3fa34d', rarity: 'common', hp: 13500, hpMax: 85400, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'paragon',
-      skill: { name: 'Boost 5 s', type: 'boost', duration: 5, mult: 1.3, cooldown: 10 },
+      skill: { name: 'Boost 5 s', type: 'boost', duration: 5, mult: 1.6, cooldown: 10 },
     },
     mech3: {
       name: 'Juggernaut · Giáp bọc thân', price: 600, color: '#3a86d6', rarity: 'uncommon', hp: 24100, hpMax: 152200, nl: 24, radius: 1.0, speed: 5, mech: true, rampart: true,
@@ -513,6 +513,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     arachnos: {
       name: 'Arachnos · Tháp nhện', price: 1500, color: '#8a5a3c', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
       skill: { name: 'Tháp minigun 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 190, fireCd: 0.1, range: 30, cooldown: 22 },
+    },
+    hemlock: {
+      name: 'Hemlock · Hỗ trợ', price: 1700, color: '#3f6b3a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'hemlock',
+      skill: { name: 'Keo trói 4 s', type: 'orb', root: true, duration: 4, cooldown: 12, missCd: 2, color: '#8cff3a' },
     },
     orion: {
       name: 'Orion · Đánh dấu', price: 1700, color: '#2b4a8a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'orion',
@@ -560,7 +564,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
     gun32: { name: 'Twin Slug 8 NL', nl: 8, price: 40000, color: '#8d6e63', desc: 'Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên 39148–65248 ST (gấp 4× Shotgun) · hồi đạn 1 s', dmg: 52198, cd: 0.4, barrels: 1, spread: 0, dmgMin: 39148, dmgMax: 65248, mag: 2, reload: 1, range: 35, invisible: true, twin: true },
     gun33: { name: 'Quantum Rifle 10 NL', nl: 10, price: 90000, color: '#7a5cff', desc: 'Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · 9 000 ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 6, rocket: false, range: 120, quantum: true },
-    gun34: { name: 'Minigun 14 NL', nl: 14, price: 300000, color: '#ffb02e', desc: 'Minigun huyền thoại · bắn hàng loạt viên đạn liên tục · 1 400 ST mỗi viên · 200 viên mỗi băng · hồi đạn 12 s', dmg: 1400, cd: 0.06, barrels: 1, spread: 0, mag: 200, reload: 12, rocket: false, range: 70, bulletColor: '#ffb02e', minigun: true },
+    gun34: { name: 'Minigun 14 NL', nl: 14, price: 300000, color: '#ffb02e', desc: 'Minigun huyền thoại · bắn hàng loạt viên đạn liên tục · 1 400 ST mỗi viên · 200 viên mỗi băng · hồi đạn 12 s', dmg: 1400, cd: 0.1, barrels: 1, spread: 0, mag: 200, reload: 12, rocket: false, range: 70, bulletColor: '#ffb02e', minigun: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -595,6 +599,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     stalker: { name: 'Stalker · Tăng ST', price: MECHS.stalker.price, type: 'mech', color: MECHS.stalker.color, tier: 4 },
     arachnos: { name: 'Arachnos · Tháp nhện', price: MECHS.arachnos.price, type: 'mech', color: MECHS.arachnos.color, tier: 4 },
     redeemer: { name: 'Redeemer · Hồi tố', price: MECHS.redeemer.price, type: 'mech', color: MECHS.redeemer.color, tier: 5 },
+    hemlock: { name: 'Hemlock · Hỗ trợ', price: MECHS.hemlock.price, type: 'mech', color: MECHS.hemlock.color, tier: 5 },
     orion: { name: 'Orion · Đánh dấu', price: MECHS.orion.price, type: 'mech', color: MECHS.orion.color, tier: 5 },
   };
 
@@ -1615,6 +1620,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         g.add(box(0.9, 0.35, 0.35, '#3b434d', -0.1, 2.45, 0.85));
         hot('#ff9bf0', 0.06, 0.2, 0.25, 0.38, 2.45, 0.85);
         g.add(box(0.15, 0.5, 0.9, '#c9d3dc', -0.7, 2.0, 0));
+      } else if (kind.look === 'hemlock') {
+        // Hemlock: thân xanh rêu, đầu sẫm có kính xanh lá, súng phóng keo trên vai và bình keo sau lưng
+        g.add(box(1.2, 1.4, 1.4, color, 0, 1.7, 0));
+        g.add(box(0.6, 0.6, 0.7, '#1d2a20', 0.1, 2.7, 0));
+        hot('#8cff3a', 0.06, 0.14, 0.5, 0.42, 2.72, 0);
+        g.add(box(0.9, 0.35, 0.35, '#3b434d', -0.1, 2.45, 0.85));
+        hot('#8cff3a', 0.06, 0.2, 0.25, 0.38, 2.45, 0.85);
+        for (const sz of [-1, 1]) g.add(box(0.4, 0.9, 0.4, '#6fd12e', -0.75, 1.9, sz * 0.35));
       } else if (kind.look === 'redeemer') {
         // Redeemer: thân sáng viền vàng, đầu trắng mắt tím, vầng sáng trên đầu, hai cánh giáp sau lưng
         g.add(box(1.2, 1.4, 1.4, color, 0, 1.7, 0));
@@ -1847,6 +1860,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   const SPEED_MUL = 2;   // hệ số tốc độ chạy của mọi mech (người chơi và bot)
   function moveUnit(u, dx, dy, dt) {
+    if ((u.rootUntil || 0) > game.t) return;
     if (dx && dy) { dx *= Math.SQRT1_2; dy *= Math.SQRT1_2; }
     const rad = u.kind.radius;
     const mult = u.boostLeft > 0 ? u.kind.skill.mult : 1;
@@ -1871,10 +1885,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // ---------- Bắn ----------
   // Hướng bắn: đạn bay thẳng tới điểm nằm đúng giữa tâm ngắm (điểm tia giữa camera chạm tới),
   // để đạn đi qua đúng chỗ tâm hiển thị thay vì song song bên dưới tâm
+  const CAM_H = 7.8;   // camera luôn cao hơn đầu mech (đầu ~3.5 m), nhìn chếch xuống
   function aimVector(u, aim) {
     if (!u.isP) return { h: 1, v: 0 };   // bot bắn ngang như cũ
     const P = u.pitch || 0, lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3);   // dive: camera cúi xuống khi bay cao
-    const camH = 6.2 + lift, Ly = 4.6 + lift - dive + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
+    const camH = CAM_H + lift, Ly = 4.6 + lift - dive + Math.sin(P) * 10, H = 5 + 12 * Math.cos(P);   // khớp với updateCamera
     const rayH = (x) => camH + (Ly - camH) * (5 + x) / H;   // độ cao tia tâm tại x m phía trước mech
     let xp = 45;
     if (Ly < camH) { const xg = camH * H / (camH - Ly) - 5; if (xg < 45) xp = Math.max(1.8, xg); }
@@ -2130,7 +2145,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const n = Math.min(W.barrels, u.ammo[key]);
     if (n <= 0) return false;
     for (let i = 0; i < n; i++) fire(u, aim + (i - (W.barrels - 1) / 2) * W.spread, u.dmg[key], W.cd, W.rocket, W.fire, W.speedMul, W.range, W.invisible, W.tracer);
-    if (W.bulletColor) game.bullets.slice(-n).forEach((bl) => { bl.color = W.bulletColor; });   // đạn có màu riêng (Pulse Cannon: xanh dương)
+    if (W.bulletColor) game.bullets.slice(-n).forEach((bl) => { bl.color = W.bulletColor; if (W.minigun) bl.sz = 0.4; });   // đạn có màu riêng (Pulse Cannon: xanh dương)
     u.ammo[key] -= n;
     return true;
   }
@@ -2201,7 +2216,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     game.bullets.push({ x: u.x + P.c * 1.3, y: u.y + P.sn * 1.3, z: P.z0, vx: P.c * P.vh, vy: P.sn * P.vh, vz: P.vz, grav: 25, life: 8, team: u.team, dmg: 0, rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: s.color, orb: true, orbS: s });
   }
   function applyOrb(e, s) {
-    e.weakUntil = e.slowUntil = game.t + s.duration;
+    if (s.root) { e.rootUntil = game.t + s.duration; e.dash = null; }   // Hemlock: keo dính, đứng yên (vẫn bắn được)
+    else e.weakUntil = e.slowUntil = game.t + s.duration;
     splat(e.x, e.y, s.color);
   }
   function orbSplash(b) {
@@ -2231,6 +2247,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     if (s.type === 'orb') { launchOrb(u, s); u.skillCd = s.cooldown; return; }
     if (s.type === 'turret') { deployTurret(u, s); u.skillCd = s.cooldown; return; }
+    if ((u.rootUntil || 0) > game.t) return;
     u.body = u.aim;   // thân giữ hướng lúc bấm Space; đầu (ngắm) vẫn quay để bắn
     u.dash = { ax: Math.cos(u.body), ay: Math.sin(u.body), left: s.dist };   // bắt đầu lướt, di chuyển dần theo tốc độ; hồi chiêu tính sau khi lướt xong
   }
@@ -2420,7 +2437,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     game.units[idx] = nu;
   }
   function respawn(u) {
-    u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null; u.rw = null; u.hist = []; u.qFireUntil = 0; u.qIceUntil = 0; u.qCount = 0; u.weakUntil = 0; u.slowUntil = 0;
+    u.down = 0; u.x = u.sp.x; u.y = u.sp.y; u.hp = u.maxHp; u.guard = GUARD_TIME; u.dash = null; u.rw = null; u.hist = []; u.qFireUntil = 0; u.qIceUntil = 0; u.qCount = 0; u.weakUntil = 0; u.slowUntil = 0; u.rootUntil = 0;
     u.alt = 0; u.vz = 0; u.jetFuel = JET_CHARGES; u.frontLeft = 0; u.boostLeft = 0; u.auraLeft = 0; u.aresLeft = 0; u.aresHP = 0; u.cloakLeft = 0; u.rageLeft = 0;
     u.ammo = {}; u.reloadT = {}; u.wIdx = 0; u.burning = false; u.burnUntil = 0; u.fireLast = -99;
     for (const k of u.loadout) u.ammo[k] = WEAPONS[u.widOf[k]].mag;
@@ -2636,6 +2653,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (u.burning && u.down === 0 && game.t < u.burnUntil && Math.random() < 0.4) {
         game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.5, y: u.y + (Math.random() - 0.5) * 1.5, vx: 0, vy: 1.5, life: 0.4, color: '#ff7a1a' });
       }
+      if ((u.rootUntil || 0) > game.t && u.down === 0 && Math.random() < 0.5) game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.4, y: u.y + (Math.random() - 0.5) * 1.4, z: 0.3 + Math.random() * 2, vx: 0, vy: 0, life: 0.4, color: '#8cff3a' });
       if ((u.weakUntil || 0) > game.t && u.down === 0 && Math.random() < 0.4) game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.2, y: u.y + (Math.random() - 0.5) * 1.2, z: 1 + Math.random() * 1.5, vx: 0, vy: 0, life: 0.4, color: '#ff9bf0' });
       if ((u.qFireUntil || 0) > game.t && u.down === 0 && Math.random() < 0.5) game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.2, y: u.y + (Math.random() - 0.5) * 1.2, z: 1 + Math.random() * 1.5, vx: 0, vy: 0, life: 0.4, color: '#ff6a3a' });
       if ((u.qIceUntil || 0) > game.t && u.down === 0 && Math.random() < 0.5) game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.2, y: u.y + (Math.random() - 0.5) * 1.2, z: 0.5 + Math.random() * 1.5, vx: 0, vy: 0, life: 0.4, color: '#9fe8ff' });
@@ -2769,6 +2787,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (b.invisible) continue;   // đạn vô hình (súng săn)
       const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(b.color || TEAM_COLOR[b.team]));
       m.position.set(b.x, b.z ?? 1.5, b.y);
+      if (b.sz) m.scale.setScalar(b.sz);
       dyn.add(m);
       if (b.tracer) {   // vệt sáng của Longarm: đạn bay rất nhanh nên hiện thành một đường
         const dir = Math.atan2(b.vy, b.vx);
@@ -2778,6 +2797,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         tr.rotation.y = -dir;
         dyn.add(tr);
       }
+    }
+    for (const u of game.units) {   // keo Hemlock: cục keo xanh bao quanh mech bị trói
+      if (u.down !== 0 || !((u.rootUntil || 0) > game.t)) continue;
+      const gl = new THREE.Mesh(splatGeo, mat('#8cff3a', { basic: true, opacity: 0.5 }));
+      gl.scale.set(6, 8, 6); gl.position.set(u.x, 1.4, u.y); dyn.add(gl);
     }
     for (const u of game.units) {   // khiên Ares: tấm chữ nhật trước mặt, đi theo mech
       if (u.down !== 0 || !((u.aresLeft || 0) > 0)) continue;
@@ -2813,11 +2837,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       for (let i = 0; i < 40; i++) {
         x += P.c * P.vh * dtp; y += P.sn * P.vh * dtp; z += vz * dtp; vz -= 25 * dtp;
         if (z <= 0.05) { z = 0.05; break; }
-        const dot = new THREE.Mesh(splatGeo, mat('#ff9bf0', { basic: true, opacity: 0.8 }));
+        const dot = new THREE.Mesh(splatGeo, mat(opl.kind.skill.color, { basic: true, opacity: 0.8 }));
         dot.position.set(x, z, y); dot.scale.setScalar(0.7); dyn.add(dot);
       }
       if (!orbRingGeo) orbRingGeo = new THREE.RingGeometry(2.2, 2.5, 32);
-      const ring = new THREE.Mesh(orbRingGeo, mat('#ff9bf0', { basic: true, opacity: 0.85 }));
+      const ring = new THREE.Mesh(orbRingGeo, mat(opl.kind.skill.color, { basic: true, opacity: 0.85 }));
       ring.rotation.x = -Math.PI / 2; ring.position.set(x, 0.08, y); dyn.add(ring);
     }
     for (const w of game.walls) for (const o of w.boxes) {
@@ -2855,7 +2879,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function updateCamera(u) {
     const fx = Math.cos(u.aim), fz = Math.sin(u.aim);
     const cp = Math.cos(u.pitch), sp = Math.sin(u.pitch);
-    const lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3), back = 5.0, height = 6.2 + lift;   // góc nhìn gần hơn; bay cao thì cúi xuống
+    const lift = (u.alt || 0) * 0.35, dive = Math.min(5, (u.alt || 0) * 0.3), back = 5.0, height = CAM_H + lift;   // góc nhìn gần hơn; bay cao thì cúi xuống
     camera.position.set(u.x - fx * back, height, u.y - fz * back);
     camera.lookAt(u.x + fx * cp * 12, 4.6 + lift - dive + sp * 10, u.y + fz * cp * 12);
   }
