@@ -232,7 +232,7 @@
       </div>
       <div class="hg-bottom">
         <div class="hg-coins" id="hg-coins"></div>
-        <div class="hg-code"><input id="code-in" placeholder="Nhập code" autocomplete="off" maxlength="30"><button id="code-btn">Nhận</button><span id="code-msg"></span></div>
+        <div class="hg-code"><input id="code-in" placeholder="Nhập code" autocomplete="off" maxlength="30"><button id="code-btn">Nhận</button><span id="code-msg"></span><button id="chat-btn" hidden>💬 Chat</button></div>
         <button class="hg-battle" id="hg-battle">BẮT ĐẦU</button>
       </div>
       <div class="hg-mode" id="hg-mode" hidden>
@@ -561,7 +561,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun28: { name: 'Fragment Gun 10 NL', nl: 10, price: 63080, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 30585–50975 ST · 6 phát · hồi đạn 5 s', dmg: 40779, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 30585, dmgMax: 50975, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun29: { name: 'Fragment Gun 12 NL', nl: 12, price: 78930, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 36702–61170 ST · 6 phát · hồi đạn 5 s', dmg: 48934, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 36702, dmgMax: 61170, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
     gun30: { name: 'Fragment Gun 14 NL', nl: 14, price: 153850, color: '#b5651d', desc: 'Bộc phá · đạn vô hình giống Shotgun · tầm bắn 25 m · mỗi phát bắn 6 viên, mỗi viên 42819–71365 ST · 6 phát · hồi đạn 5 s', dmg: 57090, cd: 0.8, barrels: 1, spread: 0.08, pellets: 6, dmgMin: 42819, dmgMax: 71365, mag: 6, reload: 5, range: 25, invisible: true, breacher: true },
-    gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 3 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
+    gun31: { name: 'Frost Cannon 8 NL', nl: 8, price: 50000, color: '#7fdcff', desc: 'Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 5 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · 4 000 ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s', dmg: 4000, cd: 0.6, barrels: 1, spread: 0, mag: 9, reload: 5.5, rocket: false, range: 70, bulletColor: '#8fe9ff', frost: true },
     gun32: { name: 'Twin Slug 8 NL', nl: 8, price: 40000, color: '#8d6e63', desc: 'Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên 39148–65248 ST (gấp 4× Shotgun) · hồi đạn 1 s', dmg: 52198, cd: 0.4, barrels: 1, spread: 0, dmgMin: 39148, dmgMax: 65248, mag: 2, reload: 1, range: 35, invisible: true, twin: true },
     gun33: { name: 'Quantum Rifle 10 NL', nl: 10, price: 90000, color: '#7a5cff', desc: 'Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · 9 000 ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 6, rocket: false, range: 120, quantum: true },
     gun34: { name: 'Minigun 14 NL', nl: 14, price: 300000, color: '#ffb02e', desc: 'Minigun huyền thoại · bắn hàng loạt viên đạn liên tục · 1 400 ST mỗi viên · 200 viên mỗi băng · hồi đạn 12 s', dmg: 1400, cd: 0.1, barrels: 1, spread: 0, mag: 200, reload: 12, rocket: false, range: 70, bulletColor: '#ffb02e', minigun: true },
@@ -648,6 +648,12 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     const note = document.createElement('div'); note.className = 'muted';
     note.textContent = 'Chỉ áp dụng cho tài khoản chủ này. Sửa xong sẽ có hiệu lực từ trận tiếp theo.';
     root.appendChild(note);
+    const all = document.createElement('button'); all.textContent = 'Khôi phục tất cả'; all.style.cssText = 'margin-top:8px;font-weight:700';
+    all.onclick = () => {
+      if (!confirm('Khôi phục TOÀN BỘ thông số mech và súng về giá trị gốc?')) return;
+      wallet.tune = {}; applyTune(); saveWallet(); renderShop();
+    };
+    root.appendChild(all);
     const section = (title, prefix, ids, labelOf) => {
       const h = document.createElement('div'); h.style.cssText = 'font-weight:700;margin-top:10px'; h.textContent = title; root.appendChild(h);
       for (const id of ids) {
@@ -726,7 +732,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   wallet.slotsOpen = Math.min(5, Math.max(2, wallet.slotsOpen | 0));
   const HALL_COST = [0, 0, 2000, 10000, 40000];  // giá mở ô 3, 4, 5 (ô 1 và 2 miễn phí)
   const hallCost = (i) => HALL_COST[i];
-  const REDEEM_CODES = { welcome: 100000, yuki: 100000 };   // code nhập một lần mỗi tài khoản, nhận xu
+  const REDEEM_CODES = { welcome: 100000, yuki: 100000, theadmin: 0 };   // theadmin: không có xu, mở nút chat gửi tin cho chủ game
+  const hasChat = () => (wallet.codes || []).includes('theadmin');   // code nhập một lần mỗi tài khoản, nhận xu
   function redeemCode() {
     const c = $('code-in').value.trim().toLowerCase(), msg = $('code-msg');
     if (!REDEEM_CODES[c]) { msg.textContent = 'Code không đúng'; return; }
@@ -734,7 +741,34 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (wallet.codes.includes(c)) { msg.textContent = 'Bạn đã dùng code này rồi'; return; }
     wallet.codes.push(c); wallet.coins += REDEEM_CODES[c]; saveWallet();
     $('coins').textContent = wallet.coins; $('hg-coins').textContent = `${wallet.coins} xu`;
-    msg.textContent = `Nhận ${REDEEM_CODES[c]} xu!`; $('code-in').value = '';
+    msg.textContent = REDEEM_CODES[c] ? `Nhận ${REDEEM_CODES[c]} xu!` : 'Đã mở nút Chat!'; $('code-in').value = '';
+    updateChatBtn();
+  }
+  // Chat gửi tin cho chủ game: tin lưu trên Firestore (messages), chỉ chủ tài khoản đọc được tất cả
+  function updateChatBtn() { const b = document.getElementById('chat-btn'); if (b) b.hidden = !hasChat(); }
+  function openChat() {
+    let box = document.getElementById('chat-box');
+    if (box) { box.remove(); return; }
+    box = document.createElement('div'); box.id = 'chat-box';
+    box.style.cssText = 'position:fixed;right:12px;bottom:12px;width:min(340px,92vw);background:#fff;color:#222;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.4);padding:10px;z-index:9999;font-size:14px';
+    const head = document.createElement('div'); head.style.cssText = 'display:flex;align-items:center;margin-bottom:6px';
+    const t = document.createElement('b'); t.style.flex = '1'; t.textContent = 'Chat với admin';
+    const x = document.createElement('button'); x.textContent = '✕'; x.style.cssText = 'min-height:0;padding:2px 8px'; x.onclick = () => box.remove();
+    head.append(t, x);
+    const log = document.createElement('div'); log.style.cssText = 'height:170px;overflow:auto;border:1px solid #d5dfd2;border-radius:8px;padding:6px;margin-bottom:6px;background:#f6f9f4';
+    const inp = document.createElement('textarea'); inp.maxLength = 400; inp.rows = 2; inp.placeholder = 'Nhập tin nhắn...'; inp.style.cssText = 'width:100%;box-sizing:border-box;border-radius:8px;border:1px solid #bbb;padding:6px';
+    const send = document.createElement('button'); send.textContent = 'Gửi'; send.style.marginTop = '6px';
+    const add = (txt, when) => { const d = document.createElement('div'); d.style.cssText = 'margin:3px 0;padding:4px 8px;background:#dff0d8;border-radius:8px;word-break:break-word'; d.textContent = txt; d.title = new Date(when).toLocaleString('vi-VN'); log.appendChild(d); log.scrollTop = log.scrollHeight; };
+    send.onclick = async () => {
+      const txt = inp.value.trim(); if (!txt) return;
+      if (!window.adminApi || !window.adminApi.isSignedIn()) { alert('Cần đăng nhập Google để gửi tin.'); return; }
+      send.disabled = true;
+      try { await window.adminApi.sendMessage(txt, playerName); add(txt, Date.now()); inp.value = ''; }
+      catch (e) { alert('Không gửi được: ' + e.message); }
+      send.disabled = false;
+    };
+    box.append(head, log, inp, send); document.body.appendChild(box);
+    if (window.adminApi && window.adminApi.isSignedIn()) window.adminApi.myMessages().then((rows) => rows.forEach((r) => add(r.text, r.at))).catch(() => {});
   }
   function saveWallet() { try { localStorage.setItem(KEY, JSON.stringify(wallet)); } catch (_) {} if (window.cloudSave) window.cloudSave(wallet); }
   const $ = (id) => document.getElementById(id);
@@ -780,7 +814,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     if (!isOwnerNow() && (adminView === 'players' || adminView === 'admins')) adminView = 'items';
     if (isOwnerNow()) bar.append(btn('Danh sách người chơi', go('players')), btn('Danh sách người dùng admin', go('admins')));
     if (isAdminNow()) bar.append(btn('Tổng người chơi', go('total')));
-    if (isOwnerNow()) bar.append(btn('Chỉnh thông số', go('tune')));
+    if (isOwnerNow()) bar.append(btn('Chỉnh thông số', go('tune')), btn('Tin nhắn', go('msgs')));
     bar.append(btn('Vật phẩm', go('items')), btn('Đóng', () => { adminMenuOpen = false; renderShop(); }));
     wrap.appendChild(bar);
     const body = document.createElement('div'); body.style.marginTop = '8px';
@@ -815,6 +849,18 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         section('Đang online', online);
         section('Tất cả người đã tạo tài khoản', rows);
         section('Đã tạo nhưng offline', offline);
+      }).catch((e) => { list.textContent = 'Không tải được: ' + e.message; });
+    } else if (adminView === 'msgs') {
+      const list = document.createElement('div'); list.textContent = 'Đang tải...'; body.appendChild(list);
+      window.adminApi.listMessages().then((rows) => {
+        list.innerHTML = ''; list.appendChild(btn('Làm mới', go('msgs')));
+        if (!rows.length) { const e = document.createElement('div'); e.className = 'muted'; e.textContent = 'Chưa có tin nhắn.'; list.appendChild(e); }
+        rows.forEach((r) => {
+          const el = document.createElement('div'); el.style.cssText = 'margin:6px 0;padding:6px;border:1px solid #d5dfd2;border-radius:8px';
+          const h = document.createElement('div'); h.className = 'muted'; h.textContent = `${r.name || '(không tên)'} · ${r.email || r.uid} · ${new Date(r.at).toLocaleString('vi-VN')}`;
+          const m = document.createElement('div'); m.style.wordBreak = 'break-word'; m.textContent = r.text;
+          el.append(h, m); list.appendChild(el);
+        });
       }).catch((e) => { list.textContent = 'Không tải được: ' + e.message; });
     } else if (adminView === 'tune') {
       if (isOwnerNow()) body.appendChild(tuneEditor());
@@ -2587,7 +2633,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
           const hit = b.orbHit || (b.life > 0 && orbSplash(b) > 0);
           if (!hit && b.shooter) b.shooter.skillCd = Math.min(b.shooter.skillCd, b.orbS.missCd);
         }
-        if (b.ice && b.life > 0) explodeShell({ x: b.x, y: b.y, radius: 3, dmg: b.dmg, team: b.team, shooter: b.shooter, color: '#bfefff' });   // nổ băng lan 3 m
+        if (b.ice && b.life > 0) explodeShell({ x: b.x, y: b.y, radius: 5, dmg: b.dmg, team: b.team, shooter: b.shooter, color: '#bfefff' });   // nổ băng lan 5 m
         return false;
       }
       return true;
@@ -3304,6 +3350,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     $('tier-list').innerHTML = html;
   }
   $('code-btn').onclick = redeemCode;
+  $('chat-btn').onclick = openChat; updateChatBtn();
   $('code-in').onkeydown = (e) => { if (e.key === 'Enter') redeemCode(); e.stopPropagation(); };
   $('tier-btn').onclick = () => { $('tier-view').hidden = true; $('tier-modal').hidden = false; };
   $('tier-close').onclick = () => { $('tier-modal').hidden = true; };
@@ -3531,6 +3578,20 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     async countPlayers() {
       if (sessionStorage.getItem('is-admin') !== '1') throw new Error('Chỉ admin xem được tổng người chơi');
       const snap = await fbDb.collection('players').get(); return snap.size;
+    },
+    async sendMessage(text, name) {
+      const u = fbAuth.currentUser; if (!u) throw new Error('chưa đăng nhập');
+      await fbDb.collection('messages').add({ uid: u.uid, email: u.email || '', name: String(name || u.displayName || '').slice(0, 30), text: String(text).slice(0, 400), at: Date.now() });
+    },
+    async myMessages() {
+      const u = fbAuth.currentUser; if (!u) return [];
+      const snap = await fbDb.collection('messages').where('uid', '==', u.uid).get();
+      return snap.docs.map((d) => d.data()).sort((a, b) => a.at - b.at).slice(-30);
+    },
+    async listMessages() {
+      if (sessionStorage.getItem('is-owner') !== '1') throw new Error('Chỉ chủ tài khoản đọc được tin nhắn');
+      const snap = await fbDb.collection('messages').get();
+      return snap.docs.map((d) => d.data()).sort((a, b) => b.at - a.at).slice(0, 200);
     },
     async kick(uid) { await fbDb.collection('admins').doc(uid).delete(); },
   };
