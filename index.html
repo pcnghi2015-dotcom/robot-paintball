@@ -471,60 +471,60 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // Các mech người chơi có thể trang bị
   const MECHS = {
     kind1: {
-      name: 'Lancer · Đỏ, mảnh, nhanh', price: 200, color: '#e04848', rarity: 'common', hp: 13500, hpMax: 85400, nl: 16, radius: 0.7, speed: 12, slim: true, jet: true, look: 'lancer',
-      skill: { name: 'Tốc biến 20 m', type: 'dash', dist: 20, time: 0, cooldown: 4 },
+      name: 'Lancer · Red, slim, fast', price: 200, color: '#e04848', rarity: 'common', hp: 13500, hpMax: 85400, nl: 16, radius: 0.7, speed: 12, slim: true, jet: true, look: 'lancer',
+      skill: { name: 'Blink 20 m', type: 'dash', dist: 20, time: 0, cooldown: 4 },
     },
     mech2: {
-      name: 'Paragon · Tấn công', price: 500, color: '#3fa34d', rarity: 'common', hp: 13500, hpMax: 85400, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'paragon',
+      name: 'Paragon · Attack', price: 500, color: '#3fa34d', rarity: 'common', hp: 13500, hpMax: 85400, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'paragon',
       skill: { name: 'Boost 5 s', type: 'boost', duration: 5, mult: 1.6, cooldown: 10 },
     },
     mech3: {
-      name: 'Juggernaut · Giáp bọc thân', price: 600, color: '#3a86d6', rarity: 'uncommon', hp: 24100, hpMax: 152200, nl: 24, radius: 1.0, speed: 5, mech: true, rampart: true,
-      skill: { name: 'Khiên 6 s', type: 'shield', duration: 6, cooldown: 8 },
+      name: 'Juggernaut · Armored', price: 600, color: '#3a86d6', rarity: 'uncommon', hp: 24100, hpMax: 152200, nl: 24, radius: 1.0, speed: 5, mech: true, rampart: true,
+      skill: { name: 'Shield 6 s', type: 'shield', duration: 6, cooldown: 8 },
     },
     mech4: {
-      name: 'M.D · Hồi máu', price: 800, color: '#3c4550', rarity: 'uncommon', hp: 16100, hpMax: 101400, nl: 16, radius: 1.0, speed: 6, mech: true, aura: true, dome: true, hover: true, growth: 1.132,
-      skill: { name: 'Vùng hồi 8 s', type: 'aura', duration: 8, radius: 5, heal: 1879, cooldown: 12 },
+      name: 'M.D · Healer', price: 800, color: '#3c4550', rarity: 'uncommon', hp: 16100, hpMax: 101400, nl: 16, radius: 1.0, speed: 6, mech: true, aura: true, dome: true, hover: true, growth: 1.132,
+      skill: { name: 'Heal Zone 8 s', type: 'aura', duration: 8, radius: 5, heal: 1879, cooldown: 12 },
     },
     mech6: {
-      name: 'Puma · Khiên zích zắc', price: 1200, color: '#c77d2e', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'puma',
-      skill: { name: 'Khiên zích zắc 6 s', type: 'wall', dist: 3.5, width: 6, duration: 6, cooldown: 10 },
+      name: 'Puma · Zigzag Wall', price: 1200, color: '#c77d2e', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'puma',
+      skill: { name: 'Zigzag Wall 6 s', type: 'wall', dist: 3.5, width: 6, duration: 6, cooldown: 10 },
     },
     mech5: {
-      name: 'Slingshot · Lướt tới', price: 1000, color: '#4a7fb5', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 16, radius: 0.68, speed: 8, mech: true, wheels: true, scale: 0.7,
-      skill: { name: 'Lướt 25 m · Húc', type: 'dash', dist: 25, speed: 10, time: 0, cooldown: 6, ram: { min: 26098, max: 29361, mult: 1.5 } },
+      name: 'Slingshot · Dash', price: 1000, color: '#4a7fb5', rarity: 'uncommon', hp: 10700, hpMax: 67600, nl: 16, radius: 0.68, speed: 8, mech: true, wheels: true, scale: 0.7,
+      skill: { name: 'Dash 25 m · Ram', type: 'dash', dist: 25, speed: 10, time: 0, cooldown: 6, ram: { min: 26098, max: 29361, mult: 1.5 } },
     },
     mech7: {
       name: 'Guardian · System Crash', price: 800, color: '#2e7d6e', rarity: 'uncommon', hp: 24100, hpMax: 152200, nl: 24, radius: 1.0, speed: 5, mech: true, look: 'guardian',
       skill: { name: 'System Crash', type: 'crash', radius: 6, cooldown: 14 },
     },
     ares: {
-      name: 'Ares · Khiên đỡ đòn', price: 1000, color: '#5a7a45', rarity: 'uncommon', hp: 18000, hpMax: 115000, nl: 24, radius: 1.0, speed: 5, mech: true, look: 'ares',
-      skill: { name: 'Khiên đỡ đòn 8 s', type: 'pshield', duration: 8, hp: 30000, cooldown: 12 },
+      name: 'Ares · Guard Shield', price: 1000, color: '#5a7a45', rarity: 'uncommon', hp: 18000, hpMax: 115000, nl: 24, radius: 1.0, speed: 5, mech: true, look: 'ares',
+      skill: { name: 'Guard Shield 8 s', type: 'pshield', duration: 8, hp: 30000, cooldown: 12 },
     },
     shadow: {
-      name: 'Shadow · Tàng hình', price: 1200, color: '#2a2f3a', rarity: 'uncommon', hp: 13000, hpMax: 82000, nl: 24, radius: 0.9, speed: 8, mech: true, look: 'shadow',
-      skill: { name: 'Tàng hình 6 s', type: 'cloak', duration: 6, cooldown: 14 },
+      name: 'Shadow · Stealth', price: 1200, color: '#2a2f3a', rarity: 'uncommon', hp: 13000, hpMax: 82000, nl: 24, radius: 0.9, speed: 8, mech: true, look: 'shadow',
+      skill: { name: 'Cloak 6 s', type: 'cloak', duration: 6, cooldown: 14 },
     },
     stalker: {
-      name: 'Stalker · Tăng ST', price: 1400, color: '#5a1f1f', rarity: 'rare', hp: 14000, hpMax: 90000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'stalker',
-      skill: { name: 'Săn mồi 8 s', type: 'rage', duration: 8, cooldown: 14, dmgMul: 1.5, hurtMul: 1.25, healKill: 0.1 },
+      name: 'Stalker · Damage Boost', price: 1400, color: '#5a1f1f', rarity: 'rare', hp: 14000, hpMax: 90000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'stalker',
+      skill: { name: 'Hunt 8 s', type: 'rage', duration: 8, cooldown: 14, dmgMul: 1.5, hurtMul: 1.25, healKill: 0.1 },
     },
     arachnos: {
-      name: 'Arachnos · Tháp nhện', price: 1500, color: '#8a5a3c', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
-      skill: { name: 'Tháp minigun 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 190, fireCd: 0.1, range: 30, cooldown: 22 },
+      name: 'Arachnos · Spider Turret', price: 1500, color: '#8a5a3c', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
+      skill: { name: 'Minigun Turret 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 190, fireCd: 0.1, range: 30, cooldown: 22 },
     },
     hemlock: {
-      name: 'Hemlock · Hỗ trợ', price: 1700, color: '#3f6b3a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'hemlock',
-      skill: { name: 'Keo trói 4 s', type: 'orb', root: true, duration: 4, cooldown: 12, missCd: 2, color: '#8cff3a' },
+      name: 'Hemlock · Support', price: 1700, color: '#3f6b3a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'hemlock',
+      skill: { name: 'Glue Trap 4 s', type: 'orb', root: true, duration: 4, cooldown: 12, missCd: 2, color: '#8cff3a' },
     },
     orion: {
-      name: 'Orion · Đánh dấu', price: 1700, color: '#2b4a8a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'orion',
-      skill: { name: 'Đánh dấu 15 s', type: 'orb', duration: 15, weakMul: 1.5, slow: 0.6, cooldown: 12, missCd: 2, color: '#ff9bf0' },
+      name: 'Orion · Marker', price: 1700, color: '#2b4a8a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'orion',
+      skill: { name: 'Mark 15 s', type: 'orb', duration: 15, weakMul: 1.5, slow: 0.6, cooldown: 12, missCd: 2, color: '#ff9bf0' },
     },
     redeemer: {
-      name: 'Redeemer · Hồi tố', price: 1600, color: '#d9d2c8', rarity: 'epic', hp: 13000, hpMax: 85000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'redeemer',
-      skill: { name: 'Hồi tố 7 s', type: 'rewind', back: 7, travel: 1.5, cooldown: 20 },
+      name: 'Redeemer · Rewind', price: 1600, color: '#d9d2c8', rarity: 'epic', hp: 13000, hpMax: 85000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'redeemer',
+      skill: { name: 'Rewind 7 s', type: 'rewind', back: 7, travel: 1.5, cooldown: 20 },
     },
   };
   // Súng: trang bị tối đa MAX_WEAPONS khẩu cho cả biệt đội
@@ -565,10 +565,48 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun32: { name: 'Twin Slug 8 NL', nl: 8, price: 40000, color: '#8d6e63', desc: 'Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên 39148–65248 ST (gấp 4× Shotgun) · hồi đạn 1 s', dmg: 52198, cd: 0.4, barrels: 1, spread: 0, dmgMin: 39148, dmgMax: 65248, mag: 2, reload: 1, range: 35, invisible: true, twin: true },
     gun33: { name: 'Quantum Rifle 10 NL', nl: 10, price: 90000, color: '#7a5cff', desc: 'Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · 9 000 ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 6, rocket: false, range: 120, quantum: true },
     gun34: { name: 'Minigun 14 NL', nl: 14, price: 300000, color: '#ffb02e', desc: 'Minigun huyền thoại · bắn hàng loạt viên đạn liên tục · 1 400 ST mỗi viên · 200 viên mỗi băng · hồi đạn 12 s', dmg: 1400, cd: 0.1, barrels: 1, spread: 0, mag: 200, reload: 12, rocket: false, range: 70, bulletColor: '#ffb02e', minigun: true },
-    gun35: { name: 'Súng Ngược 8 NL', nl: 8, price: 70000, color: '#2ee6c8', desc: 'Súng ngược (bumerang) · bắn 1 viên đạn tầm 25 m: đâm trúng địch thì rút ngay về (gần càng bắn nhanh), 10–20% xuyên qua thân địch bay tới 25 m rồi quay về · lượt về/rút ra gây ST gấp 2 · 1 200 ST khi đâm · không cần nạp đạn, chỉ bắn lại khi đạn đã về tay · cả vòng đi–về tối đa 1 giây', dmg: 1200, cd: 0.02, barrels: 1, spread: 0, mag: Infinity, reload: 0, rocket: false, range: 25, bulletColor: '#2ee6c8', boomer: true },
+    gun35: { name: 'Boomerang Gun 8 NL', nl: 8, price: 70000, color: '#2ee6c8', desc: 'Súng ngược (bumerang) · bắn 1 viên đạn tầm 25 m: đâm trúng địch thì rút ngay về (gần càng bắn nhanh), 10–20% xuyên qua thân địch bay tới 25 m rồi quay về · lượt về/rút ra gây ST gấp 2 · 1 200 ST khi đâm · không cần nạp đạn, chỉ bắn lại khi đạn đã về tay · cả vòng đi–về tối đa 1 giây', dmg: 1200, cd: 0.02, barrels: 1, spread: 0, mag: Infinity, reload: 0, rocket: false, range: 25, bulletColor: '#2ee6c8', boomer: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
+
+  // Các bản NL khác nhau của Boomerang Gun, Frost Cannon, Twin Slug, Javelin Launcher, Quantum Rifle (sát thương và giá tăng theo NL)
+  const GEN_RARITY = {}, GEN_TIER = {};
+  (() => {
+    const fmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const FAM = [
+      { base: 'gun35', name: 'Boomerang Gun', nls: [6, 8, 10, 12, 16], tier: { 6: 4, 8: 5, 10: 6, 12: 7, 16: 8 }, rarity: 'legend',
+        desc: (w) => `Súng ngược (bumerang) · bắn 1 viên đạn tầm 25 m: đâm trúng địch thì rút ngay về (gần càng bắn nhanh), 10–20% xuyên qua thân địch bay tới 25 m rồi quay về · xuyên được khiên Ares và khiên trước (mech sau khiên chỉ nhận 30–50% ST) · lượt về/rút ra gây ST gấp 2 · ${fmt(w.dmg)} ST khi đâm · không cần nạp đạn, chỉ bắn lại khi đạn đã về tay · cả vòng đi–về tối đa 1 giây` },
+      { base: 'gun31', name: 'Frost Cannon', nls: [6, 8, 10, 12, 16], tier: { 6: 4, 8: 5, 10: 6, 12: 7, 16: 8 }, rarity: 'epic',
+        desc: (w) => `Pháo băng · mỗi lần bấm bắn liên tiếp 3 quả lựu đạn băng, bắn chếch lên 45° rồi bay cong rơi đúng vào điểm tâm ngắm, nổ lan 5 m khi chạm đất, mỗi quả để lại một vệt băng sau đường bay · ${fmt(w.dmg)} ST mỗi quả · 9 viên mỗi băng · hồi đạn 5.5 s` },
+      { base: 'gun32', name: 'Twin Slug', nls: [6, 8, 10, 12, 16], tier: { 6: 3, 8: 4, 10: 5, 12: 6, 16: 7 }, rarity: 'rare',
+        desc: (w) => `Đạn vô hình giống Fragment Gun · mỗi lần bấm bắn 2 viên liên tiếp · tầm bắn 35 m · mỗi viên ${fmt(w.dmgMin)}–${fmt(w.dmgMax)} ST · hồi đạn 1 s` },
+      { base: 'gun18', name: 'Javelin Launcher', nls: [4, 6, 8, 12, 16], tier: { 4: 2, 6: 3, 8: 4, 12: 5, 16: 6 }, rarity: 'rare', javelin: true,
+        desc: (w) => `Bệ phóng lao · ${w.javelin.count} tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · ${fmt(w.dmg)} ST mỗi tên · hồi đạn 10 s` },
+      { base: 'gun33', name: 'Quantum Rifle', nls: [6, 8, 10, 12, 16], tier: { 6: 4, 8: 4, 10: 5, 12: 6, 16: 7 }, rarity: 'epic',
+        desc: (w) => `Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · ${fmt(w.dmg)} ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s` },
+    ];
+    let next = 36;
+    for (const F of FAM) {
+      const B = WEAPONS[F.base];
+      GEN_RARITY[F.base] = F.rarity;
+      for (const nl of F.nls) {
+        let id = nl === B.nl ? F.base : null;
+        if (!id) {
+          id = 'gun' + (next++);
+          const f = nl / B.nl, w = JSON.parse(JSON.stringify(B));   // Infinity -> null: khôi phục bên dưới
+          if (B.mag === Infinity) w.mag = Infinity;
+          w.name = `${F.name} ${nl} NL`; w.nl = nl; w.price = Math.round(B.price * Math.pow(f, 1.5) / 10) * 10;
+          if (F.javelin) { w.javelin.count = nl; w.mag = nl; }
+          else { w.dmg = Math.round(B.dmg * f); if (B.dmgMin) { w.dmgMin = Math.round(B.dmgMin * f); w.dmgMax = Math.round(B.dmgMax * f); } }
+          w.desc = F.desc(w);
+          WEAPONS[id] = w;
+        }
+        GEN_RARITY[id] = F.rarity; GEN_TIER[id] = F.tier[nl];
+        WEAPONS[id].desc = F.desc(WEAPONS[id]);
+      }
+    }
+  })();
   // Nâng cấp súng: mỗi cấp nhân sát thương ×1.2; đủ 5 cấp được 1 sao, mỗi sao nhân sát thương ×1.3. Tối đa 7 sao.
   const MAX_STAR = 7;
   const wUp = (id) => {
@@ -579,7 +617,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const wDmg = (id) => { const u = wUp(id); return Math.round(WEAPONS[id].dmg * Math.pow(1.2, u.lv) * Math.pow(1.3, u.st)); };
   const wCost = (id) => { const u = wUp(id); return 200 + 100 * (u.st * 5 + u.lv); };
   // Robot của máy
-  const BOT_KIND = { name: 'Robot máy', color: '#3a86d6', hp: 13500, radius: 0.8, speed: 6, slim: false, skill: null };
+  const BOT_KIND = { name: 'Bot Mech', color: '#3a86d6', hp: 13500, radius: 0.8, speed: 6, slim: false, skill: null };
   const BOT_COLOR = BOT_KIND.color;
 
   // Vật cản, đơn vị mét. top = chiều cao (m). Robot bay cao hơn top thì vượt qua được.
@@ -589,19 +627,19 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
   // Cửa hàng: chỉ bán mech. Paragon (mech2) được tặng miễn phí khi vào. tier = bậc tối thiểu để mua.
   const SHOP = {
-    kind1: { name: 'Lancer · Đỏ, mảnh, nhanh (nhảy phản lực)', price: 200, type: 'mech', color: MECHS.kind1.color, tier: 1 },
-    mech3: { name: 'Juggernaut · Giáp bọc thân (khiên 6 s)', price: MECHS.mech3.price, type: 'mech', color: MECHS.mech3.color, tier: 2 },
-    mech4: { name: 'M.D · Hồi máu (vùng hồi 5 m)', price: MECHS.mech4.price, type: 'mech', color: MECHS.mech4.color, tier: 2 },
-    mech5: { name: 'Slingshot · Lướt tới 25 m', price: MECHS.mech5.price, type: 'mech', color: MECHS.mech5.color, tier: 2 },
-    mech6: { name: 'Puma · Khiên zích zắc', price: MECHS.mech6.price, type: 'mech', color: MECHS.mech6.color, tier: 2 },
+    kind1: { name: 'Lancer · Red, slim, fast (jet jump)', price: 200, type: 'mech', color: MECHS.kind1.color, tier: 1 },
+    mech3: { name: 'Juggernaut · Armored (6 s shield)', price: MECHS.mech3.price, type: 'mech', color: MECHS.mech3.color, tier: 2 },
+    mech4: { name: 'M.D · Healer (5 m heal zone)', price: MECHS.mech4.price, type: 'mech', color: MECHS.mech4.color, tier: 2 },
+    mech5: { name: 'Slingshot · Dash 25 m', price: MECHS.mech5.price, type: 'mech', color: MECHS.mech5.color, tier: 2 },
+    mech6: { name: 'Puma · Zigzag Wall', price: MECHS.mech6.price, type: 'mech', color: MECHS.mech6.color, tier: 2 },
     mech7: { name: 'Guardian · System Crash', price: MECHS.mech7.price, type: 'mech', color: MECHS.mech7.color, tier: 2 },
-    ares: { name: 'Ares · Khiên đỡ đòn', price: MECHS.ares.price, type: 'mech', color: MECHS.ares.color, tier: 2 },
-    shadow: { name: 'Shadow · Tàng hình', price: MECHS.shadow.price, type: 'mech', color: MECHS.shadow.color, tier: 2 },
-    stalker: { name: 'Stalker · Tăng ST', price: MECHS.stalker.price, type: 'mech', color: MECHS.stalker.color, tier: 4 },
-    arachnos: { name: 'Arachnos · Tháp nhện', price: MECHS.arachnos.price, type: 'mech', color: MECHS.arachnos.color, tier: 4 },
-    redeemer: { name: 'Redeemer · Hồi tố', price: MECHS.redeemer.price, type: 'mech', color: MECHS.redeemer.color, tier: 5 },
-    hemlock: { name: 'Hemlock · Hỗ trợ', price: MECHS.hemlock.price, type: 'mech', color: MECHS.hemlock.color, tier: 5 },
-    orion: { name: 'Orion · Đánh dấu', price: MECHS.orion.price, type: 'mech', color: MECHS.orion.color, tier: 5 },
+    ares: { name: 'Ares · Guard Shield', price: MECHS.ares.price, type: 'mech', color: MECHS.ares.color, tier: 2 },
+    shadow: { name: 'Shadow · Stealth', price: MECHS.shadow.price, type: 'mech', color: MECHS.shadow.color, tier: 2 },
+    stalker: { name: 'Stalker · Damage Boost', price: MECHS.stalker.price, type: 'mech', color: MECHS.stalker.color, tier: 4 },
+    arachnos: { name: 'Arachnos · Spider Turret', price: MECHS.arachnos.price, type: 'mech', color: MECHS.arachnos.color, tier: 4 },
+    redeemer: { name: 'Redeemer · Rewind', price: MECHS.redeemer.price, type: 'mech', color: MECHS.redeemer.color, tier: 5 },
+    hemlock: { name: 'Hemlock · Support', price: MECHS.hemlock.price, type: 'mech', color: MECHS.hemlock.color, tier: 5 },
+    orion: { name: 'Orion · Marker', price: MECHS.orion.price, type: 'mech', color: MECHS.orion.color, tier: 5 },
   };
 
   // ---------- Lưu trữ (bọc try/catch) ----------
@@ -954,7 +992,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic', gun34: 'legend', gun35: 'epic' };
+    const GUN_RARITY = { ...GEN_RARITY, gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic', gun34: 'legend', gun35: 'legend' };
     const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' || GUN_RARITY[id] === 'legend' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
@@ -1195,7 +1233,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const GAUSS_TIER = { 4: 2, 6: 3, 10: 4 };
   // Pulse theo NL: 4 NL bậc 2, 6 và 8 NL bậc 3
   const PULSE_TIER = { 4: 2, 6: 3, 8: 3 };
-  const weaponTier = (id) => (WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
+  const weaponTier = (id) => (GEN_TIER[id] !== undefined ? GEN_TIER[id] : WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
     : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].fusion || WEAPONS[id].frost || WEAPONS[id].quantum || WEAPONS[id].boomer ? 5
@@ -1302,49 +1340,49 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const TEAM_NAME = { A: 'Xanh', B: 'Đỏ' };
   const SPAWNS_A = [{ x: 24, y: 35 }, { x: 24, y: 15 }, { x: 24, y: 55 }, { x: 34, y: 25 }, { x: 34, y: 45 }];
   const SPAWNS_B = SPAWNS_A.map((p) => ({ x: FIELD_W - p.x, y: p.y }));
-  const MAP_NAMES = ['Cảng Hải', 'Thung Lũng Sắt', 'Khu Xưởng', 'Đồi Sương', 'Thành Cổ', 'Bãi Thép', 'Rừng Điện', 'Bến Than'];
+  const MAP_NAMES = ['Harbor', 'Iron Valley', 'Factory District', 'Misty Hills', 'Ancient Citadel', 'Steel Yard', 'Electric Forest', 'Coal Port'];
 
   // ---------- Bản đồ ngẫu nhiên ----------
   // Các bố cục map cố định. Máy chọn ngẫu nhiên một map, có thể lật trái-phải, và số điểm 3 hoặc 5 cũng ngẫu nhiên.
   const mkObst = (type, x, y, w, h) => ({ type, x, y, w, h, top: { wall: 2.6, crate: 1.2, pillar: 5, low: 1.6, house: 4.5 }[type] });
   const MAP_PRESETS = [
-    { name: 'Cảng Hải', obst: [
+    { name: 'Harbor', obst: [
       mkObst('wall', 100, 8, 4, 12), mkObst('wall', 100, 50, 4, 12), mkObst('wall', 180, 15, 4, 10), mkObst('wall', 180, 45, 4, 10),
       mkObst('crate', 128, 28, 3, 3), mkObst('crate', 128, 39, 3, 3), mkObst('crate', 212, 28, 3, 3),
       mkObst('low', 138, 62, 24, 1.6), mkObst('low', 138, 6, 24, 1.6), mkObst('pillar', 150, 20, 2.4, 2.4), mkObst('pillar', 150, 48, 2.4, 2.4),
     ] },
-    { name: 'Thung Lũng Sắt', obst: [
+    { name: 'Iron Valley', obst: [
       mkObst('wall', 75, 20, 3, 8), mkObst('wall', 75, 42, 3, 8), mkObst('wall', 222, 20, 3, 8), mkObst('wall', 222, 42, 3, 8),
       mkObst('pillar', 110, 12, 2.4, 2.4), mkObst('pillar', 110, 56, 2.4, 2.4), mkObst('pillar', 186, 12, 2.4, 2.4), mkObst('pillar', 186, 56, 2.4, 2.4),
       mkObst('low', 118, 26, 20, 1.6), mkObst('low', 118, 42, 20, 1.6),
     ] },
-    { name: 'Khu Xưởng', obst: [
+    { name: 'Factory District', obst: [
       mkObst('crate', 90, 12, 3, 3), mkObst('crate', 120, 12, 3, 3), mkObst('crate', 180, 12, 3, 3), mkObst('crate', 210, 12, 3, 3),
       mkObst('crate', 90, 55, 3, 3), mkObst('crate', 120, 55, 3, 3), mkObst('crate', 180, 55, 3, 3), mkObst('crate', 210, 55, 3, 3),
       mkObst('wall', 146, 4, 4, 10), mkObst('wall', 146, 56, 4, 10), mkObst('pillar', 150, 30, 2.4, 2.4),
     ] },
-    { name: 'Đồi Sương', obst: [
+    { name: 'Misty Hills', obst: [
       mkObst('wall', 110, 10, 5, 10), mkObst('wall', 110, 50, 5, 10), mkObst('wall', 185, 10, 5, 10), mkObst('wall', 185, 50, 5, 10),
       mkObst('pillar', 145, 15, 2.4, 2.4), mkObst('pillar', 145, 52, 2.4, 2.4),
       mkObst('low', 92, 34, 12, 1.6), mkObst('low', 196, 34, 12, 1.6),
       mkObst('crate', 60, 20, 3, 3), mkObst('crate', 60, 47, 3, 3), mkObst('crate', 232, 20, 3, 3), mkObst('crate', 232, 47, 3, 3),
     ] },
-    { name: 'Hầm Ngầm', obst: [
+    { name: 'Underground Tunnel', obst: [
       mkObst('wall', 96, 4, 3, 16), mkObst('wall', 96, 50, 3, 16), mkObst('wall', 200, 4, 3, 16), mkObst('wall', 200, 50, 3, 16),
       mkObst('low', 118, 30, 14, 1.6), mkObst('low', 168, 30, 14, 1.6),
       mkObst('pillar', 130, 12, 2.4, 2.4), mkObst('pillar', 130, 58, 2.4, 2.4), mkObst('pillar', 172, 12, 2.4, 2.4), mkObst('pillar', 172, 58, 2.4, 2.4),
     ] },
-    { name: 'Bãi Container', obst: [
+    { name: 'Container Yard', obst: [
       mkObst('crate', 110, 12, 3, 3), mkObst('crate', 130, 12, 3, 3), mkObst('crate', 110, 24, 3, 3), mkObst('crate', 130, 24, 3, 3),
       mkObst('crate', 170, 46, 3, 3), mkObst('crate', 190, 46, 3, 3), mkObst('crate', 170, 58, 3, 3), mkObst('crate', 190, 58, 3, 3),
       mkObst('wall', 150, 6, 4, 8), mkObst('wall', 150, 56, 4, 8), mkObst('low', 80, 34, 10, 1.6), mkObst('low', 210, 34, 10, 1.6),
     ] },
-    { name: 'Làng Mái Đỏ', obst: [
+    { name: 'Red Roof Village', obst: [
       mkObst('house', 80, 4, 10, 8), mkObst('house', 80, 58, 10, 8), mkObst('house', 200, 4, 10, 8), mkObst('house', 200, 58, 10, 8),
       mkObst('crate', 134, 26, 3, 3), mkObst('crate', 158, 40, 3, 3), mkObst('low', 130, 60, 16, 1.6), mkObst('low', 150, 8, 16, 1.6),
       mkObst('pillar', 146, 34, 2.4, 2.4),
     ] },
-    { name: 'Phố Cổ', obst: [
+    { name: 'Old Town', obst: [
       mkObst('house', 66, 4, 12, 9), mkObst('house', 66, 57, 12, 9), mkObst('house', 222, 4, 12, 9), mkObst('house', 222, 57, 12, 9),
       mkObst('house', 118, 22, 8, 6), mkObst('house', 118, 42, 8, 6), mkObst('house', 172, 22, 8, 6), mkObst('house', 172, 42, 8, 6),
       mkObst('wall', 146, 4, 4, 6), mkObst('wall', 146, 60, 4, 6),
@@ -1353,24 +1391,24 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   // Bản đồ riêng cho 5v5 Tử vong (không trùng với bản đồ chiếm cứ điểm, không có cứ điểm). Khai báo nửa trái, nửa phải được đối xứng tự động.
   const sym = (list) => list.concat(list.map((o) => ({ ...o, x: FIELD_W - o.x - o.w })));
   const ELIM_PRESETS = [
-    { name: 'Đấu Trường Thép', obst: sym([
+    { name: 'Steel Arena', obst: sym([
       mkObst('wall', 70, 10, 4, 14), mkObst('wall', 70, 46, 4, 14), mkObst('crate', 100, 30, 3, 3), mkObst('crate', 100, 37, 3, 3),
       mkObst('low', 120, 20, 14, 1.6), mkObst('low', 120, 48, 14, 1.6), mkObst('pillar', 138, 12, 2.4, 2.4), mkObst('pillar', 138, 56, 2.4, 2.4),
     ]).concat([mkObst('pillar', 148.8, 33.8, 2.4, 2.4)]) },
-    { name: 'Hẻm Lửa', obst: sym([
+    { name: 'Fire Alley', obst: sym([
       mkObst('wall', 80, 6, 4, 22), mkObst('wall', 80, 42, 4, 22), mkObst('wall', 110, 20, 4, 30),
       mkObst('low', 130, 10, 16, 1.6), mkObst('low', 130, 58, 16, 1.6), mkObst('crate', 60, 32, 3, 3),
     ]) },
-    { name: 'Mê Cung Container', obst: sym([
+    { name: 'Container Maze', obst: sym([
       mkObst('crate', 95, 12, 3, 3), mkObst('crate', 95, 28, 3, 3), mkObst('crate', 95, 44, 3, 3), mkObst('crate', 95, 58, 3, 3),
       mkObst('crate', 120, 20, 3, 3), mkObst('crate', 120, 36, 3, 3), mkObst('crate', 120, 52, 3, 3),
       mkObst('crate', 140, 10, 3, 3), mkObst('crate', 140, 56, 3, 3),
     ]) },
-    { name: 'Pháo Đài Cổ', obst: sym([
+    { name: 'Ancient Fortress', obst: sym([
       mkObst('house', 90, 26, 10, 8), mkObst('house', 115, 6, 8, 8), mkObst('house', 115, 56, 8, 8),
       mkObst('wall', 70, 15, 3, 10), mkObst('wall', 70, 45, 3, 10), mkObst('low', 130, 30, 12, 1.6),
     ]).concat([mkObst('pillar', 148.8, 33.8, 2.4, 2.4)]) },
-    { name: 'Sa Mạc Gió', obst: sym([
+    { name: 'Windy Desert', obst: sym([
       mkObst('pillar', 100, 20, 2.4, 2.4), mkObst('pillar', 100, 48, 2.4, 2.4), mkObst('pillar', 125, 34, 2.4, 2.4),
       mkObst('low', 70, 30, 10, 1.6), mkObst('crate', 85, 10, 3, 3), mkObst('crate', 85, 56, 3, 3),
       mkObst('wall', 135, 8, 3, 10), mkObst('wall', 135, 52, 3, 10),
@@ -2158,7 +2196,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (game.bullets.some((bb) => bb.boom && bb.shooter === u && bb.key === key)) return false;
       const dir = aimVector(u, aim), sp = BOOM_SPEED, c = Math.cos(aim) * dir.h, sn = Math.sin(aim) * dir.h;
       game.bullets.push({ x: u.x + c * 1.3, y: u.y + sn * 1.3, z: 1.5 + (u.alt || 0), vx: c * sp, vy: sn * sp, vz: dir.v * sp, life: 4, team: u.team, dmg: u.dmg[key] * outMult(u), rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: W.bulletColor, sz: 1.6,
-        boom: true, key, phase: 'out', trav: 0, maxR: W.range, sp, pierceP: 0.1 + Math.random() * 0.1, hitOut: new Set(), hitBack: new Set() });
+        boom: true, key, phase: 'out', trav: 0, maxR: W.range, sp, pierceP: 0.1 + Math.random() * 0.1, hitOut: new Set(), hitBack: new Set(), shOut: new Set(), shBack: new Set() });
       u.cd = W.cd;
       return true;
     }
@@ -2688,18 +2726,24 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       else if (blockedBullet(b.x, b.y, b.z)) { splat(b.x, b.y, '#ffffff'); turn(); }
     }
     const set = b.phase === 'out' ? b.hitOut : b.hitBack;
+    const shSet = b.phase === 'out' ? b.shOut : b.shBack;
     for (const u of game.units) {
-      if (u.team === b.team || u.down > 0 || (u.alt || 0) > 1.5 || b.z > 3.0 || (u.cloakLeft || 0) > 0 || set.has(u)) continue;
+      if (u.team === b.team || u.down > 0 || (u.cloakLeft || 0) > 0) continue;
+      // Khiên Ares: đạn xuyên qua được, khiên nhận đủ 100% ST (một lần mỗi lượt đi/về)
+      if ((u.aresLeft || 0) > 0 && b.z <= ARES_H && !shSet.has(u) && aresHitAt(u, b.x, b.y)) { shSet.add(u); aresAbsorb(u, b.dmg * (b.phase === 'out' ? 1 : 2)); splat(b.x, b.y, '#9fd4ff'); }
+      if ((u.alt || 0) > 1.5 || b.z > 3.0 || set.has(u)) continue;
       if (Math.hypot(b.x - u.x, b.y - u.y) >= u.kind.radius + 0.4) continue;
       set.add(u);
-      if (u.guard > 0 || u.frontLeft > 0 || ((u.aresLeft || 0) > 0 && aresHitAt(u, b.x, b.y))) { splat(b.x, b.y, '#bfe9ff'); turn(); continue; }
+      if (u.guard > 0) { splat(b.x, b.y, '#bfe9ff'); turn(); continue; }   // bất tử lúc hồi sinh: vẫn chặn
+      // mech nấp sau khiên (Ares hoặc khiên trước của Rampart): chỉ nhận 30–50% ST
+      const k = ((u.aresLeft || 0) > 0 || u.frontLeft > 0) ? 0.3 + Math.random() * 0.2 : 1;
       if (b.phase === 'out') {
-        boomHurt(b, u, b.dmg);
+        boomHurt(b, u, b.dmg * k);
         if (Math.random() >= b.pierceP) {   // đâm vào người (80–90%): rút ra ngay, rút ra gây ST gấp 2
           b.phase = 'back'; b.hitBack.add(u);
-          if (u.down === 0) boomHurt(b, u, b.dmg * 2);
+          if (u.down === 0) boomHurt(b, u, b.dmg * 2 * k);
         }                                   // còn lại 10–20%: xuyên qua thân, bay tiếp tới tầm tối đa
-      } else boomHurt(b, u, b.dmg * 2);
+      } else boomHurt(b, u, b.dmg * 2 * k);
     }
     return true;
   }
