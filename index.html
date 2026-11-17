@@ -445,7 +445,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const computeTier = () => { let t = 1; while (t < TIER_MAX && starsOfTier(t) >= TIER_STARS[t - 1]) t++; return t; };
   const BULLET_DMG = 1631;                    // mỗi phát trúng trừ 1631 HP
   const MECH_MAX_STAR = 7;
-  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2, redeemer: 2, orion: 2, hemlock: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
+  const BASE_STARS = { kind1: 1, mech2: 1, mech3: 2, mech4: 2, mech5: 2, mech6: 2, mech7: 2, ares: 2, shadow: 2, stalker: 2, arachnos: 2, redeemer: 2, orion: 2, hemlock: 2, panther: 2 };   // Rampart và M.D khi mua đã có sẵn 2 sao
   const NL_BY_STAR = {   // NL của mech theo số sao: Lancer +2/sao, Paragon +4/sao, Rampart và M.D theo bảng riêng
     kind1: () => 16,
     mech2: () => 32,
@@ -455,7 +455,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     mech6: () => 32,
     mech7: () => 24,
     ares: () => 24,
-    shadow: () => 24, stalker: () => 24, arachnos: () => 24, redeemer: () => 24, orion: () => 24, hemlock: () => 24,
+    shadow: () => 24, stalker: () => 24, arachnos: () => 24, redeemer: () => 24, orion: () => 24, hemlock: () => 24, panther: () => 32,
   };
   const MAX_UPGRADE = 5, UPGRADE_BASE = 200, UPGRADE_STEP = 100;  // nâng cấp tối đa 5 cấp, cấp đầu 200 xu, mỗi cấp sau đắt hơn 100 xu
   const JET_CHARGES = 2, JET_CHARGE_SEC = 2, JET_UP_V = 20.5, JET_GRAV = 14;  // 2 lần nhảy phản lực (mỗi lần cao khoảng 15 m), hồi sau 2 giây
@@ -513,6 +513,10 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     arachnos: {
       name: 'Arachnos · Spider Turret', price: 1500, color: '#8a5a3c', rarity: 'rare', hp: 12000, hpMax: 80000, nl: 24, radius: 1.0, speed: 6, mech: true, look: 'arachnos',
       skill: { name: 'Minigun Turret 10 s', type: 'turret', dist: 3.5, duration: 10, hp: 8000, dmg: 190, fireCd: 0.1, range: 30, cooldown: 22 },
+    },
+    panther: {
+      name: 'Panther · Barrier', price: 1700, color: '#3a2a5a', rarity: 'epic', hp: 13000, hpMax: 85000, nl: 32, radius: 0.9, speed: 7, mech: true, look: 'panther',
+      skill: { name: 'Barrier 8 s', type: 'wall', dist: 4, width: 14, height: 5.5, zigMul: 0.4, duration: 8, cooldown: 12, slow: 0.6, slowT: 2, color: '#8a63d2' },
     },
     hemlock: {
       name: 'Hemlock · Support', price: 1700, color: '#3f6b3a', rarity: 'epic', hp: 13500, hpMax: 88000, nl: 24, radius: 0.9, speed: 7, mech: true, look: 'hemlock',
@@ -638,6 +642,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     stalker: { name: 'Stalker · Damage Boost', price: MECHS.stalker.price, type: 'mech', color: MECHS.stalker.color, tier: 4 },
     arachnos: { name: 'Arachnos · Spider Turret', price: MECHS.arachnos.price, type: 'mech', color: MECHS.arachnos.color, tier: 4 },
     redeemer: { name: 'Redeemer · Rewind', price: MECHS.redeemer.price, type: 'mech', color: MECHS.redeemer.color, tier: 5 },
+    panther: { name: 'Panther · Barrier', price: MECHS.panther.price, type: 'mech', color: MECHS.panther.color, tier: 5 },
     hemlock: { name: 'Hemlock · Support', price: MECHS.hemlock.price, type: 'mech', color: MECHS.hemlock.color, tier: 5 },
     orion: { name: 'Orion · Marker', price: MECHS.orion.price, type: 'mech', color: MECHS.orion.color, tier: 5 },
   };
@@ -1644,6 +1649,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         hot(neon, 0.05, 0.08, 0.5, 0.92, 1.9, 0);
         for (const z of [-0.3, 0, 0.3]) g.add(box(0.25, 0.35, 0.18, '#3a2a18', -0.2 + z * 1.5, 1.85, 0));
         g.add(box(0.9, 0.12, 0.12, '#3a2a18', -1.4, 1.5, 0));
+      } else if (kind.look === 'panther') {
+        // Panther: thân thấp dài tím sẫm như báo, đầu nhô ra trước, mắt tím, gai lưng và đuôi dài
+        g.add(box(2.0, 0.9, 1.3, color, 0, 1.25, 0));
+        g.add(box(1.1, 0.7, 0.95, '#241a3a', 0.6, 1.75, 0));
+        g.add(box(0.5, 0.25, 0.7, '#0f0c18', 1.05, 1.7, 0));
+        hot('#b48cff', 0.05, 0.08, 0.5, 0.97, 1.9, 0);
+        for (const z of [-0.3, 0, 0.3]) g.add(box(0.25, 0.45, 0.18, '#8a63d2', -0.2 + z * 1.5, 1.9, 0));
+        g.add(box(1.2, 0.12, 0.12, '#241a3a', -1.6, 1.5, 0));
       } else if (kind.look === 'guardian') {
         // Guardian: thân vuông có lõi phát sáng ở ngực và vòng hào quang trên đầu
         g.add(box(1.4, 1.5, 1.4, color, 0, 1.7, 0));
@@ -1740,22 +1753,25 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         hot(neon, 0.08, 0.14, 0.7, 0.5, 2.85, 0);
       }
     } else if (kind.look === 'lancer') {
-      // Lancer: mech nhỏ gọn, thân đỏ giáp dày, đầu sẫm có kính neon, chân có đùi giáp và bàn chân tối,
-      // hai ăng-ten cong ra sau như ảnh tham khảo
+      // Lancer (Scout Walker): mech "gà đi bộ" hai chân gập ngược, thân dẹt kiểu đầu tàu có mũi nhọn,
+      // hai tai bên đầu, hai ăng-ten dài chĩa ra sau; bàn chân ba ngón
       for (const sz of [-1, 1]) {
-        g.add(box(0.3, 0.95, 0.3, '#2b2b33', 0, 0.5, sz * 0.24));              // cẳng chân
-        g.add(box(0.36, 0.45, 0.36, color, -0.02, 1.12, sz * 0.24));            // đùi giáp màu đội
-        g.add(box(0.5, 0.14, 0.42, '#1d2630', 0.08, 0.07, sz * 0.24));          // bàn chân
+        const lz = sz * 0.5;
+        const foot = box(0.5, 0.12, 0.36, '#1d2630', 0.12, 0.07, lz); g.add(foot);                 // bàn chân
+        g.add(box(0.28, 0.08, 0.1, '#1d2630', 0.4, 0.05, lz + 0.14)); g.add(box(0.28, 0.08, 0.1, '#1d2630', 0.4, 0.05, lz - 0.14));   // hai ngón trước
+        const shin = box(0.2, 0.95, 0.26, '#2b2b33', -0.08, 0.62, lz); shin.rotation.z = 0.25; g.add(shin);   // cẳng chân ngả ra sau
+        g.add(box(0.36, 0.34, 0.34, color, 0.1, 1.1, lz));                                                    // giáp gối
+        const thigh = box(0.38, 0.8, 0.4, color, 0.12, 1.6, lz); thigh.rotation.z = -0.3; g.add(thigh);        // đùi chếch về trước
       }
-      g.add(box(0.7, 0.3, 1.0, '#2b2b33', 0, 1.0, 0));                           // hông
-      g.add(box(0.9, 1.0, 1.1, color, 0, 1.7, 0));                               // thân giáp
-      g.add(box(0.2, 0.6, 0.8, '#8f1d1d', 0.5, 1.7, 0));                         // ngực trước đậm màu hơn
-      g.add(box(0.7, 0.38, 0.62, '#1d2630', 0.02, 2.3, 0));                      // đầu sẫm
-      hot(neon, 0.05, 0.1, 0.5, 0.38, 2.32, 0);                                  // kính neon
-      for (const sz of [-1, 1]) g.add(box(0.5, 0.2, 0.6, '#1d2630', 0, 2.05, sz * 0.62));   // vai
-      for (const sz of [-1, 1]) {                                                 // hai ăng-ten cong ra sau
-        const h = box(0.06, 1.1, 0.06, '#c9d3dc', -0.25, 2.85, sz * 0.22);
-        h.rotation.z = 0.35; g.add(h);
+      g.add(box(0.5, 0.3, 0.9, '#2b2b33', 0, 2.0, 0));                           // hông mỏng
+      g.add(box(1.5, 0.62, 1.3, color, 0.05, 2.5, 0));                           // thân dẹt
+      g.add(box(1.0, 0.2, 1.0, '#1d2630', -0.05, 2.9, 0));                       // nắp buồng lái
+      const nose = box(0.55, 0.38, 0.8, '#1d2630', 0.8, 2.42, 0); nose.rotation.z = -0.25; g.add(nose);   // mũi nhọn chúc xuống
+      hot(neon, 0.05, 0.1, 0.6, 1.02, 2.46, 0);                                  // kính neon ở mũi
+      for (const sz of [-1, 1]) {
+        g.add(box(0.34, 0.55, 0.26, '#3a424c', -0.35, 2.55, sz * 0.8));          // tai bên đầu
+        const h = box(0.06, 1.2, 0.06, '#c9d3dc', -0.5, 3.25, sz * 0.4);         // ăng-ten dài
+        h.rotation.z = 0.3; g.add(h);
       }
     } else {
       const slim = !!kind.slim;
@@ -1771,9 +1787,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     }
     // Chi tiết cho ngầu: lõi phát sáng theo màu đội, dải neon, vai giáp, đèn ăng-ten
     const slimW = kind.slim ? 0.4 : 0.6;
-    const bodyY = kind.dome ? 1.9 : kind.rampart || kind.mech ? 1.7 : 1.45;
-    const halfX = kind.rampart ? 0.85 : kind.dome ? 0.9 : kind.mech ? (kind.wheels ? 0.74 : 0.6) : slimW;
-    const halfZ = kind.rampart ? 1.0 : kind.dome ? 0.9 : kind.mech ? 0.75 : (kind.slim ? 0.45 : 0.6);
+    const bodyY = kind.look === 'lancer' ? 2.5 : kind.dome ? 1.9 : kind.rampart || kind.mech ? 1.7 : 1.45;
+    const halfX = kind.look === 'lancer' ? 0.8 : kind.rampart ? 0.85 : kind.dome ? 0.9 : kind.mech ? (kind.wheels ? 0.74 : 0.6) : slimW;
+    const halfZ = kind.look === 'lancer' ? 0.68 : kind.rampart ? 1.0 : kind.dome ? 0.9 : kind.mech ? 0.75 : (kind.slim ? 0.45 : 0.6);
     hot(teamColor, 0.05, 0.3, 0.3, halfX + 0.02, bodyY, 0);                       // lõi ngực
     hot(neon, 0.04, 0.06, halfZ * 1.5, halfX + 0.02, bodyY + 0.42, 0);              // dải neon trên mặt trước
     hot(neon, 0.04, 0.5, 0.05, halfX + 0.02, bodyY - 0.1, halfZ - 0.12);            // gờ neon bên
@@ -1785,7 +1801,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       hot(teamColor, 0.72, 0.06, 0.72, 0, topY + 0.17, halfZ + 0.12);             // viền màu đội trên vai
       hot(teamColor, 0.72, 0.06, 0.72, 0, topY + 0.17, -(halfZ + 0.12));
     }
-    const headTop = kind.rampart ? 2.95 : kind.dome ? 2.55 : kind.mech ? 3.15 : kind.look === 'lancer' ? 2.35 : 3.3;
+    const headTop = kind.rampart ? 2.95 : kind.dome ? 2.55 : kind.mech ? 3.15 : kind.look === 'lancer' ? 3.0 : 3.3;
     g.add(box(0.05, 0.35, 0.05, '#2b2b33', -0.1, headTop + 0.15, 0));            // ăng-ten
     hot(neon, 0.12, 0.12, 0.12, -0.1, headTop + 0.36, 0);
     // Hai tay: cánh tay mỗi bên và điểm gắn súng ở cuối tay
@@ -2253,16 +2269,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   function spawnWall(u, s) {
     const fx = Math.cos(u.aim), fy = Math.sin(u.aim), px = -fy, py = fx;
     const cx = u.x + fx * s.dist, cy = u.y + fy * s.dist;
-    const N = 7, boxes = [];
+    const N = Math.max(7, Math.round(s.width) + 1), boxes = [], top = s.height || 3.0;
     for (let i = 0; i < N; i++) {
       const along = -s.width / 2 + (i * s.width) / (N - 1);
-      const zig = (i % 2 ? 1 : -1) * (0.5 + Math.random() * 1.2);
+      const zig = (i % 2 ? 1 : -1) * (0.5 + Math.random() * 1.2) * (s.zigMul ?? 1);
       const x = cx + px * along + fx * zig, y = cy + py * along + fy * zig;
       if (x < 1 || y < 1 || x > FIELD_W - 1 || y > FIELD_H - 1) continue;
-      const o = { x: x - 0.45, y: y - 0.45, w: 0.9, h: 0.9, top: 3.0, wall: true };
+      const o = { x: x - 0.45, y: y - 0.45, w: 0.9, h: 0.9, top, wall: true };
       OBST.push(o); boxes.push(o);
     }
-    game.walls.push({ boxes, until: game.t + s.duration });
+    game.walls.push({ boxes, until: game.t + s.duration, team: u.team, slow: s.slow, slowT: s.slowT || 1.5, color: s.color, top });
   }
   // System Crash (Guardian): địch trong vùng bị vô hiệu hóa vũ khí (súng nạp lại từ đầu, chùm tia bị khóa NL),
   // mất khiên, dừng lướt/tăng tốc/hồi máu, và kỹ năng phải đếm ngược lại từ đầu.
@@ -2792,6 +2808,16 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       game.dmgTexts = game.dmgTexts.filter((d) => d.t < DMG_TEXT_T);
     }
     game.timeLeft -= dt;
+    for (const w of game.walls) {   // khiên Panther: kẻ thù chạm vào khiên thì bị làm chậm
+      if (!w.slow) continue;
+      for (const e of game.units) {
+        if (e.team === w.team || e.down !== 0) continue;
+        for (const o of w.boxes) {
+          const cx = Math.max(o.x, Math.min(e.x, o.x + o.w)), cy = Math.max(o.y, Math.min(e.y, o.y + o.h));
+          if (Math.hypot(e.x - cx, e.y - cy) <= e.kind.radius + 0.5) { e.slowUntil = Math.max(e.slowUntil || 0, game.t + w.slowT); break; }
+        }
+      }
+    }
     for (const u of game.units) {
       if (u.burning && u.down === 0 && game.t < u.burnUntil && Math.random() < 0.4) {
         game.particles.push({ x: u.x + (Math.random() - 0.5) * 1.5, y: u.y + (Math.random() - 0.5) * 1.5, vx: 0, vy: 1.5, life: 0.4, color: '#ff7a1a' });
@@ -2994,9 +3020,9 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       ring.rotation.x = -Math.PI / 2; ring.position.set(x, 0.08, y); dyn.add(ring);
     }
     for (const w of game.walls) for (const o of w.boxes) {
-      const m = new THREE.Mesh(unitBoxGeo, mat('#c77d2e'));
-      m.scale.set(o.w, 3.0, o.h);
-      m.position.set(o.x + o.w / 2, 1.5, o.y + o.h / 2);
+      const m = new THREE.Mesh(unitBoxGeo, mat(w.color || '#c77d2e'));
+      m.scale.set(o.w, o.top || 3.0, o.h);
+      m.position.set(o.x + o.w / 2, (o.top || 3.0) / 2, o.y + o.h / 2);
       dyn.add(m);
     }
     for (const b of game.beams) {
