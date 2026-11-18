@@ -570,6 +570,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     gun33: { name: 'Quantum Rifle 10 NL', nl: 10, price: 90000, color: '#7a5cff', desc: 'Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · 9 000 ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s', dmg: 9000, cd: 1.0, barrels: 1, spread: 0, mag: 5, reload: 6, rocket: false, range: 120, quantum: true },
     gun34: { name: 'Minigun 14 NL', nl: 14, price: 300000, color: '#ffb02e', desc: 'Minigun huyền thoại · bắn hàng loạt viên đạn liên tục · 1 400 ST mỗi viên · 200 viên mỗi băng · hồi đạn 12 s', dmg: 1400, cd: 0.1, barrels: 1, spread: 0, mag: 200, reload: 12, rocket: false, range: 70, bulletColor: '#ffb02e', minigun: true },
     gun35: { name: 'Boomerang Gun 8 NL', nl: 8, price: 70000, color: '#2ee6c8', desc: 'Súng ngược (bumerang) · bắn 1 viên đạn tầm 25 m: đâm trúng địch thì rút ngay về (gần càng bắn nhanh), 10–20% xuyên qua thân địch bay tới 25 m rồi quay về · lượt về/rút ra gây ST gấp 2 · 1 200 ST khi đâm · không cần nạp đạn, chỉ bắn lại khi đạn đã về tay · cả vòng đi–về tối đa 1 giây', dmg: 1200, cd: 0.02, barrels: 1, spread: 0, mag: Infinity, reload: 0, rocket: false, range: 25, bulletColor: '#2ee6c8', boomer: true },
+    gun60: { name: 'Vortex Cannon 8 NL', nl: 8, price: 70000, color: '#c04cff', desc: '', dmg: 4000, cd: 0.5, barrels: 1, spread: 0, mag: 12, reload: 5, rocket: false, range: 70, speedMul: 0.75, bulletColor: '#c04cff', vortex: true },
     gun21: { name: 'Gauss Rifle 10 NL', nl: 10, price: 1300, color: '#3fe0ff', desc: 'Súng gauss · bắn một tia điện từ tức thì, trúng mục tiêu đầu tiên trên đường ngắm · 10 viên mỗi băng · 4 500 ST mỗi viên · hồi đạn 8 s', dmg: 4500, cd: 0.45, barrels: 1, spread: 0, mag: 10, reload: 8, rocket: false, range: 80, gauss: true },
     gun18: { name: 'Javelin Launcher 4 NL', nl: 4, price: 1180, color: '#4e6b3a', desc: 'Bệ phóng lao · 4 tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · 1 879 ST mỗi tên · hồi đạn 10 s', dmg: 1879, cd: 0.6, barrels: 1, spread: 0, mag: 4, reload: 10, rocket: false, javelin: { count: 4, climbT: 0.9, climbV: 24, speed: 40, turn: 4, life: 6 } },
   };
@@ -589,6 +590,8 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
         desc: (w) => `Bệ phóng lao · ${w.javelin.count} tên lửa mỗi lần bắn · tên bay thẳng lên trời rồi dí theo kẻ thù đã ngắm, nổ khi chạm mục tiêu · chỉ bắn khi có kẻ thù trong tầm ngắm · ${fmt(w.dmg)} ST mỗi tên · hồi đạn 10 s` },
       { base: 'gun33', name: 'Quantum Rifle', nls: [6, 8, 10, 12, 16], tier: { 6: 4, 8: 4, 10: 5, 12: 6, 16: 7 }, rarity: 'epic',
         desc: (w) => `Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · ${fmt(w.dmg)} ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s` },
+      { base: 'gun60', name: 'Vortex Cannon', nls: [6, 8, 12, 16], tier: { 6: 4, 8: 5, 12: 6, 16: 7 }, rarity: 'epic',
+        desc: (w) => `Pháo xoáy (vũ khí điều khiển) · mỗi lần bắn 2 viên đạn xoáy quay tròn quanh đường bay · mỗi viên ${fmt(w.dmg)} ST (gấp 3 lần nhờ tốc độ xoáy) · đạn tự bẻ lái theo điểm tâm ngắm của bạn khi đang bay, có vòng ngắm hiện ra ở điểm đó · 12 phát mỗi băng · hồi đạn 5 s` },
     ];
     let next = 36;
     for (const F of FAM) {
@@ -997,7 +1000,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     wh.textContent = 'Súng · gắn vào tay phải/trái ở thanh Trang bị (bấm vào mech trong sảnh)';
     if (shopKind === 'gun') box.appendChild(wh);
     // Thứ tự súng trong cửa hàng: nhóm năng lượng (Thermal Lance) lên đầu, rồi uncommon, common ở dưới; trong mỗi nhóm NL thấp đến cao
-    const GUN_RARITY = { ...GEN_RARITY, gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic', gun34: 'legend', gun35: 'legend' };
+    const GUN_RARITY = { ...GEN_RARITY, gun1: 'common', gun9: 'common', gun2: 'uncommon', gun8: 'uncommon', gun4: 'uncommon', gun7: 'uncommon', gun5: 'uncommon', gun6: 'uncommon', gun12: 'uncommon', gun13: 'uncommon', gun14: 'uncommon', gun15: 'rare', gun16: 'rare', gun17: 'rare', gun18: 'rare', gun19: 'rare', gun20: 'rare', gun21: 'rare', gun22: 'rare', gun23: 'rare', gun24: 'rare', gun25: 'epic', gun26: 'rare', gun27: 'rare', gun28: 'rare', gun29: 'rare', gun30: 'rare', gun31: 'epic', gun32: 'rare', gun33: 'epic', gun34: 'legend', gun35: 'legend', gun60: 'epic' };
     const gunGroup = (id, w) => (w.energy && !w.fusion ? 0 : GUN_RARITY[id] === 'epic' || GUN_RARITY[id] === 'legend' ? 0 : GUN_RARITY[id] === 'rare' ? 1 : GUN_RARITY[id] === 'uncommon' ? 2 : 3);
     const gunList = shopKind === 'gun' ? Object.entries(WEAPONS).sort((a, b) => gunGroup(a[0], a[1]) - gunGroup(b[0], b[1]) || a[1].nl - b[1].nl) : [];
     for (const [id, w] of gunList) {
@@ -1241,7 +1244,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   const weaponTier = (id) => (GEN_TIER[id] !== undefined ? GEN_TIER[id] : WEAPONS[id].mortar ? (MORTAR_TIER[WEAPONS[id].nl] || 3)
     : WEAPONS[id].gauss ? (GAUSS_TIER[WEAPONS[id].nl] || 2)
     : WEAPONS[id].pulse ? (PULSE_TIER[WEAPONS[id].nl] || 3)
-    : WEAPONS[id].fusion || WEAPONS[id].frost || WEAPONS[id].quantum || WEAPONS[id].boomer ? 5
+    : WEAPONS[id].fusion || WEAPONS[id].frost || WEAPONS[id].quantum || WEAPONS[id].boomer || WEAPONS[id].vortex ? 5
     : WEAPONS[id].minigun ? 6
     : WEAPONS[id].twin ? 4
     : WEAPONS[id].breacher ? (FRAG_TIER[WEAPONS[id].nl] || 3)
@@ -2231,6 +2234,18 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       u.cd = W.cd;
       return true;
     }
+    if (W.vortex) {   // Pháo xoáy: 2 viên đạn xoáy (lệch pha 180°), tự bẻ lái theo điểm tâm ngắm của người bắn
+      if (u.ammo[key] <= 0) return false;
+      for (let i = 0; i < 2; i++) {
+        fire(u, aim, u.dmg[key], W.cd, false, false, W.speedMul, W.range, false, false);
+        const bl = game.bullets[game.bullets.length - 1];
+        bl.color = W.bulletColor; bl.sz = 1.1; bl.guide = true; bl.spin0 = i * Math.PI; bl.age = 0;
+        bl.sp = Math.hypot(bl.vx, bl.vy, bl.vz);
+      }
+      u.ammo[key] -= 1;
+      u.cd = W.cd;
+      return true;
+    }
     if (W.boomer) {   // Súng Ngược: chỉ bắn khi viên đạn trước đã quay về tay
       if (game.bullets.some((bb) => bb.boom && bb.shooter === u && bb.key === key)) return false;
       const dir = aimVector(u, aim), sp = BOOM_SPEED, c = Math.cos(aim) * dir.h, sn = Math.sin(aim) * dir.h;
@@ -2788,6 +2803,20 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function stepBullet(b, dt) {
     if (b.boom) return stepBoom(b, dt);
+    if (b.guide) {   // đạn điều khiển: mỗi bước bẻ hướng dần về điểm tâm ngắm hiện tại của người bắn (chỉ người chơi)
+      b.age += dt;
+      const S = b.shooter;
+      if (S && S.isP && S.down === 0 && b.sp > 0) {
+        const A = aimVector(S, S.aim), d = A.xp === undefined ? 40 : A.xp, ht = A.hp === undefined ? 1.5 : A.hp;
+        const dx = S.x + Math.cos(S.aim) * d - b.x, dy = S.y + Math.sin(S.aim) * d - b.y, dz = ht - b.z, L = Math.hypot(dx, dy, dz);
+        if (L > 1) {
+          const k = Math.min(1, 3 * dt);
+          let nx = b.vx / b.sp + (dx / L - b.vx / b.sp) * k, ny = b.vy / b.sp + (dy / L - b.vy / b.sp) * k, nz = b.vz / b.sp + (dz / L - b.vz / b.sp) * k;
+          const nl = Math.hypot(nx, ny, nz) || 1;
+          b.vx = nx / nl * b.sp; b.vy = ny / nl * b.sp; b.vz = nz / nl * b.sp;
+        }
+      }
+    }
     if (b.grav) b.vz -= b.grav * dt;   // quả lựu đạn bay theo đường cong
     b.x += b.vx * dt; b.y += b.vy * dt; b.z += (b.vz || 0) * dt; b.life -= dt;
     if ((b.ice || b.orb) && Math.random() < 0.9) game.particles.push({ x: b.x, y: b.y, z: b.z, vx: 0, vy: 0, life: 0.8, color: b.orb ? b.color : '#9fe8ff' });   // vệt băng sau quả lựu đạn
@@ -2978,7 +3007,11 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     for (const b of game.bullets) {
       if (b.invisible) continue;   // đạn vô hình (súng săn)
       const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(b.color || TEAM_COLOR[b.team]));
-      m.position.set(b.x, b.z ?? 1.5, b.y);
+      if (b.guide) {   // hiển thị xoáy: lệch quanh đường bay theo vòng tròn (va chạm vẫn tính theo đường tâm)
+        const vl = Math.hypot(b.vx, b.vy) || 1, px = -b.vy / vl, py = b.vx / vl, dx = b.vx / b.sp, dy = b.vy / b.sp, dz = b.vz / b.sp;
+        const qx = -dz * py, qy = dz * px, qz = dx * py - dy * px, ph = b.spin0 + 20 * b.age, c = 0.55 * Math.cos(ph), sn = 0.55 * Math.sin(ph);
+        m.position.set(b.x + c * px + sn * qx, (b.z ?? 1.5) + sn * qz, b.y + c * py + sn * qy);
+      } else m.position.set(b.x, b.z ?? 1.5, b.y);
       if (b.sz) m.scale.setScalar(b.sz);
       dyn.add(m);
       if (b.boom && b.shooter) {   // dây nối từ người bắn tới viên đạn
@@ -3041,6 +3074,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (!orbRingGeo) orbRingGeo = new THREE.RingGeometry(2.2, 2.5, 32);
       const ring = new THREE.Mesh(orbRingGeo, mat(opl.kind.skill.color, { basic: true, opacity: 0.85 }));
       ring.rotation.x = -Math.PI / 2; ring.position.set(x, 0.08, y); dyn.add(ring);
+    }
+    // Pháo xoáy: vòng ngắm tại điểm đạn sẽ bay tới (đạn bẻ lái về đây)
+    if (opl && opl.down === 0 && ['L', 'R'].some((h) => opl.hands[h] && WEAPONS[opl.hands[h]].vortex)) {
+      const A = aimVector(opl, opl.aim), d = A.xp === undefined ? 40 : A.xp, ht = A.hp === undefined ? 0 : A.hp;
+      if (!orbRingGeo) orbRingGeo = new THREE.RingGeometry(2.2, 2.5, 32);
+      const vr = new THREE.Mesh(orbRingGeo, mat('#c04cff', { basic: true, opacity: 0.85 }));
+      vr.scale.setScalar(0.45); vr.rotation.x = -Math.PI / 2; vr.position.set(opl.x + Math.cos(opl.aim) * d, Math.max(0.08, ht + 0.08), opl.y + Math.sin(opl.aim) * d);
+      dyn.add(vr);
     }
     for (const w of game.walls) for (const o of w.boxes) {
       const m = new THREE.Mesh(unitBoxGeo, mat(w.color || '#c77d2e'));
