@@ -1822,6 +1822,14 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
     // Hai tay: cánh tay mỗi bên và điểm gắn súng ở cuối tay
     const handAnchors = {}, armMeshes = {};
     for (const [side, sz] of [['L', 1], ['R', -1]]) {
+      if (kind.look === 'lancer') {   // Lancer: súng gắn thẳng vào hai bên hông qua giá đỡ ngắn
+        const bracket = box(0.5, 0.2, 0.5, '#23282e', 0.3, 1.4, sz * 0.78);
+        g.add(bracket); armMeshes[side] = bracket;
+        const anchor = new THREE.Group();
+        anchor.position.set(0.45, 1.38, sz * 1.0);
+        g.add(anchor); handAnchors[side] = anchor;
+        continue;
+      }
       const zz = sz * (halfZ + 0.12);
       const armM = box(0.95, 0.24, 0.24, '#23282e', halfX * 0.55 + 0.4, bodyY - 0.12, zz);
       g.add(armM); armMeshes[side] = armM;
