@@ -591,7 +591,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       { base: 'gun33', name: 'Quantum Rifle', nls: [6, 8, 10, 12, 16], tier: { 6: 4, 8: 4, 10: 5, 12: 6, 16: 7 }, rarity: 'epic',
         desc: (w) => `Súng lượng tử (bắn tỉa) · bắn cùng lúc tia năng lượng xanh và đỏ · ${fmt(w.dmg)} ST mỗi phát · tầm 120 m · trúng 3–4 lần thì mục tiêu dính băng (giảm 40% tốc độ di chuyển) và lửa (nhận thêm 20% ST) trong 6 s · 5 viên mỗi băng · hồi đạn 6 s` },
       { base: 'gun60', name: 'Vortex Cannon', nls: [6, 8, 12, 16], tier: { 6: 4, 8: 5, 12: 6, 16: 7 }, rarity: 'epic',
-        desc: (w) => `Pháo xoáy (vũ khí điều khiển) · mỗi lần bắn 2 viên đạn xoáy quay tròn quanh đường bay · mỗi viên ${fmt(w.dmg)} ST (gấp 3 lần nhờ tốc độ xoáy) · đạn tự bẻ lái theo điểm tâm ngắm của bạn khi đang bay, có vòng ngắm hiện ra ở điểm đó · 12 phát mỗi băng · hồi đạn 5 s` },
+        desc: (w) => `Pháo xoáy (vũ khí điều khiển) · mỗi lần bắn 2 viên đạn xoáy: bắn vút lên cao rồi lao xuống đúng điểm tâm ngắm, quay tròn quanh đường bay · mỗi viên ${fmt(w.dmg)} ST (gấp 3 lần nhờ tốc độ xoáy) · trúng đất thì nổ nhỏ 3 m (60% ST) · có vòng ngắm hiện ra ở điểm rơi · 12 phát mỗi băng · hồi đạn 5 s` },
     ];
     let next = 36;
     for (const F of FAM) {
@@ -2234,13 +2234,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       u.cd = W.cd;
       return true;
     }
-    if (W.vortex) {   // Pháo xoáy: 2 viên đạn xoáy (lệch pha 180°), tự bẻ lái theo điểm tâm ngắm của người bắn
+    if (W.vortex) {   // Pháo xoáy: 2 viên đạn xoáy bắn vút lên cao rồi lao xuống đúng điểm tâm ngắm (đường cong)
       if (u.ammo[key] <= 0) return false;
+      const A = aimVector(u, aim), z0 = 1.5 + (u.alt || 0), TAN = 1.73;   // góc phóng ~60°
+      const d = Math.max(3, (A.xp === undefined ? 40 : A.xp) - 1.3), ht = A.hp === undefined ? 0 : A.hp;
+      const vh = Math.min(70, Math.sqrt(25 * d * d / Math.max(2, 2 * (z0 + d * TAN - ht)))), c = Math.cos(aim), sn = Math.sin(aim);
       for (let i = 0; i < 2; i++) {
-        fire(u, aim, u.dmg[key], W.cd, false, false, W.speedMul, W.range, false, false);
-        const bl = game.bullets[game.bullets.length - 1];
-        bl.color = W.bulletColor; bl.sz = 1.1; bl.guide = true; bl.spin0 = i * Math.PI; bl.age = 0;
-        bl.sp = Math.hypot(bl.vx, bl.vy, bl.vz);
+        game.bullets.push({ x: u.x + c * 1.3, y: u.y + sn * 1.3, z: z0, vx: c * vh, vy: sn * vh, vz: vh * TAN, grav: 25, life: 8, team: u.team, dmg: u.dmg[key] * outMult(u), rocket: false, burn: false, invisible: false, tracer: false, shooter: u, color: W.bulletColor, sz: 1.1, guide: true, vortex: true, spin0: i * Math.PI, age: 0 });
       }
       u.ammo[key] -= 1;
       u.cd = W.cd;
@@ -2734,6 +2734,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
           const hit = b.orbHit || (b.life > 0 && orbSplash(b) > 0);
           if (!hit && b.shooter) b.shooter.skillCd = Math.min(b.shooter.skillCd, b.orbS.missCd);
         }
+        if (b.vortex && b.life > 0 && b.z <= 0.2) explodeShell({ x: b.x, y: b.y, radius: 3, dmg: b.dmg * 0.6, team: b.team, shooter: b.shooter, color: '#d9a0ff' });   // chạm đất: nổ nhỏ 3 m (60% ST)
         if (b.ice && b.life > 0) explodeShell({ x: b.x, y: b.y, radius: 5, dmg: b.dmg, team: b.team, shooter: b.shooter, color: '#bfefff' });   // nổ băng lan 5 m
         return false;
       }
@@ -2803,20 +2804,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
   }
   function stepBullet(b, dt) {
     if (b.boom) return stepBoom(b, dt);
-    if (b.guide) {   // đạn điều khiển: mỗi bước bẻ hướng dần về điểm tâm ngắm hiện tại của người bắn (chỉ người chơi)
-      b.age += dt;
-      const S = b.shooter;
-      if (S && S.isP && S.down === 0 && b.sp > 0) {
-        const A = aimVector(S, S.aim), d = A.xp === undefined ? 40 : A.xp, ht = A.hp === undefined ? 1.5 : A.hp;
-        const dx = S.x + Math.cos(S.aim) * d - b.x, dy = S.y + Math.sin(S.aim) * d - b.y, dz = ht - b.z, L = Math.hypot(dx, dy, dz);
-        if (L > 1) {
-          const k = Math.min(1, 3 * dt);
-          let nx = b.vx / b.sp + (dx / L - b.vx / b.sp) * k, ny = b.vy / b.sp + (dy / L - b.vy / b.sp) * k, nz = b.vz / b.sp + (dz / L - b.vz / b.sp) * k;
-          const nl = Math.hypot(nx, ny, nz) || 1;
-          b.vx = nx / nl * b.sp; b.vy = ny / nl * b.sp; b.vz = nz / nl * b.sp;
-        }
-      }
-    }
+    if (b.guide) b.age += dt;   // thời gian bay: dùng cho hiệu ứng xoáy
     if (b.grav) b.vz -= b.grav * dt;   // quả lựu đạn bay theo đường cong
     b.x += b.vx * dt; b.y += b.vy * dt; b.z += (b.vz || 0) * dt; b.life -= dt;
     if ((b.ice || b.orb) && Math.random() < 0.9) game.particles.push({ x: b.x, y: b.y, z: b.z, vx: 0, vy: 0, life: 0.8, color: b.orb ? b.color : '#9fe8ff' });   // vệt băng sau quả lựu đạn
@@ -3008,7 +2996,7 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
       if (b.invisible) continue;   // đạn vô hình (súng săn)
       const m = b.rocket ? new THREE.Mesh(rocketGeo, mat('#ff5a1f')) : new THREE.Mesh(bulletGeo, mat(b.color || TEAM_COLOR[b.team]));
       if (b.guide) {   // hiển thị xoáy: lệch quanh đường bay theo vòng tròn (va chạm vẫn tính theo đường tâm)
-        const vl = Math.hypot(b.vx, b.vy) || 1, px = -b.vy / vl, py = b.vx / vl, dx = b.vx / b.sp, dy = b.vy / b.sp, dz = b.vz / b.sp;
+        const vl = Math.hypot(b.vx, b.vy) || 1, px = -b.vy / vl, py = b.vx / vl, bs = Math.hypot(b.vx, b.vy, b.vz) || 1, dx = b.vx / bs, dy = b.vy / bs, dz = b.vz / bs;
         const qx = -dz * py, qy = dz * px, qz = dx * py - dy * px, ph = b.spin0 + 20 * b.age, c = 0.55 * Math.cos(ph), sn = 0.55 * Math.sin(ph);
         m.position.set(b.x + c * px + sn * qx, (b.z ?? 1.5) + sn * qz, b.y + c * py + sn * qy);
       } else m.position.set(b.x, b.z ?? 1.5, b.y);
